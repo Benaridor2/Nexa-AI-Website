@@ -1,4 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import Lenis from 'lenis';
+import 'lenis/dist/lenis.css';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Arrow, BookingJourney, Comparison, Conversation, Label } from './Scenes';
@@ -36,16 +38,24 @@ export default function App() {
     media.addEventListener('change', change);
     return () => media.removeEventListener('change', change);
   }, []);
+  useEffect(() => {
+    if (flow) return;
+    const lenis = new Lenis({ lerp: .14, smoothWheel: true, syncTouch: false, wheelMultiplier: 1, anchors: true, prevent: node => Boolean(node.closest('dialog')) });
+    lenis.on('scroll', ScrollTrigger.update);
+    const tick = (seconds: number) => lenis.raf(seconds * 1000);
+    gsap.ticker.add(tick);
+    return () => { gsap.ticker.remove(tick); lenis.destroy(); };
+  }, [flow]);
   useLayoutEffect(() => {
     if (flow || !page.current) return;
     const context = gsap.context(() => {
       gsap.utils.toArray<HTMLElement>('[data-reveal]').forEach(el => {
-        gsap.fromTo(el, { y: 32, opacity: .4 }, { y: 0, opacity: 1, ease: 'none', scrollTrigger: { trigger: el, start: 'top 92%', end: 'top 65%', scrub: .35 } });
+        gsap.fromTo(el, { y: 32, opacity: .4 }, { y: 0, opacity: 1, ease: 'none', scrollTrigger: { trigger: el, start: 'top 92%', end: 'top 65%', scrub: true } });
       });
-      const hero = gsap.timeline({ scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: .35 } });
+      const hero = gsap.timeline({ scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
       hero.to('.hero-content', { y: -90, opacity: 0, scale: .93, ease: 'none' }, 0)
         .to('.hero-grid', { y: 130, scale: 1.2, ease: 'none' }, 0);
-      const connector = gsap.timeline({ scrollTrigger: { trigger: '.connector', start: 'top top', end: 'bottom bottom', scrub: .35 } });
+      const connector = gsap.timeline({ scrollTrigger: { trigger: '.connector', start: 'top top', end: 'bottom bottom', scrub: true } });
       connector.fromTo('.query-direct', { x: -90, rotateY: 22, opacity: .2 }, { x: 0, rotateY: 0, opacity: 1, duration: 1 }, 0)
         .fromTo('.query-agent', { x: -90, rotateY: 22, opacity: .2 }, { x: 0, rotateY: 0, opacity: 1, duration: 1 }, .2)
         .fromTo('.merge-lines path', { strokeDasharray: 400, strokeDashoffset: 400 }, { strokeDashoffset: 0, duration: 1 }, .45)
@@ -53,14 +63,14 @@ export default function App() {
         .fromTo('.destination-line', { scaleX: 0 }, { scaleX: 1, duration: .5 }, 1.5)
         .fromTo('.connector-destination', { y: 45, rotateY: -25, opacity: 0 }, { y: 0, rotateY: 0, opacity: 1, duration: .8 }, 1.7).to({}, { duration: 1.2 });
       gsap.utils.toArray<HTMLElement>('.economics-ledger>div').forEach((el,i) => {
-        gsap.fromTo(el, { x: 70, opacity: .15 }, { x: 0, opacity: 1, ease: 'none', scrollTrigger: { trigger: '.economics-ledger', start: `top ${85-i*12}%`, end: `top ${65-i*12}%`, scrub: .35 } });
+        gsap.fromTo(el, { x: 70, opacity: .15 }, { x: 0, opacity: 1, ease: 'none', scrollTrigger: { trigger: '.economics-ledger', start: `top ${85-i*12}%`, end: `top ${65-i*12}%`, scrub: true } });
       });
       gsap.utils.toArray<HTMLElement>('.architectural i').forEach((el,i) => {
-        gsap.fromTo(el, { y: 110+(i%4)*25, rotateX: -65, opacity: .1 }, { y: 0, rotateX: 0, opacity: 1, ease: 'none', scrollTrigger: { trigger: el.closest('.architectural'), start: 'top 90%', end: 'top 35%', scrub: .35 } });
+        gsap.fromTo(el, { y: 110+(i%4)*25, rotateX: -65, opacity: .1 }, { y: 0, rotateX: 0, opacity: 1, ease: 'none', scrollTrigger: { trigger: el.closest('.architectural'), start: 'top 90%', end: 'top 35%', scrub: true } });
       });
-      gsap.fromTo('.closing-aperture i:first-child', { xPercent: 0 }, { xPercent: -100, ease: 'none', scrollTrigger: { trigger: '.closing', start: 'top 95%', end: 'top 15%', scrub: .35 } });
-      gsap.fromTo('.closing-aperture i:last-child', { xPercent: 0 }, { xPercent: 100, ease: 'none', scrollTrigger: { trigger: '.closing', start: 'top 95%', end: 'top 15%', scrub: .35 } });
-      gsap.fromTo('.closing h2', { scale: .75, y: 60 }, { scale: 1, y: 0, ease: 'none', scrollTrigger: { trigger: '.closing', start: 'top 95%', end: 'top 15%', scrub: .35 } });
+      gsap.fromTo('.closing-aperture i:first-child', { xPercent: 0 }, { xPercent: -100, ease: 'none', scrollTrigger: { trigger: '.closing', start: 'top 95%', end: 'top 15%', scrub: true } });
+      gsap.fromTo('.closing-aperture i:last-child', { xPercent: 0 }, { xPercent: 100, ease: 'none', scrollTrigger: { trigger: '.closing', start: 'top 95%', end: 'top 15%', scrub: true } });
+      gsap.fromTo('.closing h2', { scale: .75, y: 60 }, { scale: 1, y: 0, ease: 'none', scrollTrigger: { trigger: '.closing', start: 'top 95%', end: 'top 15%', scrub: true } });
     }, page);
     return () => context.revert();
   }, [flow]);

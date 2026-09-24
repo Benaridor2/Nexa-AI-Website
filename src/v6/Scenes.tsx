@@ -25,7 +25,7 @@ const chatRenderer = (root: HTMLElement) => {
   const frame = q('.chat-window'), query = q('.query-morph'), welcome = q('.chat-welcome'), tools = q('.query-tools'), dock = q('.chat-dock'), search = q('.chat-search'), response = q('.chat-response');
   const chunks = [...root.querySelectorAll<HTMLElement>('.query-chunk')];
   const lines = [...root.querySelectorAll<HTMLElement>('.answer-beat')];
-  const photo = q('.answer-photo'), track=q('.conversation-track'), clarification=q('.chat-clarification'), reply=q('.chat-details');
+  const photo = q('.answer-photo'), clarification=q('.chat-clarification'), reply=q('.chat-details');
   const replyChunks=[...root.querySelectorAll<HTMLElement>('.reply-chunk')];
   const narrow = matchMedia('(max-width: 699px)');
   const stage = q('.scene-stage'), shutters = [...root.querySelectorAll<HTMLElement>('.portal-shutter')];
@@ -33,6 +33,7 @@ const chatRenderer = (root: HTMLElement) => {
   return (p: number) => {
     const open = phase(p, .025, .17), send = phase(p, .29, .36), focus = 0;
     styles(stage, { '--portal-open': open });
+    visible(frame, phase(p, .045, .13));
     shutters.forEach((el,i) => styles(el, { transform: `translateX(${(i ? 1 : -1)*open*110}%) rotateY(${(i ? 1 : -1)*open*35}deg)`, opacity: 1-phase(p,.11,.19) }));
     depth.forEach((el,i) => styles(el,{ transform: `perspective(1600px) translateZ(${(i+1)*-45}px) rotateX(${(1-open)*36}deg) rotateZ(${(i-1)*3*(1-open)}deg) scale(${.78+open*.22+i*.035})`, opacity: (1-open)*.5 }));
     styles(frame, { transform: `perspective(1600px) translateY(${(1-open)*-90-7*focus}px) rotateX(${(1-open)*48}deg) rotateY(${(1-open)*-12}deg) rotateZ(${(1-open)*-5}deg) scale(${.70+.30*open+.012*focus})` });
@@ -48,7 +49,6 @@ const chatRenderer = (root: HTMLElement) => {
     visible(reply,details);styles(reply,{transform:`translateY(${12*(1-details)}px)`});
     replyChunks.forEach((el,i)=>visible(el,phase(p,.53+i*.025,.56+i*.025),false));
     visible(search,between(p,.65,.67,.72,.745));
-    styles(track,{transform:`translateY(${-phase(p,.73,.81)*(narrow.matches?300:260)}px)`});
     visible(response,phase(p,.79,.815));
     lines.forEach((el,i)=>{const t=phase(p,.79+i*.012,.823+i*.012);visible(el,t);styles(el,{transform:`translateY(${12*(1-t)}px)`});});
     styles(photo,{'clip-path':`inset(${(1-phase(p,.825,.875))*100}% 0 0 0 round 10px)`});
@@ -95,13 +95,13 @@ const compareRenderer = (root: HTMLElement) => {
       styles(row, { transform: `translateX(${-14 * focus}px) rotateX(${-16*Math.sin(t*Math.PI)}deg) scale(${1 + .015 * focus})`, '--row-ready': t });
       const missing = row.querySelector<HTMLElement>('.row-missing');
       const ready = row.querySelector<HTMLElement>('.row-ready');
-      styles(missing, { 'clip-path': `inset(0 0 0 ${t * 100}%)` });
-      styles(ready, { 'clip-path': `inset(0 ${(1 - t) * 100}% 0 0)` });
+      styles(missing, { opacity: 1-phase(t,0,.42), transform: `translateY(${-6*phase(t,0,.42)}px)` });
+      styles(ready, { opacity: phase(t,.55,1), transform: `translateY(${6*(1-phase(t,.55,1))}px)` });
       missing?.setAttribute('aria-hidden', String(t > .5));
       ready?.setAttribute('aria-hidden', String(t <= .5));
     });
-    visible(old, 1 - phase(p, .79, .87));
-    styles(state, { 'clip-path': `inset(${100 * (1 - phase(p, .79, .87))}% 0 0 0)` });
+    visible(old, 1 - phase(p, .76, .81));
+    styles(state, { 'clip-path': `inset(${100 * (1 - phase(p, .76, .81))}% 0 0 0)` });
     state?.setAttribute('aria-hidden', String(p < .85));
   };
 };
@@ -139,18 +139,18 @@ const journeyRenderer = (root: HTMLElement) => {
     const m = narrow.matches;
     styles(q('.handoff-photo'), {
       left: `${m ? 6 - 6 * travel : 53 - 50 * travel}%`,
-      top: `${m ? 44 - 26 * travel : 31 - 5 * travel}%`,
+      top: `${m ? 48 - 30 * travel : 31 - 5 * travel}%`,
       width: `${m ? 88 + 12 * travel : 42 + 10 * travel}%`,
-      height: `${m ? 25 + travel : 39 + 12 * travel}%`,
+      height: `${m ? 21 + 5 * travel : 39 + 12 * travel}%`,
       'border-radius': `${10 * (1 - travel)}px`,
       transform: `perspective(1200px) rotateY(${-5 * (1-travel)}deg)`,
     });
     styles(q('.flow-facts'), { '--data-progress': phase(p, .06, .27) });
-    visible(q('.booking-before'), 1 - confirmation);
+    visible(q('.booking-before'), 1 - phase(p,.75,.78));
     visible(q('.booking-confirmed'), confirmation);
     visible(q('.pms-receipt'), received);
     styles(q('.pms-receipt'), { transform: `translateY(${20 * (1 - received)}px)` });
-    ['.journey-line-1', '.journey-line-2', '.journey-line-3'].forEach((s, i) => visible(q(s), i === 0 ? 1-phase(p,.31,.37) : i === 1 ? between(p,.32,.4,.81,.87) : phase(p,.82,.9)));
+    ['.journey-line-1', '.journey-line-2', '.journey-line-3'].forEach((s, i) => visible(q(s), i === 0 ? 1-phase(p,.30,.34) : i === 1 ? between(p,.36,.40,.81,.85) : phase(p,.87,.91)));
   };
 };
 

@@ -4,13 +4,13 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 export const clamp = (n: number) => Math.min(1, Math.max(0, n));
-export const phase = (p: number, a: number, b: number) => { const t = clamp((p - a) / (b - a)); return t * t * t * (t * (t * 6 - 15) + 10); };
+export const phase = (p: number, a: number, b: number) => { const t = clamp((p - a) / (b - a)); return t * t * (3 - 2 * t); };
 export const between = (p: number, a: number, b: number, c: number, d: number) => phase(p, a, b) * (1 - phase(p, c, d));
 
 type Renderer = (root: HTMLElement) => (progress: number) => void;
 
-// A local, paused timeline is sought directly by native scroll. No catch-up,
-// timers, wheel interception, or threshold-triggered playback owns its state.
+// Read the actual scroll position directly; Lenis provides one shared smoothing
+// layer for wheel input. Touch, keyboard, and reduced-motion keep native behavior.
 export function useScene(ref: RefObject<HTMLElement | null>, enabled: boolean, setup: Renderer) {
   useLayoutEffect(() => {
     const root = ref.current;
@@ -26,8 +26,8 @@ export function useScene(ref: RefObject<HTMLElement | null>, enabled: boolean, s
       },
     });
     const trigger = ScrollTrigger.create({
-      trigger: root, start: root.id === 'guest-story' ? 'top 82%' : 'top top', end: 'bottom bottom', animation: tl,
-      scrub: .35, invalidateOnRefresh: true,
+      trigger: root, start: root.id === 'guest-story' ? 'top 75%' : 'top top', end: 'bottom bottom', animation: tl,
+      scrub: true, invalidateOnRefresh: true,
       onRefresh: self => { tl.progress(self.progress); render(self.progress); },
     });
     render(trigger.progress);
