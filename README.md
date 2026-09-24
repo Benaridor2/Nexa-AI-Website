@@ -17,7 +17,7 @@ Open [V2](http://127.0.0.1:5173/), [V1](http://127.0.0.1:5173/v1), or the [force
 
 Source repository: [Benaridor2/Nexa-AI-Website](https://github.com/Benaridor2/Nexa-AI-Website). The authorized workflow is to build and verify each completed website version, then upload it to `main` while respecting current branch protection rules. When direct pushes are allowed, `git push origin HEAD:main` preserves the explicit destination even if the local branch has another name. Never force push.
 
-A GitHub upload publishes the website only when a corresponding Vercel integration and deployment rule are configured; that connection is not yet verified here. See [DEPLOYMENT.md](DEPLOYMENT.md) for the release workflow and optional manual ZIP fallback.
+The GitHub integration is confirmed: `main` feeds production deployments in Vercel project `nexa-ai`. The primary live URL is [nexa-ai-delta-three.vercel.app](https://nexa-ai-delta-three.vercel.app). Verify the exact commit's deployment status and hosted behavior after every completed version; a push alone is not proof of a successful release. See [DEPLOYMENT.md](DEPLOYMENT.md) for the confirmed deployment record, release workflow, and optional manual ZIP fallback.
 
 ## Product and interaction
 

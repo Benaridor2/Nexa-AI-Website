@@ -12,7 +12,13 @@ The user has authorized uploading each completed website version to this reposit
 4. Push through the permitted workflow. When direct pushes are allowed, use `git push origin HEAD:main`; this explicitly targets `main` even when local work remains on `codex/v2-cinematic`. If branch protection requires a feature branch and pull request, use that path instead. Never force push, bypass protection, or replace remote history. Reconcile a rejected non-fast-forward push before retrying.
 5. Verify the uploaded commit and report its repository/commit link. Source upload and website deployment are separate outcomes.
 
-GitHub pushes trigger Vercel deployments only if the GitHub integration is connected and the pushed branch matches that project's deployment rules. That connection has not yet been verified in this workflow; do not claim that a push has published the website. If an integration is configured, verify the resulting deployment status and URL, direct `/v1` reload, assets, and the published booking journey before reporting it as live.
+The GitHub integration is confirmed: pushes to `main` feed production deployments in the existing Vercel project `nexa-ai`. The primary live URL is [nexa-ai-delta-three.vercel.app](https://nexa-ai-delta-three.vercel.app). For every completed version, verify that Vercel reports a successful deployment for the exact uploaded commit, then check the production URL, direct `/v1` reload, assets, and published booking journey. A successful push alone does not establish that a later deployment succeeded.
+
+## Confirmed production record
+
+On 2026-09-25, commit [517ca6546b7645a40c0a0b902dbd08eee46f52dd](https://github.com/Benaridor2/Nexa-AI-Website/commit/517ca6546b7645a40c0a0b902dbd08eee46f52dd) was uploaded to `main`. Vercel automatically created production deployment `dpl_3aTnw4yPidkZczo7nxTRDVmx42bh`, with source `git`, matching commit metadata, and state **READY**. Its aliases are `nexa-ai-delta-three.vercel.app` and `nexa-ai-nexaai2.vercel.app`.
+
+Hosted browser smoke checks passed on the production alias: desktop and 390 x 844 responsive mobile playback reached the unconfirmed property website, the explicit confirmation action displayed the illustrative PMS receipt, and a direct `/v1` navigation loaded the preserved version. Images and typography rendered, and no browser console warnings or errors were reported during these checks. Mobile verification used a responsive viewport, not a physical handset.
 
 ## Optional fallback: manual ZIP upload
 
@@ -44,4 +50,4 @@ Build successfully before packaging. Include package.json, package-lock.json, ts
 - npm audit reported zero known application dependency vulnerabilities on 2026-09-25.
 - This is an illustrative prototype; booking/payment are not integrated.
 
-Record actual upload and deployment results with each completed version. This document describes the workflow and does not establish that a particular commit is already uploaded or live.
+Update the production record with actual upload, deployment, and verification results for each completed version. Do not assume that future pushes or builds will succeed because the initial deployment did.
