@@ -1,4 +1,4 @@
-# NEXA - V5 homepage
+# NEXA - V6 homepage
 
 A complete hospitality homepage with an independent editorial Hero and local, reversible scroll stories. Built with React, TypeScript, Vite, GSAP, and semantic HTML/CSS.
 
@@ -10,12 +10,13 @@ npm run dev -- --port 5173
 npm run build
 ```
 
-- `/`: current V5 homepage with NEXA-purple scroll choreography.
+- `/`: current V6 homepage with a complete guest conversation and slower scroll choreography.
+- `/v5`: preserved purple choreography revision.
 - `/v4`: preserved Figma-led revision.
 - `/v3`: preserved V3 homepage.
 - `/v2`: preserved Three.js cinematic experiment.
 - `/v1`: preserved initial editorial prototype.
-- `/?view=static`: V3's normal-flow accessibility layout, also selected by reduced-motion preference or a viewport shorter than 760px.
+- `/?view=static`: normal-flow accessibility layout, also selected by reduced-motion preference or a viewport shorter than 620px.
 
 V1/V2 retain their historical fictional Miami fixture for comparison. V3 uses the Tel Aviv fixture exclusively. The old versions and verification records remain in Git history; V2 was published at commit `517ca6546b7645a40c0a0b902dbd08eee46f52dd`.
 
@@ -25,12 +26,12 @@ Guests use their existing AI assistant without installation or activation. NEXA 
 
 Direct means branded demand; Agent means destination-led discovery. They are two demand types through one connection, not competing subscription packages. Recommendations and ranking are not guaranteed.
 
-This remains a visual prototype: no live AI/PMS connection, reservation, payment, authentication, or lead collection. Get Priced opens an accessible preview of the operator onboarding conversation; it explicitly says nothing is submitted. The real property source opens separately, without invented date or guest parameters.
+This remains a visual prototype: no live AI/PMS connection, reservation, payment, authentication, or lead collection. Get Priced opens an accessible preview of the operator onboarding conversation; it explicitly says nothing is submitted. The property is illustrative; no outgoing Sea N' Rent booking link is exposed.
 
 ## Complete section order
 
 1. Header and independent Hero.
-2. ChatGPT conversation: question, search, apartment answer, direct source link.
+2. ChatGPT conversation: destination request, clarification, dates and guests, search, apartment result, internal booking demonstration link.
 3. How It Connects: existing PMS, one connection, existing website.
 4. Compact proof: six PMS integrations, two demand types, existing checkout.
 5. UNPRICED / PRICED: availability, final price, direct destination.
