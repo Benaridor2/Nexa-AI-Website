@@ -14,7 +14,11 @@ The user has authorized uploading each completed website version to this reposit
 
 The GitHub integration is confirmed: pushes to `main` feed production deployments in the existing Vercel project `nexa-ai`. The primary live URL is [nexa-ai-delta-three.vercel.app](https://nexa-ai-delta-three.vercel.app). For every completed version, verify that Vercel reports a successful deployment for the exact uploaded commit, then check the production URL, direct `/v1` reload, assets, and published booking journey. A successful push alone does not establish that a later deployment succeeded.
 
-## Confirmed production record
+## Current homepage
+
+V3 serves the complete homepage at `/`. V1 and V2 remain available at `/v1` and `/v2`; both have explicit Vercel rewrites for direct visits. V3 requires no WebGL, backend, or environment variables. Verify the current source commit's deployment after each push. The optional ZIP below is an older V2 snapshot, not the current V3 release.
+
+## Initial production record (V2)
 
 On 2026-09-25, commit [517ca6546b7645a40c0a0b902dbd08eee46f52dd](https://github.com/Benaridor2/Nexa-AI-Website/commit/517ca6546b7645a40c0a0b902dbd08eee46f52dd) was uploaded to `main`. Vercel automatically created production deployment `dpl_3aTnw4yPidkZczo7nxTRDVmx42bh`, with source `git`, matching commit metadata, and state **READY**. Its aliases are `nexa-ai-delta-three.vercel.app` and `nexa-ai-nexaai2.vercel.app`.
 

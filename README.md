@@ -1,78 +1,87 @@
-# NEXA - cinematic V2 prototype
+# NEXA - V3 homepage
 
-The authorized homepage experiment covers the Hero, PRICED / UNPRICED, and the passage from an AI answer to booking on the property's own website. V2 connects these scenes through one continuous spatial narrative. The remaining homepage sections await direction review.
+A complete hospitality homepage with an independent editorial Hero and local, reversible scroll stories. Built with React, TypeScript, Vite, GSAP, and semantic HTML/CSS.
 
-V1 is preserved at commit `1c08e9f` (`Preserve NEXA V1 prototype before cinematic V2`) and remains available at `/v1`. Its components and styles live in `src/v1/`. The root route `/` serves V2; links in both versions support comparison.
-
-## Run locally
+## Run and compare
 
 ```sh
-npm install
+npm ci
 npm run dev -- --port 5173
+npm run build
 ```
 
-Open [V2](http://127.0.0.1:5173/), [V1](http://127.0.0.1:5173/v1), or the [forced DOM fallback](http://127.0.0.1:5173/?view=static). Build with `npm run build`; serve the production build with `npm run preview`.
+- `/`: V3 complete homepage.
+- `/v2`: preserved Three.js cinematic experiment.
+- `/v1`: preserved initial editorial prototype.
+- `/?view=static`: V3's normal-flow accessibility layout, also selected by reduced-motion preference or a viewport shorter than 760px.
 
-## Source and completed versions
+V1/V2 retain their historical fictional Miami fixture for comparison. V3 uses the Tel Aviv fixture exclusively. The old versions and verification records remain in Git history; V2 was published at commit `517ca6546b7645a40c0a0b902dbd08eee46f52dd`.
 
-Source repository: [Benaridor2/Nexa-AI-Website](https://github.com/Benaridor2/Nexa-AI-Website). The authorized workflow is to build and verify each completed website version, then upload it to `main` while respecting current branch protection rules. When direct pushes are allowed, `git push origin HEAD:main` preserves the explicit destination even if the local branch has another name. Never force push.
+## Product and scope
 
-The GitHub integration is confirmed: `main` feeds production deployments in Vercel project `nexa-ai`. The primary live URL is [nexa-ai-delta-three.vercel.app](https://nexa-ai-delta-three.vercel.app). Verify the exact commit's deployment status and hosted behavior after every completed version; a push alone is not proof of a successful release. See [DEPLOYMENT.md](DEPLOYMENT.md) for the confirmed deployment record, release workflow, and optional manual ZIP fallback.
+Guests use their existing AI assistant without installation or activation. NEXA makes property details, live availability, final prices, and a direct booking route available from the operator's PMS. Booking and payment complete on the property's own website, then the reservation reaches its PMS as a direct website booking. Operator onboarding is distinct from guest setup. No MCP or undocumented backend protocol is represented.
 
-## Product and interaction
+Direct means branded demand; Agent means destination-led discovery. They are two demand types through one connection, not competing subscription packages. Recommendations and ranking are not guaranteed.
 
-- The guest uses their existing AI assistant without installation or activation.
-- Live availability, final prices, and a direct booking route come from the property's PMS through NEXA.
-- Booking and payment complete on the property's website. The website's confirmation precedes the direct PMS booking result.
-- Both versions use one fictional fixture: Example Oceanfront Hotel, Miami Beach; May 1-5, 2027; four nights, two guests; $1,240 final total.
-- The NEXA data assembly explains availability, final price, and the direct destination. It is a marketing visualization, not a guest activation interface or a description of an undocumented backend protocol.
-- V2 scrolling and timed playback arrive at an unconfirmed property booking page. Only the separate **Preview confirmation** action displays an illustrative confirmation and then the direct PMS booking result. No reservation or payment occurs.
-- Get Priced previews the property onboarding context in a native dialog. No data is collected or submitted.
+This remains a visual prototype: no live AI/PMS connection, reservation, payment, authentication, or lead collection. Get Priced opens an accessible preview of the operator onboarding conversation; it explicitly says nothing is submitted. The real property source opens separately, without invented date or guest parameters.
 
-## V2 motion and controls
+## Complete section order
 
-Three.js supplies a perspective camera, the photographic plane, separated surfaces, lighting, and depth. CSS3D surfaces keep meaningful labels as semantic DOM elements. A normal HTML booking target follows the projected destination surface, keeping keyboard focus independent of CSS3D transforms. The same photograph remains the visual anchor through the reveal, data opening, PRICED assembly, and full-page property arrival.
+1. Header and independent Hero.
+2. ChatGPT conversation: question, search, apartment answer, direct source link.
+3. How It Connects: existing PMS, one connection, existing website.
+4. Compact proof: six PMS integrations, two demand types, existing checkout.
+5. UNPRICED / PRICED: availability, final price, direct destination.
+6. How It Works: PMS, NEXA, AI answer, property website, illustrative confirmation, PMS receipt.
+7. Direct / Agent: two queries converge on one connection and destination.
+8. Direct-channel economics, without unapproved prices or savings claims.
+9. Hotels and vacation rentals.
+10. The company-supplied HVC Startup Competition by SHIC award claim, rendered typographically.
+11. Eight native FAQ disclosures.
+12. Closing Get Priced action and footer.
 
-A shared GSAP timeline drives the scene and DOM presentation. Desktop uses native scrolling across one `380svh` story with a sticky stage; explicit Play, chapter selection, and PRICED / UNPRICED controls use that same timeline and synchronize its scroll position. Playback starts only on request. Pause, replay, direct chapter selection, and keyboard chapter navigation are provided.
+Sea N' Rent is a property example, not an endorsed customer or partner. No guest reviews, invented testimonials, conference logos, award images, commercial percentages, unit ceilings, universal support claims, or placement guarantees are published.
 
-Mobile uses an unpinned portrait composition with tighter camera travel and direct chapter controls. Reduced motion uses static keyframes and a **Next** control instead of continuous timed playback. The footer also provides a session-only motion toggle.
+## Shared demonstration fixture
 
-If WebGL cannot initialize or its context is lost, a DOM fallback retains the photograph, booking details, controls, and property website. Append `?view=static` to inspect that fallback deliberately. Both alternatives disable 3D and present held keyframes with a Next control. The forced fallback is independent of the system motion preference.
+`src/v3/stay.ts` owns the property and booking fixture:
 
-## Visual sources
+- Mediterranean Sea Views | 1BR Apt with Balcony, Sea N' Rent.
+- HaYarkon Street 78, Tel Aviv-Yafo, Israel.
+- One bedroom, private balcony, Mediterranean view.
+- May 1-5, 2027; two adults; four nights; sample total **₪2,480**.
 
-The supplied Figma file `QCfFETwUFtGRI0U7OXyIA3` was reviewed, including Home V1, Hero, Logo, Colors, and Components. NEXA logo PNGs and the terrace photograph are source assets from that file. WebP derivatives preserve the photograph while reducing payload. The fictional hotel is illustrative, not customer evidence.
+The listing identity and photographs were checked against the official property page. Dates, availability and the final total are deliberately illustrative, not a verified quote. The caption outside the ChatGPT reconstruction makes that distinction explicit. See [SOURCES.md](SOURCES.md) for source URLs and image mapping.
 
-Crimson Pro and Geist are self-hosted from Fontsource packages. The shared photograph is **1440 x 960**. It supports the 1440px-wide review at approximately 1x; this does not claim native 2x detail for a full-width image. V2 coordinates the plane projection with the property's DOM image crop during the arrival.
+## Motion contract
 
-## Scope
+There is no narrative Play, Pause, Next, Replay, chapter toolbar, scroll snapping, custom wheel interception, or body scroll lock. Ordinary anchors, source links, FAQ disclosures, and the Get Priced preview retain conventional behavior.
 
-Visual prototype only. No backend, real AI/PMS connection, authentication, payment collection, or real reservation.
+Three local paused GSAP timelines are directly sought by ScrollTrigger with `scrub: true`. Scroll position controls every narrative state, including reverse scrolling, search, price reveals, website arrival, confirmation, and PMS receipt. There are no independent narrative clocks or delayed callbacks. A stopped position leaves the scene unchanged.
 
-## V2 verification record
+The budgets, including each sticky viewport, are 260svh / 210svh for conversation, 205svh / 190svh for comparison, and 275svh / 240svh for booking (desktop / mobile). The Hero and all remaining sections stay in normal document flow. Lighter entrance and query-alignment motion also derives from scrolling.
 
-The following checks were observed in the Windows in-app browser, using responsive viewport overrides rather than physical phones:
+Reduced motion, the static review URL, and screens shorter than 760px show complete normal-flow states. Cleanup guards prevent old animation callbacks from hiding content after a layout-mode change. V3 has no canvas or WebGL initialization, so a failed WebGL context cannot remove its content. The Three.js chunk is isolated to preserved V2.
 
-- **1440 x 1000 and 1440 x 800 desktop:** inspected the major compositions, watched continuous playback, and verified arrival stays unconfirmed. Compared V1 and V2 at the same desktop size.
-- **390 x 844 and 360 x 800 mobile viewports:** inspected portrait Three.js compositions and real playback, booking arrival, explicit confirmation, control clearance, and page overflow. Mobile uses ordinary page scrolling.
-- **Controls:** exercised chapter selection, PRICED / UNPRICED, replay, native reverse scrolling, wheel interruption over the dock, and pointer/Enter activation of Book direct.
-- **Reduced motion and forced fallback:** verified static Next states, keyboard chapter navigation, the complete booking path, and hidden-content accessibility attributes. The 360px fallback card clears its comparison controls.
-- **Get Priced:** verified playback pauses, keyboard focus wraps, Escape closes, and focus returns.
-- **Build:** TypeScript and production Vite build pass. Browser review reported no console errors or warnings. Vite reports the lazy Three.js chunk exceeds its 500KB uncompressed advisory threshold (about 145.5KB gzip).
+Critical images and font metrics settle before the final measurement refresh. On reload, a tab-local scroll position is restored after layout if the visitor has not already supplied scroll/keyboard input. This compensates for the initially empty asynchronous route; restoration does not drive or play a narrative. No reservation or user information is stored.
 
-Development playback instrumentation recorded a 17.6ms 95th-percentile timeline-update interval on a 1440 x 800 run, with 2 of 950 intervals above 34ms. A 360 x 800 run recorded 20.2ms, with 14 of 752 intervals above 34ms. A later 390 x 844 run recorded 17.5ms, with 1 of 799 intervals above 34ms. The render count stayed unchanged after playback settled, confirming that there is no continuous idle render loop. These are application update intervals, not GPU presentation measurements or field Core Web Vitals. Cold scene initialization produced a longer render call (up to about 270ms in the narrow-viewport test); later rendering was substantially shorter. The immediate HTML hero remains available while the scene initializes. No physical-handset performance or comprehensive screen-reader audit is claimed.
+## Verification
 
-## V1 history
+Reviewed in the Windows in-app browser with responsive viewport overrides, not physical phones:
 
-V1 used separate editorial sections, a PRICED data reveal, and a shared-element booking-card transition. Its four selectable journey steps offered play, pause, restart, and replay, with browser-visibility pausing and a reduced-motion option. GSAP handled entrance reveals, the data sequence, and the shared-element transition; semantic HTML and responsive CSS provided its interfaces.
+- 1440px desktop, 390 x 844 and 360 x 800 portrait: Hero, conversation progression, completed answer, PRICED comparison, property-site arrival, confirmation, and continuation through the homepage.
+- 360 x 640: normal-flow conversation and booking explanation, all twelve sections, no hidden narrative remnants or horizontal overflow.
+- A stopped intermediate conversation state stayed unchanged; forward/reverse seeking restored the same DOM visual state at the same scroll position in both main scenes.
+- Reload at the property-site phase restored the exact scroll position and scene state after fixing asynchronous route restoration.
+- Resizing between motion and short-screen flow clears animation styles, inert flags, and hidden attributes.
+- FAQ opening, modal keyboard wrapping, Escape, and focus return were exercised. Source links use the verified property URL.
+- Images rendered; console checks reported no application warnings or errors during the reviewed flows.
+- TypeScript and production Vite build passed during implementation. Final release checks and deployment status are reported with the delivered commit.
 
-The following verification was recorded for V1 before the cinematic rebuild. It is historical evidence for that version, not a claim that every check has been repeated against V2:
+No physical-touch, GPU frame-pacing, comprehensive screen-reader, or field Core Web Vitals measurement is claimed. The available browser interface does not provide a scroll-video recorder; forward/backward behavior was inspected live, not inferred solely from stills.
 
-- Successful TypeScript and production Vite build.
-- Browser review at 1440px desktop, 390px mobile, and 360px narrow mobile; no horizontal overflow at the checked widths.
-- Watched intermediate and final animation states; fixed transient title overlap during the shared-card expansion.
-- Exercised PRICED / UNPRICED, all four journey tabs, forward/reverse selection, play/pause/completion, keyboard arrows, and the reduced-motion mode.
-- Verified Get Priced dialog opening, keyboard wrap, Escape/focus return, and its handoff into the journey.
-- Checked source image loading, booking data continuity, critical text contrast, and browser console warnings/errors.
+## Release workflow
 
-These are prototype checks, not field performance measurements or a claim of production integration.
+Push every completed, verified version to [Benaridor2/Nexa-AI-Website](https://github.com/Benaridor2/Nexa-AI-Website), respecting current branch rules and preserving remote history. With direct pushes allowed, use `git push origin HEAD:main`; do not force push.
+
+`main` is connected to Vercel project `nexa-ai`. The production URL is [nexa-ai-delta-three.vercel.app](https://nexa-ai-delta-three.vercel.app). Verify that the exact uploaded commit reaches READY and smoke-check the hosted page and preserved routes. See [DEPLOYMENT.md](DEPLOYMENT.md).
