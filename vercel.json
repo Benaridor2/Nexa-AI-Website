@@ -5,6 +5,8 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "rewrites": [
+    { "source": "/v4", "destination": "/index.html" },
+    { "source": "/v4/:path*", "destination": "/index.html" },
     { "source": "/v3", "destination": "/index.html" },
     { "source": "/v3/:path*", "destination": "/index.html" },
     { "source": "/v1", "destination": "/index.html" },

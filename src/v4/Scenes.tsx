@@ -60,7 +60,7 @@ export function Conversation({ motion }: { motion: boolean }) {
           <p className="answer-beat answer-description" data-animated>One bedroom, a private balcony and a sea view.</p>
           <div className="answer-beat answer-photo" data-animated><Photo eager /></div>
           <div className="answer-beat connected-badge" data-animated>Connected to NEXA AI</div><div className="answer-beat answer-facts" data-animated><span>{STAY.shortDates} · {STAY.guests} · {STAY.nights}</span><strong>{STAY.total} <span>final total</span></strong></div>
-          <a className="answer-beat source-link" data-animated href={STAY.url} target="_blank" rel="noreferrer">Book direct on Sea N' Rent's site <Arrow diagonal /></a>
+          <a className="answer-beat source-link" data-animated href="#how-it-works">Book direct on Sea N' Rent's site <Arrow diagonal /></a>
         </div>
         <div className="chat-dock" data-animated aria-hidden="true"><span>Ask anything</span><ComposerTools /></div>
       </div>
@@ -145,6 +145,6 @@ export function BookingJourney({ motion }: { motion: boolean }) {
       <div className="pms-receipt" data-animated><span className="receipt-icon" aria-hidden="true">↙</span><div><small>YOUR PMS</small><strong>Direct website booking received</strong><span>{STAY.dates} · {STAY.guests} · {STAY.total}</span></div></div>
     </div>
     <div className="journey-lines"><p className="journey-line-1" data-animated>Your PMS supplies the details.</p><p className="journey-line-2" data-animated>The guest books on your site.</p><p className="journey-line-3" data-animated>The reservation reaches your PMS.</p></div>
-    <p className="scene-caption">Illustrative journey. No reservation or payment is made. <a href={STAY.url} target="_blank" rel="noreferrer">View the real property ↗</a></p>
+    <p className="scene-caption">Illustrative journey. No reservation or payment is made. </p>
   </div></section>;
 }

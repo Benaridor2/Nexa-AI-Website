@@ -1,4 +1,4 @@
-# NEXA - V3 homepage
+# NEXA - V5 homepage
 
 A complete hospitality homepage with an independent editorial Hero and local, reversible scroll stories. Built with React, TypeScript, Vite, GSAP, and semantic HTML/CSS.
 
@@ -10,7 +10,9 @@ npm run dev -- --port 5173
 npm run build
 ```
 
-- `/`: V3 complete homepage.
+- `/`: current V5 homepage with NEXA-purple scroll choreography.
+- `/v4`: preserved Figma-led revision.
+- `/v3`: preserved V3 homepage.
 - `/v2`: preserved Three.js cinematic experiment.
 - `/v1`: preserved initial editorial prototype.
 - `/?view=static`: V3's normal-flow accessibility layout, also selected by reduced-motion preference or a viewport shorter than 760px.
@@ -85,6 +87,6 @@ No physical-touch, GPU frame-pacing, comprehensive screen-reader, or field Core 
 Push every completed, verified version to [Benaridor2/Nexa-AI-Website](https://github.com/Benaridor2/Nexa-AI-Website), respecting current branch rules and preserving remote history. With direct pushes allowed, use `git push origin HEAD:main`; do not force push.
 
 `main` is connected to Vercel project `nexa-ai`. The production URL is [nexa-ai-delta-three.vercel.app](https://nexa-ai-delta-three.vercel.app). Verify that the exact uploaded commit reaches READY and smoke-check the hosted page and preserved routes. See [DEPLOYMENT.md](DEPLOYMENT.md).
-# Current revision: V4
+# Current revision: V5
 
-The homepage now follows the supplied Figma composition with a centered Hero and a partially visible, scroll-driven chat window. See [DESIGN_V4.md](DESIGN_V4.md) for the document reconciliation, imagery rules and verification. Previous V3 is preserved at `/v3`; V1 and V2 remain available.
+The homepage now uses NEXA's exact purple, an unfolding ChatGPT window, and coordinated scroll motion through the product story. Sea N' Rent remains an illustrative example with no outward website links. See [DESIGN_V5.md](DESIGN_V5.md) for research, implementation and verification, and [DESIGN_V4.md](DESIGN_V4.md) for document reconciliation. Previous versions remain at `/v1`, `/v2`, `/v3` and `/v4`.

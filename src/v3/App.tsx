@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Arrow, BookingJourney, Comparison, Conversation, Label, Photo } from './Scenes';
-import { STAY } from './stay';
+
 
 const PMS = ['Guesty', 'Hostaway', 'BoomNow', 'Hospitable', 'Rentals United', 'HotelSync'];
 const FAQ = [
@@ -105,7 +105,7 @@ export default function App() {
       <section className="faq section-pad wrap" id="faq" aria-labelledby="faq-title"><div><Label>08 / GOOD QUESTIONS</Label><h2 id="faq-title">The details,<br/><em>made clear.</em></h2></div><div className="faq-list">{FAQ.map(([q,a], i) => <details key={q}><summary><span className="faq-number">0{i+1}</span>{q}<span className="faq-plus" aria-hidden="true">+</span></summary><p>{a}</p></details>)}</div></section>
       <section className="closing section-pad" aria-labelledby="closing-title"><div className="wrap"><Label>THE NEXT GUEST IS ALREADY ASKING.</Label><h2 id="closing-title">Let the answer<br/><em>lead to you.</em></h2>{action('button button-light')}<p>For hotels and vacation rental operators.</p></div></section>
     </main>
-    <footer className="footer wrap"><div className="footer-top"><a href="#" aria-label="Nexa home"><img src="/nexa-white.png" alt="Nexa" width="128" height="28"/></a><p>The AI connector for hospitality.</p><a href="#main">Back to top ↑</a></div><div className="footer-bottom"><span>© 2026 NEXA</span><div><a href="/v1">V1</a><a href="/v2">V2</a><a href={STAY.url} target="_blank" rel="noreferrer">Property source ↗</a></div></div><p className="example-note">Sea N' Rent is used as a property example, not a customer endorsement. All booking data shown is illustrative.</p></footer>
+    <footer className="footer wrap"><div className="footer-top"><a href="#" aria-label="Nexa home"><img src="/nexa-white.png" alt="Nexa" width="128" height="28"/></a><p>The AI connector for hospitality.</p><a href="#main">Back to top ↑</a></div><div className="footer-bottom"><span>© 2026 NEXA</span><div><a href="/v1">V1</a><a href="/v2">V2</a></div></div><p className="example-note">Sea N' Rent is used as a property example, not a customer endorsement. All booking data shown is illustrative.</p></footer>
     <dialog ref={dialog} aria-labelledby="get-priced-title" onKeyDown={trapDialogFocus} className="onboarding-dialog" onClose={() => opener.current?.focus()} onClick={e => { if (e.target === dialog.current) dialog.current.close(); }}><div><button className="dialog-close" aria-label="Close" onClick={() => dialog.current?.close()}>×</button><Label>GET PRICED</Label><h2 id="get-priced-title">A direct connection<br/><em>starts with your property.</em></h2><p>The next step is a conversation about your PMS, your booking website, and the properties you operate.</p><ul><li>Your existing PMS</li><li>Your direct booking website</li><li>Your hotel or rental portfolio</li></ul><p className="dialog-note">Prototype preview. No information is collected or submitted. Commercial terms and an onboarding contact will be added when approved.</p><button className="button button-dark" onClick={() => dialog.current?.close()}>Back to NEXA <Arrow/></button></div></dialog>
   </div>;
 }
