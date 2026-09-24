@@ -13,6 +13,12 @@ npm run dev -- --port 5173
 
 Open [V2](http://127.0.0.1:5173/), [V1](http://127.0.0.1:5173/v1), or the [forced DOM fallback](http://127.0.0.1:5173/?view=static). Build with `npm run build`; serve the production build with `npm run preview`.
 
+## Source and completed versions
+
+Source repository: [Benaridor2/Nexa-AI-Website](https://github.com/Benaridor2/Nexa-AI-Website). The authorized workflow is to build and verify each completed website version, then upload it to `main` while respecting current branch protection rules. When direct pushes are allowed, `git push origin HEAD:main` preserves the explicit destination even if the local branch has another name. Never force push.
+
+A GitHub upload publishes the website only when a corresponding Vercel integration and deployment rule are configured; that connection is not yet verified here. See [DEPLOYMENT.md](DEPLOYMENT.md) for the release workflow and optional manual ZIP fallback.
+
 ## Product and interaction
 
 - The guest uses their existing AI assistant without installation or activation.

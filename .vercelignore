@@ -1,0 +1,14 @@
+.git
+.vercel
+.env
+.env.*
+node_modules
+dist
+reference
+.qa
+*.tsbuildinfo
+*.log
+README.md
+DEPLOYMENT.md
+AGENTS.md
+releases

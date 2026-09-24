@@ -3,3 +3,9 @@ dist/
 *.tsbuildinfo
 reference/
 .qa/
+.vercel/
+.env
+.env.*
+!.env.example
+*.log
+releases/
