@@ -85,3 +85,6 @@ No physical-touch, GPU frame-pacing, comprehensive screen-reader, or field Core 
 Push every completed, verified version to [Benaridor2/Nexa-AI-Website](https://github.com/Benaridor2/Nexa-AI-Website), respecting current branch rules and preserving remote history. With direct pushes allowed, use `git push origin HEAD:main`; do not force push.
 
 `main` is connected to Vercel project `nexa-ai`. The production URL is [nexa-ai-delta-three.vercel.app](https://nexa-ai-delta-three.vercel.app). Verify that the exact uploaded commit reaches READY and smoke-check the hosted page and preserved routes. See [DEPLOYMENT.md](DEPLOYMENT.md).
+# Current revision: V4
+
+The homepage now follows the supplied Figma composition with a centered Hero and a partially visible, scroll-driven chat window. See [DESIGN_V4.md](DESIGN_V4.md) for the document reconciliation, imagery rules and verification. Previous V3 is preserved at `/v3`; V1 and V2 remain available.
