@@ -88,5 +88,31 @@ The booking answer is now a flex layout with an explicit photo slot between its 
   - The static steps row below the scene is gone. The note "The guest installs nothing…" sits under the scene on desktop.
   - The purple captions under the canvas, and the scene's "NEXA answers instantly" line, repeated the boxes and were removed.
   - Short desktops set the heading on one line to keep the canvas tall. The clipping scan is clean from 1024x700 to 1920x1080 and on phones.
-- PRICED: when the route line reaches the OTA, the OTA box lights up with a pulse and a glow, and "and become the place the guest books." brightens and is underlined.
+- PRICED: when the route line reaches the OTA, the OTA box lights up with a pulse and a glow, and the sentence ending "and the OTA becomes the place the guest books." brightens and is underlined. The sentence no longer claims the OTA supplies price and availability: with nothing verified from the property, the AI sends the guest to the OTA it trusts, the safest place it knows.
 - "Watch a booking happen" (Hero, header menu, the walkthrough strip, the connector page) now lands on the conversation as the story begins (`#watch-a-booking`). "How it works" lands on How It Works.
+
+## Solutions, Pricing, About and Contact pages
+
+- Built from the website plan (Nexa Website V3 content), using its wording: `/solutions`, `/pricing`, `/about` and `/contact` (`src/v6/Pages.tsx`). The homepage's header, footer and Get Priced / Sign in dialog are shared (`src/v6/Shell.tsx`). Vercel rewrites were added for the four routes.
+- Prices appear on the Pricing page only:
+  - The commission example: a 4-night, $1,000 stay; OTA 18%, NEXA Direct 1–3%, NEXA Agent 5–9%, each drawn as a kept/commission bar.
+  - The two definitions, the model, the OTA comparison and the closing line.
+  - The website prices from the plan's Solutions tab: Booking Engine $10 per listing per month, Multi Website $5.
+  - The Solutions page links to Pricing instead of showing prices.
+- The homepage links to Pricing without showing numbers:
+  - "See what it costs" beside Get Priced, and a Pricing row in section [04].
+  - The FAQ answer on pricing (rewritten without "not published").
+  - The footer. The closing section links to Contact.
+- Header:
+  - Solutions items lead to the page's sections.
+  - A Company menu holds About and Contact.
+  - Pricing is a link.
+  - Homepage sections are reached from inner pages via `/#…`.
+- Footer:
+  - Links to every page.
+  - The plan's promises: "Live in days via your PMS", "No developer needed".
+- About:
+  - The line-by-line opening, with "ChatGPT can make mistakes." set as a small disclaimer.
+  - Who we are (37 countries, 6 PMS integrations, up to 3,000 units), Lior's quote, how we work, the three shifts, the vision and the SHIC proof line.
+- The Contact form is not connected yet: Send shows "Preview only: this form is not connected yet, so nothing was sent."
+- Blocks fade up as they enter the viewport (not with reduced motion). Checked at 1440x900, 1280x712, 1024x768, 390x844 and 358x694: no console errors, no horizontal overflow, every block revealed.

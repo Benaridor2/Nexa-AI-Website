@@ -7,6 +7,10 @@
   "rewrites": [
     { "source": "/nexa-ai-connector", "destination": "/index.html" },
     { "source": "/how-it-works", "destination": "/index.html" },
+    { "source": "/solutions", "destination": "/index.html" },
+    { "source": "/pricing", "destination": "/index.html" },
+    { "source": "/about", "destination": "/index.html" },
+    { "source": "/contact", "destination": "/index.html" },
     { "source": "/v5", "destination": "/index.html" },
     { "source": "/v5/:path*", "destination": "/index.html" },
     { "source": "/v4", "destination": "/index.html" },
