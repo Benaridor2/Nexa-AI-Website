@@ -296,3 +296,54 @@
 .checkout-carousel img{height:68px}
 .description-toggle{margin-top:4px}
 }
+/* V7 checkout photo gallery */
+.carousel-open{display:block;position:relative;width:100%;padding:0;border:0;background:none;cursor:zoom-in}
+.carousel-open img{transition:transform .35s ease}
+.carousel-open:hover img{transform:scale(1.03)}
+.carousel-open:focus-visible{outline:3px solid var(--nexa-purple);outline-offset:-3px}
+.carousel-count{position:absolute;left:10px;bottom:10px;display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:30px;background:#0d0d17b3;color:#fff;font-size:11px;font-variant-numeric:tabular-nums;backdrop-filter:blur(4px)}
+.carousel-count svg{width:13px;height:13px}
+.photo-gallery{position:fixed;inset:0;width:100%;height:100%;max-width:none;max-height:none;margin:0;padding:0;border:0;display:grid;grid-template-rows:auto minmax(0,1fr) auto;background:#0e0d14;color:#fff;overflow:hidden;touch-action:none;font-family:'Geist Variable',Arial,sans-serif}
+.photo-gallery:not([open]){display:none}
+.photo-gallery[open]{animation:gallery-in .28s ease}
+.photo-gallery::backdrop{background:#0b0a1080;backdrop-filter:blur(8px)}
+@keyframes gallery-in{from{opacity:0}to{opacity:1}}
+.gallery-top{display:flex;align-items:center;gap:18px;padding:18px 24px 14px}
+.gallery-title{flex:1;min-width:0;font-size:15px;font-weight:500;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gallery-count{font-size:13px;color:#ffffffb8;font-variant-numeric:tabular-nums}
+.gallery-close{flex:none;width:44px;height:44px;display:grid;place-items:center;padding:0;border:1px solid #ffffff3d;border-radius:50%;background:#ffffff14;color:#fff;transition:background .2s,border-color .2s}
+.gallery-close:hover{background:#ffffff2e;border-color:#ffffff70}
+.gallery-close svg{width:20px;height:20px}
+.gallery-track{display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;touch-action:pan-x;overscroll-behavior:contain}
+.gallery-track::-webkit-scrollbar{display:none}
+.gallery-slide{flex:0 0 100%;display:grid;place-items:center;min-height:0;margin:0;padding:0 96px;scroll-snap-align:center;scroll-snap-stop:always}
+.gallery-slide img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;border-radius:12px;box-shadow:0 30px 80px #0008}
+.gallery-nav{position:absolute;top:50%;width:52px;height:52px;margin-top:-26px;display:grid;place-items:center;padding:0;border:0;border-radius:50%;background:#ffffffeb;color:var(--ink);box-shadow:0 8px 24px #0006;transition:opacity .2s,transform .2s}
+.gallery-nav:hover{transform:scale(1.06)}
+.gallery-nav svg{width:22px;height:22px}
+.gallery-nav:disabled{opacity:0;pointer-events:none}
+.gallery-previous{left:24px}
+.gallery-next{right:24px}
+.gallery-thumbs{display:flex;justify-content:center;gap:10px;padding:16px 24px 22px;overflow-x:auto;scrollbar-width:none}
+.gallery-thumbs button{flex:none;width:88px;height:58px;padding:0;border:2px solid transparent;border-radius:9px;overflow:hidden;background:none;opacity:.5;transition:opacity .2s,border-color .2s}
+.gallery-thumbs button:hover{opacity:.85}
+.gallery-thumbs button[aria-current="true"]{opacity:1;border-color:var(--nexa-purple)}
+.gallery-thumbs img{width:100%;height:100%;object-fit:cover}
+.photo-gallery button:focus-visible{outline:3px solid #c79fdf;outline-offset:3px}
+@media(max-width:699px){
+.carousel-count{left:6px;bottom:6px;padding:3px 7px;font-size:9px;gap:4px}
+.carousel-count svg{width:10px;height:10px}
+.gallery-top{padding:12px 14px 10px;gap:12px}
+.gallery-title{font-size:13px}
+.gallery-count{font-size:12px}
+.gallery-close{width:40px;height:40px}
+.gallery-slide{padding:0 12px}
+.gallery-slide img{border-radius:8px}
+.gallery-nav{width:40px;height:40px;margin-top:-20px}
+.gallery-nav svg{width:18px;height:18px}
+.gallery-previous{left:18px}
+.gallery-next{right:18px}
+.gallery-thumbs{justify-content:flex-start;gap:8px;padding:12px 14px 18px}
+.gallery-thumbs button{width:64px;height:44px;border-radius:7px}
+}
+@media(max-width:699px) and (max-height:740px){.carousel-count{display:none}}

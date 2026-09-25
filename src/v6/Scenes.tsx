@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef, useState } from 'react';
-import { STAY } from './stay';
+import { createPortal } from 'react-dom';
+import { STAY, type ListingPhoto } from './stay';
 import { between, phase, styles, useScene, visible } from './motion';
 
 export function Arrow({ diagonal = false }: { diagonal?: boolean }) {
@@ -88,11 +89,85 @@ function Chevron({ back = false }: { back?: boolean }) {
   return <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d={back ? 'm14.5 6-6 6 6 6' : 'm9.5 6 6 6-6 6'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>;
 }
 
+function Expand() {
+  return <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-6.5 6.5M4 20l6.5-6.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+}
+
+function Close() {
+  return <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>;
+}
+
+// Full-size photos of the booked apartment, opened from its checkout. A modal
+// dialog in the top layer, so the scroll scene underneath is unaffected.
+function PhotoGallery({ photos, start, title, onClose }: { photos: readonly ListingPhoto[]; start: number; title: string; onClose: (index: number) => void }) {
+  const dialog = useRef<HTMLDialogElement>(null), track = useRef<HTMLDivElement>(null);
+  const [current, setCurrent] = useState(start);
+  const shown = useRef(start), heading = useRef<number | null>(null);
+  const last = photos.length - 1;
+  // Neighbouring photos slide; longer jumps (thumbnails, Home/End) cut directly.
+  const go = (target: number, smooth = true) => {
+    const next = Math.max(0, Math.min(last, target)), el = track.current;
+    if (!el) return;
+    const slide = smooth && Math.abs(next - shown.current) === 1;
+    shown.current = next; setCurrent(next);
+    heading.current = slide ? next : null;
+    el.scrollTo({ left: next * el.clientWidth, behavior: slide ? 'smooth' : 'instant' });
+  };
+  useLayoutEffect(() => {
+    const el = dialog.current;
+    if (!el) return;
+    el.showModal();
+    go(start, false);
+    // The page must not scroll behind the gallery: wheel and trackpad gestures
+    // step through the photos instead, one step per gesture.
+    let total = 0, lastEvent = 0, lastStep = 0;
+    const wheel = (event: WheelEvent) => {
+      event.preventDefault();
+      const now = performance.now();
+      if (now - lastEvent > 180) total = 0;
+      lastEvent = now;
+      total += Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
+      if (Math.abs(total) < 40 || now - lastStep < 450) return;
+      go(shown.current + Math.sign(total));
+      total = 0; lastStep = now;
+    };
+    el.addEventListener('wheel', wheel, { passive: false });
+    return () => el.removeEventListener('wheel', wheel);
+    // Runs once: the opening position only; later navigation goes through go().
+  }, []);
+  const keys = (event: React.KeyboardEvent) => {
+    const step = { ArrowRight: 1, ArrowLeft: -1 }[event.key];
+    if (step) go(shown.current + step);
+    else if (event.key === 'Home') go(0);
+    else if (event.key === 'End') go(last);
+    else if (!['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown'].includes(event.key)) return;
+    event.preventDefault();
+  };
+  const settle = () => {
+    const el = track.current;
+    if (!el) return;
+    const index = Math.round(el.scrollLeft / el.clientWidth);
+    // While a button-driven slide is under way, keep the counter on its destination.
+    if (heading.current !== null) { if (index === heading.current && Math.abs(el.scrollLeft - index * el.clientWidth) < 2) heading.current = null; return; }
+    if (index !== shown.current) { shown.current = index; setCurrent(index); }
+  };
+  return createPortal(<dialog ref={dialog} className="photo-gallery" aria-label={`Photos of ${title}`} onKeyDown={keys} onClose={() => onClose(shown.current)} onClick={event => { const target = event.target as HTMLElement; if (target === dialog.current || target.classList.contains('gallery-slide')) dialog.current?.close(); }}>
+    <div className="gallery-top"><p className="gallery-title">{title}</p><span className="gallery-count" aria-live="polite">{current + 1} / {photos.length}</span><button type="button" className="gallery-close" aria-label="Close photos" onClick={() => dialog.current?.close()}><Close/></button></div>
+    <div className="gallery-track" ref={track} onScroll={settle} onPointerDown={() => { heading.current = null; }}>
+      {photos.map((item, i) => <figure className="gallery-slide" key={item.src} aria-hidden={i !== current}><img src={item.src} alt={item.alt} width="1080" height="721" loading={Math.abs(i - start) <= 1 ? 'eager' : 'lazy'}/></figure>)}
+    </div>
+    <button type="button" className="gallery-nav gallery-previous" aria-label="Previous photo" disabled={current === 0} onClick={() => go(current - 1)}><Chevron back/></button>
+    <button type="button" className="gallery-nav gallery-next" aria-label="Next photo" disabled={current === last} onClick={() => go(current + 1)}><Chevron/></button>
+    <div className="gallery-thumbs">{photos.map((item, i) => <button type="button" key={item.src} aria-label={`Show photo ${i + 1} of ${photos.length}`} aria-current={i === current} onClick={() => go(i)}><img src={item.src} alt="" loading="lazy"/></button>)}</div>
+  </dialog>, document.body);
+}
+
 // The property's checkout responds to the visitor's clicks, never to scroll progress.
 function CheckoutSummary() {
   const [index, setIndex] = useState(0);
   const [described, setDescribed] = useState(false);
-  const next = useRef<HTMLButtonElement>(null), previous = useRef<HTMLButtonElement>(null);
+  const [gallery, setGallery] = useState(false);
+  const next = useRef<HTMLButtonElement>(null), previous = useRef<HTMLButtonElement>(null), opener = useRef<HTMLButtonElement>(null);
   const photos = STAY.pool.photos, last = photos.length - 1;
   const show = (target: number) => {
     setIndex(target);
@@ -102,19 +177,23 @@ function CheckoutSummary() {
   };
   return <div className="checkout-summary">
     <div className="checkout-carousel">
-      <Photo name={photos[index]}/>
+      <button type="button" ref={opener} className="carousel-open" aria-label={`Open photo ${index + 1} of ${photos.length} full size`} onClick={() => setGallery(true)}>
+        <img src={photos[index].src} alt={photos[index].alt} width="1080" height="721" loading="lazy"/>
+        <span className="carousel-count" aria-hidden="true"><Expand/>{index + 1} / {photos.length}</span>
+      </button>
       {index > 0 && <button type="button" ref={previous} className="carousel-button carousel-previous" aria-label="Previous photo" onClick={() => show(index - 1)}><Chevron back/></button>}
       <button type="button" ref={next} className="carousel-button carousel-next" aria-label="Next photo" disabled={index === last} onClick={() => show(index + 1)}><Chevron/></button>
     </div>
+    {gallery && <PhotoGallery photos={photos} start={index} title={STAY.pool.property} onClose={shownLast => { setIndex(shownLast); setGallery(false); requestAnimationFrame(() => opener.current?.focus()); }}/>}
     <button type="button" className="description-toggle" aria-expanded={described} aria-controls="checkout-description" onClick={() => setDescribed(!described)}>{described ? 'Hide description' : 'Show description'}<Chevron/></button>
     <div className="checkout-description" id="checkout-description" data-open={described}><div><p>{STAY.pool.description}</p></div></div>
     <h3>{STAY.pool.property}</h3><p>{STAY.dates} · {STAY.guests} · {STAY.nights}</p><div className="checkout-total"><span>Final total</span><strong>{STAY.pool.total}</strong></div>
   </div>;
 }
 
-function OptionCard({ property, total, photo, eager = false, className = '', beat = 'answer-beat', children }: { property: string; total: string; photo: string; eager?: boolean; className?: string; beat?: string; children?: React.ReactNode }) {
+function OptionCard({ property, total, photo, eager = false, className = '', beat = 'answer-beat', children }: { property: string; total: string; photo: ListingPhoto; eager?: boolean; className?: string; beat?: string; children?: React.ReactNode }) {
   return <article className={`option-card ${beat} ${className}`} data-animated>
-    <div className="option-photo" data-animated><Photo name={photo} eager={eager}/></div>
+    <div className="option-photo" data-animated><img src={photo.src} alt={photo.alt} width="1080" height="721" loading={eager ? 'eager' : 'lazy'} fetchPriority={eager ? 'high' : 'auto'}/></div>
     <div className="option-body">
       <h3 className={beat} data-animated>{property}</h3>
       <p className={`option-meta ${beat}`} data-animated>{STAY.shortDates} · {STAY.guests} · {STAY.nights}</p>
