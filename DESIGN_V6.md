@@ -55,3 +55,38 @@ The booking answer is now a flex layout with an explicit photo slot between its 
 - Verified at 1440x900, 1280x712, 390x844 and 358x694, plus the static view: the scripted story, reverse scrolling, gallery, description and amenities, the chat (suggestions, completion, keyboard selection, free text, fallback chips, booking, back to chat, rewind), the header menus and dialogs, How It Works clipping, contrast, console errors and horizontal overflow.
 - Chat refinements: suggestions are questions only, with no price or photo. Choosing one (click, or ↑↓ with Enter) fills the composer, and the guest sends it, which runs the search again. The guest keeps one follow-up message: every later request edits it, marked "Edited", and replaces its answer, as when editing a message in ChatGPT. Fallback chips fill the composer too. The first two cards show the same Book direct as the others, not clickable, and Book direct has one size on every card.
 - PRICED / UNPRICED: before the OTA detour, each missing row takes the spotlight in turn (grows slightly, red edge and glow, the others dim). As NEXA makes each row ready it gets the same spotlight in green. Section labels no longer carry a slash on the right.
+
+## Scroll feel, typed chat, How It Works steps
+
+- Research and measurement. A pacing map (the share of the screen that changes for every quarter viewport of scroll, at 1440x900 and 390x844) showed where scrolling felt stuck and where it rushed. The conversation had about 1.2 viewport heights after the pool answer where only a small cursor moved, and a 0.75-viewport tail. The checkout and How It Works' AI-to-AI hand-off each changed the whole screen within a quarter viewport, so one flick went straight past them. The approach follows Lenis' GSAP integration (one ticker, `lagSmoothing(0)`) and the usual scrollytelling guidance: the animation is always tied to the scroll and stops when the scroll stops, and the reader stays in control.
+- `src/v6/pacing.ts` re-times scenes without changing their choreography. `useScene` maps scroll progress to story progress through each scene's knots, and sets `data-progress` (scroll) and `data-story` (story) on the section.
+  - Conversation: quiet stretches are shorter, and the checkout slide-in and the typed follow-up get more room. The total stays 700svh.
+  - PRICED grows to 480svh (500svh on phones). The extra distance goes to the route reaching the OTA.
+- `useNarrativeScroll` applies three rules around each scene's transition windows:
+  - Scrolling that stops halfway through a fade, crossfade or slide completes it in the direction of travel, only when the end is within 0.55 viewport heights. If the scroll is barely into a long transition, it returns to the start instead.
+  - A fast wheel or trackpad flick (the target running about 2 viewport heights a second ahead) stops once at the end of the next main beat. These beats are the first answer, the pool answer, the checkout, each PRICED check, and the How It Works hand-offs. The rest of that flick's inertia is absorbed; the next gesture continues. Slow scrolling is never held.
+  - Large single wheel impulses are compressed, as before.
+- Touch keeps native momentum and settles only after it ends; keyboard scrolling settles the same way. Mouse presses (clicks, the scrollbar) never trigger a settle. `ScrollTrigger.config({ ignoreMobileResize: true })` avoids refresh jumps when the phone's address bar moves.
+- Gesture checks, all passing, using wheel events at trackpad cadence and a touch swipe:
+  - One notch moves exactly 100px.
+  - A stop mid-checkout settles forward to its end, or back to its start when scrolling up.
+  - A flick stops at the pool answer, and the next flick stops at the checkout.
+  - 1,000px of slow scrolling passes the beats freely.
+  - A fast burst of wheel notches stops at the main beat.
+  - A flick outside the scenes is untouched.
+  - Arrow keys and a touch swipe that end mid-transition settle out of it.
+- ChatGPT window:
+  - Every message is typed. The guest's messages are typed letter by letter with a caret: the question in the start composer, then the dates and "I'd also like a pool." in the bottom composer, which then sends them.
+  - The AI's clarification and answers stream in word by word, and the AI text is larger (16/15px on desktop, 13.5/12.5px on phones). When the transcript outgrows the window, earlier messages scroll up and fade under the header. At 1280x712 the first question now scrolls up at the pool answer.
+  - The first answer reads: "Here are two Sea N' Rent apartments I'd recommend. Both are available for your dates, with the final price and a link to book direct on their website:"
+- The guest's turn:
+  - The guest's first choice is typed into the composer, and they send it.
+  - After that, every change edits that message, as in ChatGPT. The composer, the message's Edit button and the fallback chips all open the message in an edit box (Cancel, Send), where suggestions offer every change. A choice is typed over the old text, and Send asks again ("Edited").
+  - Live answers stream word by word, then show their card.
+- How It Works: the four steps (The guest asks / NEXA AI answers / The AI recommends you / The guest books with you, each with its explanation) are boxes above the scene. The box of the step playing lights up, and a bar along its top fills as the step plays.
+  - On phones, the four steps share one card that changes with each step, under a four-part progress bar.
+  - The static steps row below the scene is gone. The note "The guest installs nothing…" sits under the scene on desktop.
+  - The purple captions under the canvas, and the scene's "NEXA answers instantly" line, repeated the boxes and were removed.
+  - Short desktops set the heading on one line to keep the canvas tall. The clipping scan is clean from 1024x700 to 1920x1080 and on phones.
+- PRICED: when the route line reaches the OTA, the OTA box lights up with a pulse and a glow, and "and become the place the guest books." brightens and is underlined.
+- "Watch a booking happen" (Hero, header menu, the walkthrough strip, the connector page) now lands on the conversation as the story begins (`#watch-a-booking`). "How it works" lands on How It Works.

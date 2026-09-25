@@ -206,7 +206,7 @@
       ]
     }
   ],
-  "firstAnswer": { "reply": "Here are two Sea N' Rent apartments that fit:", "listings": ["rus", "sun"] },
+  "firstAnswer": { "reply": "Here are two Sea N' Rent apartments I'd recommend. Both are available for your dates, with the final price and a link to book direct on their website:", "listings": ["rus", "sun"] },
   "options": [
     { "id": "cheapest", "chip": "the cheapest option", "userMessage": "I also want the cheapest option.", "listing": "coz", "reply": "The lowest nightly rate I found in Tel Aviv:", "extraLine": "A minute's walk from Yarkon Park",
       "keywords": ["cheap", "cheaper", "cheapest", "budget", "affordable", "lowest", "low price", "lower price", "inexpensive", "not expensive", "less expensive", "not too expensive", "save"] },

@@ -9,7 +9,7 @@ const MENUS: { label: string; items: Item[] }[] = [
     { title: 'How it works', text: 'From a guest’s question to a booking on your site.', href: '#how-it-works', icon: 'M4 6h16M4 12h10M4 18h6' },
     { title: 'NEXA AI Connector', text: 'Live availability and final prices, ready for the AI.', href: '/nexa-ai-connector', icon: 'M9 7H6a5 5 0 0 0 0 10h3M15 7h3a5 5 0 0 1 0 10h-3M8 12h8' },
     { title: 'Direct and Agent', text: 'One connection. Two kinds of guests.', href: '#connector', icon: 'M5 6c5 0 5 6 9 6h5M5 18c5 0 5-6 9-6M16 9l3 3-3 3' },
-    { title: 'Watch a booking happen', text: 'The complete journey, step by step.', href: '/how-it-works', icon: 'M8 5.5v13l10-6.5-10-6.5Z' },
+    { title: 'Watch a booking happen', text: 'The complete journey, step by step.', href: '#watch-a-booking', icon: 'M8 5.5v13l10-6.5-10-6.5Z' },
   ] },
   { label: 'Solutions', items: [
     { title: 'NEXA Booking Engine', text: 'A direct booking website the AI can read, trust and quote.', soon: true, icon: 'M4 5h16v14H4zM4 9h16M8 13h5' },

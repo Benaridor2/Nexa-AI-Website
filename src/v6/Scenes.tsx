@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { STAY } from './stay';
 import { FALLBACK_REPLY, FIRST_ANSWER, LISTINGS, OPTIONS, POOL_ANSWER, completion, highlightsFor, matchRequest, suggest, type AmenityIcon, type Listing, type ListingPhoto, type Option, type Request } from './listings';
-import { between, phase, styles, useScene, visible } from './motion';
+import { between, clamp, phase, styles, useScene, visible } from './motion';
 
 export function Arrow({ diagonal = false }: { diagonal?: boolean }) {
   return <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d={diagonal ? 'M5 19 19 5M5 5h14v14' : 'M4 12h16m-6-6 6 6-6 6'} stroke="currentColor" strokeWidth="1.5" /></svg>;
@@ -22,15 +22,29 @@ function ComposerTools() {
   return <span className="composer-tools" aria-hidden="true"><span className="plus">+</span><span className="composer-right"><svg viewBox="0 0 24 24" fill="none"><rect x="9" y="3" width="6" height="12" rx="3" stroke="currentColor" strokeWidth="1.5"/><path d="M6 10v2a6 6 0 0 0 12 0v-2M12 18v3" stroke="currentColor" strokeWidth="1.5"/></svg><span className="send-arrow">↑</span></span></span>;
 }
 
+// Types scroll-driven text: shows the first n letters or words of a <Typed> text.
+const typer = (el: Element | null) => {
+  const tokens = el ? [...el.querySelectorAll<HTMLElement>('.tk')] : [];
+  let shown = -1;
+  return (t: number) => {
+    const count = Math.round(clamp(t) * tokens.length);
+    if (count === shown) return;
+    tokens.forEach((token, i) => token.classList.toggle('on', i < count));
+    shown = count;
+  };
+};
+
 const chatRenderer = (root: HTMLElement) => {
   const q = (s: string) => root.querySelector<HTMLElement>(s);
   const frame = q('.chat-window'), halo = q('.chat-halo'), query = q('.query-morph'), welcome = q('.chat-welcome'), tools = q('.query-tools'), dock = q('.chat-dock'), search = q('.chat-search'), response = q('.chat-response');
-  const chunks = [...root.querySelectorAll<HTMLElement>('.query-chunk')];
-  const lines = [...root.querySelectorAll<HTMLElement>('.answer-beat')];
+  const typeQuery = typer(q('.query-morph p')), queryCaret = q('.query-caret');
+  const lines = [...root.querySelectorAll<HTMLElement>('.answer-options .answer-beat')];
   const photos = [...root.querySelectorAll<HTMLElement>('.answer-options .option-photo')], clarification=q('.chat-clarification'), reply=q('.chat-details');
-  const replyChunks=[...root.querySelectorAll<HTMLElement>('.reply-chunk')];
+  // The guest's replies are typed into the composer, then sent; the AI's answers stream in.
+  const drafts = [...root.querySelectorAll<HTMLElement>('.dock-draft')], typeDraft = drafts.map(typer), hint = q('.dock-idle');
+  const typeClarification = typer(clarification), typeAnswer = typer(q('.answer-reply'));
   const viewport = q('.conversation-viewport'), track = q('.conversation-track'), followUp = q('.chat-followup'), poolIntro = q('.pool-intro'), poolCard = q('.pool-card'), poolPhoto = q('.pool-card .option-photo');
-  const poolBeats = [...root.querySelectorAll<HTMLElement>('.pool-beat')];
+  const poolBeats = [...root.querySelectorAll<HTMLElement>('.pool-beat')], typePool = typer(poolIntro);
   const thread = q('.chat-thread'), cursor = q('.demo-cursor'), sheet = q('.chat-checkout');
   let rewound = false;
   const narrow = matchMedia('(max-width: 699px)');
@@ -46,14 +60,19 @@ const chatRenderer = (root: HTMLElement) => {
       const overflow = (el: HTMLElement | null) => el ? Math.max(0, response.offsetTop + el.offsetTop + el.offsetHeight - room) : 0;
       const first = overflow(followUp), last = overflow(poolCard);
       const latest = thread?.childElementCount ? Math.max(last, overflow(thread)) : last;
-      lift = first * phase(progress, .54, .57) + (last - first) * phase(progress, .60, .63) + (latest - last) * phase(progress, .64, .655);
+      lift = first * phase(progress, .566, .582) + (last - first) * phase(progress, .60, .63) + (latest - last) * phase(progress, .64, .655);
     }
     styles(track, { transform: `translateY(${-lift}px)` });
-    const request = phase(progress, .54, .57), offer = phase(progress, .60, .62);
+    viewport?.classList.toggle('is-lifted', lift > 2);
+    // "I'd also like a pool." is typed into the composer, sent, and answered.
+    typeDraft[1]?.((progress - .54) / .022);
+    visible(drafts[1], between(progress, .536, .54, .563, .568), false);
+    const request = phase(progress, .566, .582), offer = phase(progress, .583, .59);
     visible(followUp, request); styles(followUp, { transform: `translateY(${12*(1-request)}px)` });
-    visible(poolIntro, offer); styles(poolIntro, { transform: `translateY(${12*(1-offer)}px)` });
-    poolBeats.forEach((el,i)=>{const t=phase(progress,.61+i*.007,.625+i*.007);visible(el,t);styles(el,{transform:`translateY(${12*(1-t)}px)`});});
-    styles(poolPhoto, { 'clip-path': `inset(${(1-phase(progress,.618,.655))*100}% 0 0 0 round 9px)` });
+    visible(poolIntro, offer); styles(poolIntro, { transform: `translateY(${6*(1-offer)}px)` });
+    typePool((progress - .585) / .022);
+    poolBeats.forEach((el,i)=>{const t=phase(progress,.605+i*.006,.62+i*.006);visible(el,t);styles(el,{transform:`translateY(${12*(1-t)}px)`});});
+    styles(poolPhoto, { 'clip-path': `inset(${(1-phase(progress,.61,.65))*100}% 0 0 0 round 9px)` });
     // The guest's turn: once the pool answer is read, the composer takes requests
     // and their answers follow it. Opening or closing the checkout by hand
     // overrides the scroll until the story is scrolled back before the follow-up.
@@ -82,16 +101,24 @@ const chatRenderer = (root: HTMLElement) => {
     visible(welcome,1-phase(p,.27,.32));
     visible(tools,1-phase(p,.29,.33),false);
     styles(tools,{height:`${36*(1-phase(p,.32,.36))}px`,'margin-top':`${12*(1-phase(p,.32,.36))}px`});
-    chunks.forEach((el,i)=>visible(el,phase(p,.18+i*.025,.205+i*.025),false));
+    typeQuery((p - .18) / .085);
+    visible(queryCaret, between(p, .17, .18, .27, .28), false);
     visible(dock,phase(p,.32,.36),false);
-    const ask=phase(p,.40,.45), details=phase(p,.53,.58);
-    visible(clarification,ask);styles(clarification,{transform:`translateY(${12*(1-ask)}px)`});
+    const ask=phase(p,.395,.405), details=phase(p,.565,.585);
+    visible(clarification,ask);styles(clarification,{transform:`translateY(${6*(1-ask)}px)`});
+    typeClarification((p - .40) / .07);
+    // The dates are typed into the composer, then sent.
+    typeDraft[0]?.((p - .50) / .06);
+    const drafting = Math.max(between(p, .495, .50, .562, .568), between(progress, .536, .54, .563, .568));
+    visible(drafts[0], between(p, .495, .50, .562, .568), false);
+    visible(hint, 1 - drafting, false);
+    dock?.classList.toggle('is-drafting', drafting > .5);
     visible(reply,details);styles(reply,{transform:`translateY(${12*(1-details)}px)`});
-    replyChunks.forEach((el,i)=>visible(el,phase(p,.53+i*.025,.56+i*.025),false));
     visible(search,between(p,.65,.67,.72,.745));
-    visible(response,phase(p,.79,.815));
-    lines.forEach((el,i)=>{const t=phase(p,.79+i*.012,.823+i*.012);visible(el,t);styles(el,{transform:`translateY(${12*(1-t)}px)`});});
-    photos.forEach((el,i)=>styles(el,{'clip-path':`inset(${(1-phase(p,.81+i*.05,.86+i*.05))*100}% 0 0 0 round 9px)`}));
+    visible(response,phase(p,.785,.80));
+    typeAnswer((p - .79) / .06);
+    lines.forEach((el,i)=>{const t=phase(p,.84+i*.01,.87+i*.01);visible(el,t);styles(el,{transform:`translateY(${12*(1-t)}px)`});});
+    photos.forEach((el,i)=>styles(el,{'clip-path':`inset(${(1-phase(p,.845+i*.045,.885+i*.045))*100}% 0 0 0 round 9px)`}));
     styles(q('.story-progress-fill'),{transform:`scaleX(${progress})`});
   };
 };
@@ -287,20 +314,32 @@ function Sparkle() {
   return <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3.5c.6 3.9 2.6 5.9 6.5 6.5-3.9.6-5.9 2.6-6.5 6.5-.6-3.9-2.6-5.9-6.5-6.5 3.9-.6 5.9-2.6 6.5-6.5ZM18.5 15.5c.3 1.6 1.1 2.4 2.7 2.7-1.6.3-2.4 1.1-2.7 2.7-.3-1.6-1.1-2.4-2.7-2.7 1.6-.3 2.4-1.1 2.7-2.7Z" fill="currentColor"/></svg>;
 }
 
-// The guest's own follow-up request. Suggestions are questions: choosing one
-// fills the composer, and the guest sends it. Tab accepts the inline completion.
-function Composer({ busy, editing, value, onChange, onAsk, input }: { busy: boolean; editing: boolean; value: string; onChange: (text: string) => void; onAsk: (text: string) => void; input: React.RefObject<HTMLInputElement | null> }) {
+// Text typed out on screen: the guest's messages letter by letter, the AI's
+// word by word. `scripted` text follows the scroll; the rest types on its own.
+// Screen readers get the whole text at once.
+function Typed({ text, by = 'word', scripted = false, decorative = false }: { text: string; by?: 'word' | 'char'; scripted?: boolean; decorative?: boolean }) {
+  const tokens = by === 'char' ? [...text] : text.match(/\S+\s*/g) ?? [text];
+  return <>{!decorative && <span className="sr-only">{text}</span>}<span className={`typed typed-${by}${scripted ? ' is-scripted' : ''}`} aria-hidden="true">{tokens.map((token, i) => <span className="tk" key={i} style={{ '--i': i } as React.CSSProperties}>{token}</span>)}</span></>;
+}
+
+function Pencil() {
+  return <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4ZM13.5 6.5l4 4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+}
+
+// Suggestions are questions. Choosing one types it into the field; the guest
+// sends it. Tab accepts the inline completion; Escape closes the list.
+type Field = { value: string; busy: boolean; onChange: (text: string) => void; onPick: (option: Option) => void; onSubmit: () => void; onEscape?: () => void; unchanged?: boolean };
+function useSuggestions({ value, busy, onChange, onPick, onSubmit, onEscape, unchanged = false }: Field) {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
-  const list = suggest(value).slice(0, 6);
+  // A message opened for editing offers every change, not only ones like it.
+  const list = suggest(unchanged ? '' : value).slice(0, 6);
   const ghost = completion(value, list[0]);
   const expanded = open && list.length > 0;
   const chosen = active >= 0 && active < list.length ? list[active] : undefined;
-  const fill = (option: Option) => {
-    onChange(option.userMessage);
-    setOpen(false); setActive(-1);
-    requestAnimationFrame(() => { const field = input.current; if (field) { field.focus(); field.setSelectionRange(field.value.length, field.value.length); } });
-  };
+  const close = () => { setOpen(false); setActive(-1); };
+  const pick = (option: Option) => { close(); onPick(option); };
+  const submit = () => { if (busy || !value.trim()) return; close(); onSubmit(); };
   const keys = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if ((event.key === 'ArrowDown' || event.key === 'ArrowUp') && list.length) {
       event.preventDefault();
@@ -310,39 +349,77 @@ function Composer({ busy, editing, value, onChange, onAsk, input }: { busy: bool
     } else if ((event.key === 'Tab' || event.key === 'ArrowRight') && ghost && event.currentTarget.selectionStart === value.length) {
       event.preventDefault();
       onChange(value + ghost);
-    } else if (event.key === 'Escape' && expanded) {
+    } else if (event.key === 'Escape') {
       event.preventDefault();
-      setOpen(false); setActive(-1);
+      if (expanded) close(); else onEscape?.();
     } else if (event.key === 'Enter') {
-      // Handled here: an empty composer disables Send, which would block implicit submission.
+      // Handled here: an empty field disables Send, which would block implicit submission.
       event.preventDefault();
-      if (chosen && expanded) fill(chosen); else submit();
+      if (chosen && expanded) pick(chosen); else submit();
     }
   };
-  const submit = () => {
-    if (busy || !value.trim()) return;
-    onAsk(value.trim());
-    setOpen(false); setActive(-1);
+  const inputProps = {
+    value, disabled: busy, autoComplete: 'off', spellCheck: false, role: 'combobox', 'aria-expanded': expanded, 'aria-autocomplete': 'both' as const,
+    onChange: (event: React.ChangeEvent<HTMLInputElement>) => { onChange(event.target.value); setOpen(true); setActive(-1); },
+    onClick: () => setOpen(true), onBlur: close, onKeyDown: keys,
   };
-  return <form className="chat-dock" data-animated role="search" aria-label="Ask ChatGPT for another stay" onSubmit={event => { event.preventDefault(); submit(); }}>
+  return { list, ghost, expanded, chosen, active, setActive, setOpen, pick, submit, inputProps };
+}
+
+function Suggestions({ id, head, state }: { id: string; head: string; state: ReturnType<typeof useSuggestions> }) {
+  return <div className="composer-suggestions" id={id} role="listbox" aria-label="Suggested requests" hidden={!state.expanded} data-lenis-prevent>
+    <p className="suggestions-head" aria-hidden="true"><Sparkle/>{head}<span>Choose one, then send</span></p>
+    {state.list.map((option, i) => <div role="option" id={`${id}-${option.id}`} key={option.id} aria-selected={i === state.active} className="suggestion" onMouseDown={event => { event.preventDefault(); state.pick(option); }} onMouseEnter={() => state.setActive(i)}>
+      <span>I also want <b>{option.chip}</b></span>
+      <svg className="suggestion-fill" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M17 17 7 7M7 15V7h8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>
+    </div>)}
+  </div>;
+}
+
+// The ChatGPT composer. In the story it shows the guest's replies being typed;
+// once the guest takes over it asks for the first follow-up. After that, a
+// change is made by editing that message, so the composer opens the edit.
+function Composer({ field, editing, onEdit, input }: { field: Field; editing: boolean; onEdit: () => void; input: React.RefObject<HTMLInputElement | null> }) {
+  const state = useSuggestions(field);
+  const id = 'composer-suggestions';
+  return <form className="chat-dock" data-animated role="search" aria-label="Ask ChatGPT for another stay" onSubmit={event => { event.preventDefault(); state.submit(); }}>
     <span className="composer-plus" aria-hidden="true">+</span>
-    <span className="dock-hint dock-idle" aria-hidden="true">Ask ChatGPT</span>
+    <span className="dock-hint dock-idle" data-animated aria-hidden="true">Ask ChatGPT</span>
+    <span className="dock-script" aria-hidden="true">
+      {[STAY.replyChunks.join(''), STAY.followUp].map(text => <span className="dock-draft" data-animated key={text}><Typed text={text} by="char" scripted decorative/><i className="typing-caret"/></span>)}
+    </span>
     <label className="composer-field">
       <span className="sr-only">{editing ? 'Change your request' : 'Ask for another stay'}</span>
-      <span className="composer-ghost" aria-hidden="true"><span>{value}</span>{ghost}</span>
-      <input ref={input} value={value} disabled={busy} autoComplete="off" spellCheck={false} placeholder={editing ? 'Change your request, like free parking' : 'Ask for more, like the cheapest option'} role="combobox" aria-expanded={expanded} aria-controls="composer-suggestions" aria-autocomplete="both" aria-activedescendant={chosen && expanded ? `suggestion-${chosen.id}` : undefined}
-        onChange={event => { onChange(event.target.value); setOpen(true); setActive(-1); }} onFocus={() => { if (!value) setOpen(true); }} onClick={() => setOpen(true)} onBlur={() => { setOpen(false); setActive(-1); }} onKeyDown={keys}/>
+      <span className="composer-ghost" aria-hidden="true"><span>{field.value}</span>{editing ? '' : state.ghost}</span>
+      <input ref={input} {...state.inputProps} readOnly={editing} placeholder={editing ? 'Change your request, like free parking' : 'Ask for more, like the cheapest option'} aria-controls={id} aria-activedescendant={state.chosen && state.expanded ? `${id}-${state.chosen.id}` : undefined}
+        onFocus={() => { if (editing) onEdit(); else if (!field.value) state.setOpen(true); }} onClick={() => { if (editing) onEdit(); else state.setOpen(true); }}/>
     </label>
     <span className="composer-mic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><rect x="9" y="3" width="6" height="12" rx="3" stroke="currentColor" strokeWidth="1.5"/><path d="M6 10v2a6 6 0 0 0 12 0v-2M12 18v3" stroke="currentColor" strokeWidth="1.5"/></svg></span>
-    <button type="submit" className="composer-send" aria-label="Send" disabled={busy || !value.trim()}>↑</button>
-    <div className="composer-suggestions" id="composer-suggestions" role="listbox" aria-label="Suggested requests" hidden={!expanded} data-lenis-prevent>
-      <p className="suggestions-head" aria-hidden="true"><Sparkle/>{editing ? 'Change your request' : 'Keep searching'}<span>Choose one, then send</span></p>
-      {list.map((option, i) => <div role="option" id={`suggestion-${option.id}`} key={option.id} aria-selected={i === active} className="suggestion" onMouseDown={event => { event.preventDefault(); fill(option); }} onMouseEnter={() => setActive(i)}>
-        <span>I also want <b>{option.chip}</b></span>
-        <svg className="suggestion-fill" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M17 17 7 7M7 15V7h8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>
-      </div>)}
-    </div>
+    <button type="submit" className="composer-send" aria-label="Send" disabled={editing || field.busy || !field.value.trim()}>↑</button>
+    {!editing && <Suggestions id={id} head="Keep searching" state={state}/>}
   </form>;
+}
+
+// Editing the guest's message in place, as in ChatGPT: the new request is typed
+// over the old one, and Send asks again.
+function EditMessage({ field, original, onCancel, input }: { field: Field; original: string; onCancel: () => void; input: React.RefObject<HTMLInputElement | null> }) {
+  const state = useSuggestions({ ...field, onEscape: onCancel, unchanged: field.value === original });
+  const id = 'edit-suggestions';
+  return <form className="thread-edit" aria-label="Edit your request" onSubmit={event => { event.preventDefault(); state.submit(); }}>
+    <label className="composer-field edit-field">
+      <span className="sr-only">Edit your request</span>
+      <span className="composer-ghost" aria-hidden="true"><span>{field.value}</span>{field.value === original ? '' : state.ghost}</span>
+      <input ref={input} {...state.inputProps} aria-controls={id} aria-activedescendant={state.chosen && state.expanded ? `${id}-${state.chosen.id}` : undefined} onFocus={() => state.setOpen(true)}/>
+    </label>
+    <div className="edit-actions"><button type="button" className="edit-cancel" onClick={onCancel}>Cancel</button><button type="submit" className="edit-send" disabled={field.busy || !field.value.trim()}>Send</button></div>
+    <Suggestions id={id} head="Change your request" state={state}/>
+  </form>;
+}
+
+// A live answer streams in word by word; what it shows follows once it is written.
+function ThreadAnswer({ text, children }: { text: string; children: React.ReactNode }) {
+  const words = text.match(/\S+\s*/g)?.length ?? 1;
+  return <div className="thread-answer" style={{ '--after': `${words * 55 + 120}ms` } as React.CSSProperties}><p className="thread-reply"><Typed text={text}/></p><div className="thread-result">{children}</div></div>;
 }
 
 // One follow-up from the guest. Asking again edits it, as in ChatGPT, rather than adding another.
@@ -350,11 +427,14 @@ type Turn = { id: number; text: string; request: Request | null; ready: boolean;
 type Checkout = { mode: 'auto' | 'open' | 'closed'; request: Request };
 
 export function Conversation({ motion }: { motion: boolean }) {
-  const ref = useRef<HTMLElement>(null), composer = useRef<HTMLInputElement>(null), checkoutRef = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLElement>(null), composer = useRef<HTMLInputElement>(null), editInput = useRef<HTMLInputElement>(null), checkoutRef = useRef<HTMLDivElement>(null), editButton = useRef<HTMLButtonElement>(null);
   const [turn, setTurn] = useState<Turn | null>(null);
   const [draft, setDraft] = useState('');
+  const [edit, setEdit] = useState<string | null>(null);
+  const typing = useRef<number | undefined>(undefined);
   const [checkout, setCheckout] = useState<Checkout>({ mode: 'auto', request: POOL_ANSWER });
   const [settling, setSettling] = useState(false);
+  const busy = Boolean(turn && !turn.ready);
   const timers = useRef<number[]>([]);
   useScene(ref, motion, chatRenderer);
   // The halo sits behind the window (which clips its own content) and copies its box.
@@ -376,9 +456,27 @@ export function Conversation({ motion }: { motion: boolean }) {
     root?.addEventListener('story-rewind', rewind);
     return () => root?.removeEventListener('story-rewind', rewind);
   }, []);
-  useEffect(() => () => timers.current.forEach(clearTimeout), []);
+  useEffect(() => () => { timers.current.forEach(clearTimeout); window.clearInterval(typing.current); }, []);
   // Click-driven changes redraw the scene at the current scroll position, easing the change in.
-  useLayoutEffect(() => { ref.current?.dispatchEvent(new Event('scene-redraw')); }, [turn, checkout]);
+  const editing = edit !== null;
+  useLayoutEffect(() => { ref.current?.dispatchEvent(new Event('scene-redraw')); }, [turn, checkout, editing]);
+  // A chosen request is typed out, letter by letter, into the field it goes to.
+  const stopTyping = () => window.clearInterval(typing.current);
+  const typeInto = (text: string, set: (value: string) => void, field: React.RefObject<HTMLInputElement | null>) => {
+    stopTyping();
+    let count = 0;
+    set('');
+    typing.current = window.setInterval(() => {
+      count += 1;
+      set(text.slice(0, count));
+      const el = field.current;
+      if (el && document.activeElement !== el) el.focus({ preventScroll: true });
+      if (count >= text.length) {
+        stopTyping();
+        requestAnimationFrame(() => field.current?.setSelectionRange(text.length, text.length));
+      }
+    }, 26);
+  };
   const ease = () => { setSettling(true); timers.current.push(window.setTimeout(() => setSettling(false), 520)); };
   const ask = (text: string) => {
     const id = Date.now(), option = OPTIONS.find(item => item.userMessage === text);
@@ -387,10 +485,15 @@ export function Conversation({ motion }: { motion: boolean }) {
     setTurn(current => ({ id, text, request: option ?? matchRequest(text), ready: false, edits: current ? current.edits + 1 : 0 }));
     timers.current.push(window.setTimeout(() => { ease(); setTurn(current => current?.id === id ? { ...current, ready: true } : current); }, 950));
   };
-  const fill = (option: Option) => {
-    setDraft(option.userMessage);
-    requestAnimationFrame(() => { const field = composer.current; if (field) { field.focus({ preventScroll: true }); field.setSelectionRange(field.value.length, field.value.length); } });
+  // After the first request, every change edits that message.
+  const openEdit = (text?: string) => {
+    if (!turn || busy) return;
+    stopTyping();
+    if (text) { setEdit(''); typeInto(text, setEdit, editInput); }
+    else { setEdit(turn.text); requestAnimationFrame(() => { const field = editInput.current; if (field) { field.focus({ preventScroll: true }); field.setSelectionRange(field.value.length, field.value.length); } }); }
   };
+  const sendEdit = () => { const text = edit?.trim(); stopTyping(); if (!text) return; setEdit(null); ask(text); };
+  const cancelEdit = () => { stopTyping(); setEdit(null); requestAnimationFrame(() => editButton.current?.focus({ preventScroll: true })); };
   const book = (request: Request) => {
     ease();
     setCheckout({ mode: 'open', request });
@@ -400,14 +503,17 @@ export function Conversation({ motion }: { motion: boolean }) {
     ease();
     setCheckout(current => ({ ...current, mode: 'closed' }));
     if (!motion) composer.current?.closest('form')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    window.setTimeout(() => composer.current?.focus({ preventScroll: true }), motion ? 420 : 500);
+    // Back to the conversation: the composer, or once there is a request, its Edit button.
+    window.setTimeout(() => (turn ? editButton.current : composer.current)?.focus({ preventScroll: true }), motion ? 420 : 500);
   };
   // Without a choice by hand, the scroll-driven checkout shows the latest stay the guest asked for.
   const latest = turn?.ready && turn.request ? turn.request : POOL_ANSWER;
   const request = checkout.mode === 'open' ? checkout.request : latest;
   const listing = LISTINGS[request.listing];
-  const busy = Boolean(turn && !turn.ready);
+
   return <section id="guest-story" className="conversation scene-section" ref={ref} aria-labelledby="guest-title" data-checkout={checkout.mode} data-cursor={turn || checkout.mode !== 'auto' ? 'off' : 'on'}>
+    {/* "Watch a booking happen" lands here: the window is open, the question about to be typed. */}
+    <span id="watch-a-booking" className="scene-anchor" aria-hidden="true"/>
     <div className="scene-stage wrap" data-animated>
       <div className="depth-frame" data-animated aria-hidden="true"/><div className="depth-frame" data-animated aria-hidden="true"/><div className="depth-frame" data-animated aria-hidden="true"/><div className="portal-clip" aria-hidden="true"><div className="portal-shutter shutter-left" data-animated><span>ASK.</span></div><div className="portal-shutter shutter-right" data-animated><span>ANSWER.</span></div></div><h2 className="sr-only" id="guest-title">A question becomes a bookable answer</h2><div className="scene-orbit" aria-hidden="true"/>
       <div className="chat-halo" data-animated aria-hidden="true"/>
@@ -415,31 +521,31 @@ export function Conversation({ motion }: { motion: boolean }) {
         <div className="chat-rail" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="16" rx="3" stroke="currentColor" strokeWidth="1.5"/><path d="M9 4v16" stroke="currentColor" strokeWidth="1.5"/></svg><svg viewBox="0 0 24 24" fill="none"><path d="M15 4H5v15h15V9M10 14 20 4l2 2-10 10-3 1 1-3Z" stroke="currentColor" strokeWidth="1.5"/></svg><svg viewBox="0 0 24 24" fill="none"><circle cx="10" cy="10" r="6" stroke="currentColor" strokeWidth="1.5"/><path d="m15 15 5 5" stroke="currentColor" strokeWidth="1.5"/></svg></div>
         <div className="chat-app-header"><span>ChatGPT <span className="chevron">⌄</span></span><span className="chat-header-actions" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 15V3m-4 4 4-4 4 4M5 12v8h14v-8" stroke="currentColor" strokeWidth="1.5"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg></span></div>
         <p className="chat-welcome" data-animated>Where should we begin?</p>
-        <div className="conversation-viewport"><div className={`conversation-track${settling ? ' is-settling' : ''}`} data-animated><div className="query-morph" data-animated><p>{STAY.queryChunks.map((text, i) => <span className="query-chunk" data-animated key={i}>{text}</span>)}</p><div className="query-tools" data-animated><ComposerTools /></div></div>
-        <p className="chat-clarification" data-animated>{STAY.clarification}</p><div className="chat-details" data-animated>{STAY.replyChunks.map((text,i)=><span className="reply-chunk" data-animated key={i}>{text}</span>)}</div><div className="chat-search" data-animated><span aria-hidden="true">◎</span><div>Searching the web<small>Apartments near the sea in Tel Aviv</small></div></div>
+        <div className="conversation-viewport"><div className={`conversation-track${settling ? ' is-settling' : ''}`} data-animated><div className="query-morph" data-animated><p><Typed text={STAY.question} by="char" scripted/><i className="typing-caret query-caret" data-animated/></p><div className="query-tools" data-animated><ComposerTools /></div></div>
+        <p className="chat-clarification" data-animated><Typed text={STAY.clarification} scripted/></p><div className="chat-details" data-animated>{STAY.replyChunks.join('')}</div><div className="chat-search" data-animated><span aria-hidden="true">◎</span><div>Searching the web<small>Apartments near the sea in Tel Aviv</small></div></div>
         <div className="chat-response" data-animated>
-          <p className="answer-beat" data-animated>{FIRST_ANSWER.reply}</p>
+          <p className="answer-beat answer-reply"><Typed text={FIRST_ANSWER.reply} scripted/></p>
           <div className="answer-options">
             {FIRST_ANSWER.listings.map((item, i) => <OptionCard key={item.key} listing={item} eager={i === 0} shownLink/>)}
           </div>
           <div className="chat-followup" data-animated>{STAY.followUp}</div>
-          <p className="pool-intro" data-animated>{POOL_ANSWER.reply}</p>
+          <p className="pool-intro" data-animated><Typed text={POOL_ANSWER.reply} scripted/></p>
           <OptionCard listing={LISTINGS[POOL_ANSWER.listing]} extraLine={POOL_ANSWER.extraLine} beat="pool-beat" className="pool-card">
             <button type="button" className="pool-beat source-link" data-animated onClick={() => book(POOL_ANSWER)}>Book direct <Arrow diagonal /><svg className="demo-cursor" data-animated aria-hidden="true" viewBox="0 0 28 36"><path d="M3 2v27l7-7 6 12 5-3-6-11h10Z" fill="#202123" stroke="white" strokeWidth="2"/></svg></button>
           </OptionCard>
           <div className="chat-thread" data-animated aria-live="polite">
             {turn && <div className="thread-turn">
-              <div className="chat-followup thread-user" key={turn.edits}>{turn.text}</div>
-              {turn.edits > 0 && <small className="thread-edited">Edited</small>}
+              {editing ? <EditMessage original={turn.text} field={{ value: edit, busy, onChange: text => { stopTyping(); setEdit(text); }, onPick: option => typeInto(option.userMessage, setEdit, editInput), onSubmit: sendEdit }} onCancel={cancelEdit} input={editInput}/>
+                : <><div className="chat-followup thread-user" key={turn.edits}>{turn.text}</div>
+                  <div className="thread-actions">{turn.edits > 0 && <small className="thread-edited">Edited</small>}<button type="button" ref={editButton} className="thread-edit-button" disabled={busy} onClick={() => openEdit()}><Pencil/>Edit</button></div></>}
               {!turn.ready ? <p className="thread-searching"><span aria-hidden="true"/>Searching Sea N' Rent</p>
-                : turn.request ? <div className="thread-answer" key={turn.id}><p className="thread-reply">{turn.request.reply}</p>
-                  <OptionCard listing={LISTINGS[turn.request.listing]} extraLine={turn.request.extraLine} beat="thread-beat" className="thread-card"><button type="button" className="source-link" onClick={() => book(turn.request!)}>Book direct <Arrow diagonal/></button></OptionCard></div>
-                : <div className="thread-answer" key={turn.id}><p className="thread-reply">{FALLBACK_REPLY}</p><div className="thread-chips">{OPTIONS.slice(0, 6).map(option => <button type="button" key={option.id} onClick={() => fill(option)}>{option.chip}</button>)}</div></div>}
+                : turn.request ? <ThreadAnswer key={turn.id} text={turn.request.reply}><OptionCard listing={LISTINGS[turn.request.listing]} extraLine={turn.request.extraLine} beat="thread-beat" className="thread-card"><button type="button" className="source-link" onClick={() => book(turn.request!)}>Book direct <Arrow diagonal/></button></OptionCard></ThreadAnswer>
+                : <ThreadAnswer key={turn.id} text={FALLBACK_REPLY}><div className="thread-chips">{OPTIONS.slice(0, 6).map(option => <button type="button" key={option.id} onClick={() => openEdit(option.userMessage)}>{option.chip}</button>)}</div></ThreadAnswer>}
             </div>}
           </div>
         </div>
         </div></div>
-        <Composer busy={busy} editing={Boolean(turn)} value={draft} onChange={setDraft} onAsk={ask} input={composer}/>
+        <Composer field={{ value: draft, busy, onChange: text => { stopTyping(); setDraft(text); }, onPick: option => typeInto(option.userMessage, setDraft, composer), onSubmit: () => { stopTyping(); ask(draft.trim()); } }} editing={Boolean(turn)} onEdit={() => { if (!editing) openEdit(); else editInput.current?.focus({ preventScroll: true }); }} input={composer}/>
         <div ref={checkoutRef} className={`chat-checkout${settling ? ' is-switching' : ''}`} data-animated><div className="checkout-browser">The property's own website <span>Illustrative checkout</span></div><div className="checkout-brand"><img src="/seanrent/logo.svg" alt="Sea N’ Rent" width="140" height="30"/><button type="button" className="checkout-back" onClick={backToChat}><Chevron back/><span>Back to chat</span><small>Keep searching</small></button></div><div className="checkout-grid"><CheckoutSummary key={listing.key} listing={listing} highlights={highlightsFor(listing, request)}/><div className="checkout-payment"><small>ONE LAST STEP</small><h3>Make it your stay.</h3><p>Your apartment and stay details are ready.<br/>Add your card to complete the booking.</p><div className="sample-card" aria-label="Illustrative payment fields, not editable"><span>Cardholder name</span><div>Name on card</div><span>Card number</span><div>1234 &nbsp; 1234 &nbsp; 1234 &nbsp; 1234</div><div className="sample-card-row"><div>MM / YY</div><div>CVC</div></div></div><button disabled className="sample-pay">Pay {listing.total} <Arrow/></button><p className="checkout-takeaway" data-animated>Your booking. Your website.</p><small className="checkout-note">Demo only. No card details collected or payment made.</small></div></div></div>
       </div>
       <div className="story-progress" aria-hidden="true"><i className="story-progress-fill" data-animated/></div><p className="scene-caption">Illustrative ChatGPT conversation. Dates, availability and checkout are examples.</p>
@@ -452,11 +558,14 @@ const compareRenderer = (root: HTMLElement) => {
   const rows=[...root.querySelectorAll<HTMLElement>('.comparison-row')];
   const story=[...root.querySelectorAll<HTMLElement>('.compare-story>p')];
   return (p:number)=>{
-    const detour=between(p,.23,.28,.39,.43), connect=between(p,.44,.48,.53,.56);
+    const detour=between(p,.23,.28,.395,.43), connect=between(p,.44,.48,.53,.56);
     visible(q('.comparison-data'),1-between(p,.20,.23,.54,.57));
     visible(q('.ota-detour'),detour);styles(q('.ota-detour'),{transform:`translateY(${24*(1-detour)}px)`});
     visible(q('.nexa-intervention'),connect);styles(q('.nexa-intervention'),{transform:`scale(${.92+.08*connect})`});
-    styles(q('.ota-route-line'),{transform:`scaleX(${phase(p,.28,.34)})`});
+    styles(q('.ota-route-line'),{transform:`scaleX(${phase(p,.28,.33)})`});
+    // The line reaches the OTA: the chip lights up, and the guest's booking goes there.
+    styles(q('.ota-chip'),{'--arrive':phase(p,.325,.345),'--pulse':between(p,.33,.34,.35,.375)});
+    styles(q('.ota-detour>p'),{'--books':phase(p,.335,.365)});
     // Each row takes the spotlight in turn: what is missing, then what NEXA makes ready.
     const spotMissing=rows.map((_,i)=>between(p,.02+i*.055,.04+i*.055,.07+i*.055,.09+i*.055));
     const spotReady=rows.map((_,i)=>between(p,.575+i*.105,.60+i*.105,.655+i*.105,.675+i*.105));
@@ -487,7 +596,7 @@ export function Comparison({ motion }: { motion: boolean }) {
       ['Final price','No verified total',`${STAY.total} · ${STAY.nights}`],
       ['Direct booking','No trusted booking route',"The property's own website"],
     ].map(([label,missing,ready],i)=><div className="comparison-row" key={label} data-animated><span className="row-index">0{i+1}</span><div><h4>{label}</h4><div className="comparison-values"><p className="row-missing" data-animated><span>−</span>{missing}</p><p className="row-ready" data-animated><span>✓</span>{ready}</p></div></div></div>)}</div><p className="comparison-note">Being listed is not the same as being bookable. Illustrative booking data.</p></div>
-      <div className="ota-detour" data-animated><small>THE BOOKING TAKES ANOTHER ROUTE</small><div className="ota-route" aria-hidden="true"><span>Your property</span><i className="ota-route-line" data-animated/><span>OTA ↗</span></div><h3>The guest still needs<br/>a bookable answer.</h3><p>An OTA can supply the missing price and availability—and become the place the guest books.</p><div className="ota-answer"><span>ONLINE TRAVEL AGENCY</span><strong>A stay. A price. A booking route.</strong><small>The demand was there. The direct route wasn't.</small></div></div>
+      <div className="ota-detour" data-animated><small>THE BOOKING TAKES ANOTHER ROUTE</small><div className="ota-route" aria-hidden="true"><span>Your property</span><i className="ota-route-line" data-animated/><span className="ota-chip" data-animated>OTA ↗</span></div><h3>The guest still needs<br/>a bookable answer.</h3><p data-animated>An OTA can supply the missing price and availability—<span className="ota-books">and become the place the guest books.</span></p><div className="ota-answer"><span>ONLINE TRAVEL AGENCY</span><strong>A stay. A price. A booking route.</strong><small>The demand was there. The direct route wasn't.</small></div></div>
       <div className="nexa-intervention" data-animated><small>NOW, THE SAME PROPERTY WITH</small><img src="/nexa-white.png" alt="Nexa" width="170" height="38"/><h3>Give the answer<br/>what it's missing.</h3><p>One connection. Three essential details.</p></div>
     </div>
   </div></section><div className="comparison-explanation"><details className="wrap"><summary>Our whole company starts with one small sentence: <span>“ChatGPT can make mistakes.”</span><b aria-hidden="true">+</b></summary><div><p>A property mention is not a verified rate or an available room. That familiar disclaimer captures the trust problem: an AI answer should not invent the details a guest needs to book.</p><p>NEXA makes live availability, final prices, and a trusted direct booking route available to the assistant. The assistant can recommend the property; the guest completes booking and payment on the property's own website.</p></div></details></div></>;
@@ -514,19 +623,19 @@ const journeyRenderer = (root: HTMLElement) => {
       visible(el,t);styles(el,{transform:`translateY(${24*(1-t)}px) scale(${.94+.06*t})`});
     });
     styles(q('.exchange-core-rings'),{transform:`rotate(${phase(progress,.10,.30)*90}deg) scale(${.85+.15*phase(progress,.10,.24)})`});
-    root.querySelectorAll<HTMLElement>('.journey-chapters>span').forEach((el,i)=>{
-      const bounds=[0,.21,.44,.65];
-      styles(el,{'--active':i===0?1-phase(progress,.185,.21):i===3?phase(progress,.65,.68):between(progress,bounds[i],bounds[i]+.025,bounds[i+1]-.025,bounds[i+1])});
+    // Each step box lights up while its step plays and fills as it progresses;
+    // on phones the boxes share one card, which crossfades between steps.
+    root.querySelectorAll<HTMLElement>('.journey-chapters>li').forEach((el,i)=>{
+      const bounds=[0,.21,.44,.65,1], start=i?.13+.87*bounds[i]:0, end=.13+.87*bounds[i+1];
+      const shown=(i?phase(progress,bounds[i]-.015,bounds[i]+.015):1)*(i<3?1-phase(progress,bounds[i+1]-.015,bounds[i+1]+.015):1);
+      styles(el,{'--active':i===0?1-phase(progress,.185,.21):i===3?phase(progress,.65,.68):between(progress,bounds[i],bounds[i]+.025,bounds[i+1]-.025,bounds[i+1]),'--fill':Math.min(1,Math.max(0,(rawProgress-start)/(end-start))),'--shown':shown});
     });
-    visible(q('.journey-line-request'),1-phase(progress,.20,.23));
-    visible(q('.journey-line-response'),between(progress,.25,.28,.39,.42));
     styles(q('.website-ai'),{boxShadow:`0 0 ${55*phase(progress,.16,.24)}px #863db359`});
     visible(q('.handoff-photo'),reveal);
 
     const travel = phase(p, .30, .58), confirmation = phase(p, .79, .84), received = phase(p, .89, .94);
     styles(q('.system-flow'),{transform:'none'});
     styles(q('.journey-answer'),{transform:'none'});
-    styles(q('.journey-lines'),{'--takeaway':phase(p,.92,.96)});
     styles(q('.site-ui'),{transform:`perspective(1600px) rotateY(${(1-travel)*22}deg) scale(${.88+.12*travel})`});
     visible(q('.system-flow'), reveal*(1 - phase(p, .3, .43)));
     visible(q('.journey-answer'), reveal*(1 - phase(p, .38, .46)));
@@ -544,15 +653,22 @@ const journeyRenderer = (root: HTMLElement) => {
     visible(q('.booking-confirmed'), confirmation);
     visible(q('.pms-receipt'), received);
     styles(q('.pms-receipt'), { transform: `translateY(${20 * (1 - received)}px)` });
-    ['.journey-line-1', '.journey-line-2', '.journey-line-3'].forEach((s, i) => visible(q(s), i === 0 ? between(progress,.45,.48,.58,.60) : i === 1 ? between(p,.36,.40,.81,.85) : phase(p,.87,.91)));
   };
 };
+
+// The four steps, explained in their boxes above the scene; the active one lights up.
+const JOURNEY_STEPS = [
+  { title: 'The guest asks.', text: 'Their AI turns to your website, backed by the NEXA AI Connector.' },
+  { title: 'NEXA AI answers.', text: 'Instantly, in AI-to-AI communication.' },
+  { title: 'The AI recommends you.', text: 'By name, with your final price and your best-price guarantee.' },
+  { title: 'The guest books with you.', text: 'On your own website. The reservation reaches your PMS like any direct booking.' },
+];
 
 export function BookingJourney({ motion }: { motion: boolean }) {
   const ref = useRef<HTMLElement>(null); useScene(ref, motion, journeyRenderer);
   return <section className="booking-journey scene-section" id="how-it-works" ref={ref} aria-labelledby="works-title"><div className="scene-stage wrap">
     <Label>[02] HOW IT WORKS / THE FIX</Label><header className="scene-heading centered"><h2 id="works-title">NEXA AI makes your property PRICED.<br/><em>Here is how.</em></h2><p>From "find me a place" to a booking on your site. One conversation.</p></header>
-    <div className="journey-chapters" aria-label="The four steps">{["The guest asks","NEXA answers","You are recommended","Booked direct"].map((text,i)=><span key={text} data-animated><b>0{i+1}</b>{text}<i/></span>)}</div><div className="journey-canvas">
+    <ol className="journey-chapters" aria-label="Four steps to a direct booking">{JOURNEY_STEPS.map((step,i)=><li key={step.title} data-animated><span className="step-head" aria-hidden="true"><b>0{i+1}</b><i/></span><span className="step-copy"><strong data-step={`0${i+1}`}>{step.title}</strong><span>{step.text}</span></span></li>)}</ol><div className="journey-canvas">
       <div className="ai-exchange" data-animated><div className="guest-question-opening" data-animated><small>01 / THE GUEST ASKS</small><div className="opening-chat"><span>ChatGPT <b>⌄</b></span><p>Find me an apartment<br/><em>near the sea in Tel Aviv.</em></p><i aria-hidden="true">↑</i></div><p>The AI they already use.<br/><strong>Nothing to install. Just ask.</strong></p></div><div className="exchange-heading" data-animated><small>THE QUESTION REACHES YOUR WEBSITE</small><h3>One question.<br/><em>An AI-to-AI answer.</em></h3></div><div className="exchange-network" data-animated><div className="guest-ai"><span className="ai-orb">AI</span><h4>The guest's AI</h4><small>The assistant they already use</small><div className="exchange-question" data-animated>“Find me an apartment<br/>near the sea in Tel Aviv.”</div></div><div className="exchange-channel" aria-hidden="true"><span>REQUEST</span><div className="request-wire"><i/></div><div className="response-wire"><i/></div><span>VERIFIED DETAILS</span></div><div className="website-ai" data-animated><div className="exchange-core-rings" data-animated aria-hidden="true"><i/><i/></div><small>YOUR WEBSITE</small><img src="/nexa-white.png" alt="Nexa" width="150" height="34"/><h4>AI Connector</h4><span>Backed by your PMS data</span></div></div><div className="exchange-ready" data-animated><span data-animated><small>01 / LIVE AVAILABILITY</small><strong>{STAY.shortDates}</strong><em>{STAY.guests} · Available</em></span><span data-animated><small>02 / FINAL PRICE</small><strong>{STAY.total}</strong><em>{STAY.nights} · Final total</em></span><span data-animated><small>03 / DIRECT BOOKING</small><strong>Your website ↗</strong><em>Your booking. Your guest.</em></span><p>NEXA answers instantly. AI-to-AI.</p></div></div>
       <div className="system-flow" data-animated><div className="pms-source"><span className="system-icon" aria-hidden="true">▤</span><span>Your website<small>Backed by the NEXA AI Connector</small></span></div><div className="flow-thread" aria-hidden="true"/><div className="nexa-source"><img src="/nexa-white.png" alt="Nexa" width="110" height="24"/><small>AI CONNECTOR</small></div><div className="flow-facts" data-animated><span>Availability</span><span>Final price</span><span>Direct booking</span></div><p>AI-to-AI communication.<br/>The answer, ready instantly.</p></div>
       <div className="journey-answer" data-animated><small>IN THE GUEST'S AI ASSISTANT</small><h3>{STAY.property}</h3><div className="journey-photo-slot" aria-hidden="true"/><div className="journey-answer-bottom"><span>{STAY.dates} · {STAY.guests}</span><strong>{STAY.total}<small>final total</small></strong><small className="guarantee-note">Your best-price guarantee</small><span className="visual-link">Book direct <Arrow diagonal/></span></div></div>
@@ -560,7 +676,7 @@ export function BookingJourney({ motion }: { motion: boolean }) {
       <div className="site-ui" data-animated><div className="site-browser"><span aria-hidden="true">⌑</span> The property's own website <span>Illustrative website view</span></div><div className="site-brand"><img src="/seanrent/logo.svg" width="150" height="30" alt="Sea N' Rent"/><span>Home &nbsp; Search &nbsp; About us</span></div><h3 className="site-property-title">{STAY.property}</h3><div className="site-booking" data-animated><div className="booking-status"><div className="booking-before" data-animated><small>YOUR DIRECT BOOKING</small><h4>A sea view.<br/> A stay to look forward to.</h4></div><div className="booking-confirmed" data-animated><small>ILLUSTRATIVE CONFIRMATION</small><h4>Your stay is confirmed.</h4></div></div><dl><div><dt>Check-in</dt><dd>{STAY.arrival}</dd></div><div><dt>Check-out</dt><dd>{STAY.departure}</dd></div><div><dt>Guests</dt><dd>{STAY.guests}</dd></div><div><dt>Stay</dt><dd>{STAY.nights}</dd></div></dl><div className="site-total"><span>Sample final total</span><strong>{STAY.total}</strong></div><p>Booking and payment complete<br/>on the property's own website.</p></div></div>
       <div className="pms-receipt" data-animated><span className="receipt-icon" aria-hidden="true">↙</span><div><small>YOUR PMS</small><strong>Direct website booking received</strong><span>{STAY.dates} · {STAY.guests} · {STAY.total}</span></div></div>
     </div>
-    <div className="journey-lines" data-animated><p className="journey-line-request" data-animated>The guest asks. Their AI turns to your website.</p><p className="journey-line-response" data-animated>NEXA answers instantly. AI-to-AI.</p><p className="journey-line-1" data-animated>The AI recommends your property, by name.</p><p className="journey-line-2" data-animated>The guest books on your site.</p><p className="journey-line-3" data-animated>The reservation reaches your PMS.</p></div>
+    <div className="journey-lines"><p className="journey-note">The guest installs nothing. No application needed. No plugin installed in the chat by the guest. <em>The guest just asks, the AI simply answers.</em></p></div>
     <p className="scene-caption">Illustrative journey. No reservation or payment is made. </p>
   </div></section>;
 }

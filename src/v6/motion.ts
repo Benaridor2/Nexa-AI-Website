@@ -1,6 +1,7 @@
 import { useLayoutEffect, type RefObject } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { PACING, toStory } from './pacing';
 
 gsap.registerPlugin(ScrollTrigger);
 export const clamp = (n: number) => Math.min(1, Math.max(0, n));
@@ -19,7 +20,15 @@ export function useScene(ref: RefObject<HTMLElement | null>, enabled: boolean, s
     const draw = setup(root);
     const clock = { p: 0 };
     let active = true;
-    const render = (p: number) => { if (!active) return; draw(p); root.dataset.progress = p.toFixed(5); };
+    // The scene's own pacing turns scroll progress into story progress.
+    const pacing = PACING[root.id];
+    const render = (p: number) => {
+      if (!active) return;
+      const story = toStory(pacing, p);
+      draw(story);
+      root.dataset.progress = p.toFixed(5);
+      root.dataset.story = story.toFixed(5);
+    };
     const tl = gsap.timeline({ paused: true }).fromTo(clock, { p: 0 }, {
       p: 1, duration: 1, ease: 'none', onUpdate: () => {
         render(clock.p);
@@ -44,7 +53,7 @@ export function useScene(ref: RefObject<HTMLElement | null>, enabled: boolean, s
         if (original.hidden === null) el.removeAttribute('aria-hidden'); else el.setAttribute('aria-hidden', original.hidden);
         el.inert = original.inert;
       });
-      root.removeAttribute('data-progress');
+      root.removeAttribute('data-progress'); root.removeAttribute('data-story');
     };
   }, [ref, enabled, setup]);
 }
