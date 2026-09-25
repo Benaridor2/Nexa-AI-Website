@@ -89,18 +89,24 @@ function Hero({ onPriced }: { onPriced: () => void }) {
     const draw = () => {
       const o = orient(), f = fold.current;
       if (f && fine && settled.current) {
-        const p = pointer.current; p.sx += (p.x - p.sx) * .06; p.sy += (p.y - p.sy) * .06;
-        const rest = HERO_REST[o];
-        f.set({ yaw: (rest.yaw ?? 0) + p.sx * 7, pitch: (rest.pitch ?? 0) - p.sy * 4 });
+        const p = pointer.current, dx = p.x - p.sx, dy = p.y - p.sy;
+        // Ease toward the pointer; stop writing once it has arrived.
+        if (Math.abs(dx) > .0008 || Math.abs(dy) > .0008) {
+          p.sx += dx * .06; p.sy += dy * .06;
+          const rest = HERO_REST[o];
+          f.set({ yaw: +((rest.yaw ?? 0) + p.sx * 7).toFixed(2), pitch: +((rest.pitch ?? 0) - p.sy * 4).toFixed(2) });
+        }
       }
       const hinge = root.querySelector(o === 'down' ? '.panel-2 .layer-anchor-end' : '.panel-2 .layer-anchor');
       if (hinge) {
         const box = root.getBoundingClientRect(), a = dot.getBoundingClientRect(), b = hinge.getBoundingClientRect();
         const x1 = a.left - box.left, y1 = a.top + a.height / 2 - box.top, x2 = b.left - box.left, y2 = b.top + b.height / 2 - box.top;
         // Desktop: across, then down the slant into the hinge. Phones: along the seam, down the margin, into the panel.
-        const d = o === 'down' ? `M${x1} ${y1} H${box.width - 12} V${y2} H${x2}` : `M${x1} ${y1} H${x1 + (x2 - x1) * .72} L${x2} ${y2}`;
+        const n = (v: number) => v.toFixed(1);
+        const d = o === 'down' ? `M${n(x1)} ${n(y1)} H${n(box.width - 12)} V${n(y2)} H${n(x2)}` : `M${n(x1)} ${n(y1)} H${n(x1 + (x2 - x1) * .72)} L${n(x2)} ${n(y2)}`;
         if (path.getAttribute('d') !== d) { path.setAttribute('d', d); path.style.setProperty('--len', String(Math.ceil(path.getTotalLength()) + 2)); }
-        const c = svg.querySelector('circle')!; c.setAttribute('cx', String(x2)); c.setAttribute('cy', String(y2));
+        const c = svg.querySelector('circle')!, cx = x2.toFixed(1), cy = y2.toFixed(1);
+        if (c.getAttribute('cx') !== cx || c.getAttribute('cy') !== cy) { c.setAttribute('cx', cx); c.setAttribute('cy', cy); }
       }
       frame = requestAnimationFrame(draw);
     };

@@ -102,9 +102,8 @@ export function Scene() {
       const a = rel(root.querySelector('.panel-1 .face-front')), b = rel(root.querySelector('.panel-3 .face-front'));
       const left = Math.min(a.x, b.x), top = Math.min(a.y, b.y), right = Math.max(a.x + a.w, b.x + b.w), bottom = Math.max(a.y + a.h, b.y + b.h);
       const pad = { t: 84, r: 22, b: 44, l: 22 };
-      site.style.setProperty('--site-x', `${left - pad.l}px`); site.style.setProperty('--site-y', `${top - pad.t}px`);
-      site.style.setProperty('--site-w', `${right - left + pad.l + pad.r}px`); site.style.setProperty('--site-h', `${bottom - top + pad.t + pad.b}px`);
-      site.style.setProperty('--site-clip-y', `${pad.t}px`); site.style.setProperty('--site-clip-x', `${pad.l}px`);
+      const vars: Record<string, string> = { '--site-x': `${(left - pad.l).toFixed(1)}px`, '--site-y': `${(top - pad.t).toFixed(1)}px`, '--site-w': `${(right - left + pad.l + pad.r).toFixed(1)}px`, '--site-h': `${(bottom - top + pad.t + pad.b).toFixed(1)}px`, '--site-clip-y': `${pad.t}px`, '--site-clip-x': `${pad.l}px` };
+      for (const k in vars) if (site.style.getPropertyValue(k) !== vars[k]) site.style.setProperty(k, vars[k]);
       const dot = rel(root.querySelector('.site-pms i'));
       const sx = dot.x + dot.w / 2, sy = dot.y + dot.h / 2, px = pms.x + pms.w / 2, py = pms.y;
       setPath(sitePath, `M${sx.toFixed(1)} ${(sy + 8).toFixed(1)} V${(py - 18).toFixed(1)} H${px.toFixed(1)} V${py.toFixed(1)}`);

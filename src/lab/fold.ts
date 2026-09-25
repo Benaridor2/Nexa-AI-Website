@@ -46,6 +46,15 @@ export function createFold(root: HTMLElement) {
   const floor = root.querySelector<HTMLElement>('.fold-floor');
   const slot = root.querySelector<HTMLElement>('.fold-slot');
   const state: FoldState = { ...FOLD_DEFAULT };
+  // Only touch the DOM when a value actually changed: an idle fold costs nothing.
+  const last = new WeakMap<Element, Record<string, string>>();
+  const put = (el: Element | null | undefined, key: string, value: string) => {
+    if (!el) return;
+    const seen = last.get(el) ?? {};
+    if (seen[key] === value) return;
+    seen[key] = value; last.set(el, seen);
+    if (key.startsWith('@')) el.setAttribute(key.slice(1), value); else (el as HTMLElement).style.setProperty(key, value);
+  };
 
   const render = () => {
     const vertical = root.dataset.orientation === 'vertical';
@@ -77,26 +86,26 @@ export function createFold(root: HTMLElement) {
       const seat = vertical
         ? `translate3d(${-w / 2}px, ${p.x - cx}px, ${p.z - cz - stack}px) rotateX(${turns[i]}deg)`
         : `translate3d(${p.x - cx}px, ${-h / 2}px, ${p.z - cz - stack}px) rotateY(${turns[i]}deg)`;
-      panel.style.transform = seat + extra;
+      put(panel, 'transform', seat + extra);
       // The empty slot marks where the layer belongs while it is missing.
-      if (i === 1 && slot) { slot.style.transform = seat; slot.style.opacity = String(Math.max(0, 1 - state.link * 2.2) * (1 - state.tuck)); }
-      if (i === 1) panel.style.opacity = String(Math.min(1, state.link * 1.6));
+      if (i === 1 && slot) { put(slot, 'transform', seat); put(slot, 'opacity', String(Math.max(0, 1 - state.link * 2.2) * (1 - state.tuck))); }
+      if (i === 1) put(panel, 'opacity', String(Math.min(1, state.link * 1.6)));
       // Light from the front left and above: faces turned toward it are brighter.
       let lit: number;
       if (vertical) { const f = rad(turns[i] + state.pitch); lit = Math.max(0, 0.55 * Math.sin(f) + 0.83 * Math.cos(f)); }
       else { const f = rad(turns[i] + state.yaw); lit = Math.max(0, -0.78 * Math.sin(f) + 0.62 * Math.cos(f)); }
       const shade = shades[i];
-      if (shade) shade.style.opacity = String(Math.min(0.62, Math.max(0, (0.88 - lit) * 0.72)));
+      put(shade, 'opacity', Math.min(0.62, Math.max(0, (0.88 - lit) * 0.72)).toFixed(3));
     });
 
-    rig.style.transform = `translate3d(${state.x}px, ${state.y}px, 0) scale(${state.scale}) rotateX(${state.pitch}deg) rotateY(${state.yaw}deg) rotateZ(${state.roll}deg)`;
+    put(rig, 'transform', `translate3d(${state.x}px, ${state.y}px, 0) scale(${state.scale}) rotateX(${state.pitch}deg) rotateY(${state.yaw}deg) rotateZ(${state.roll}deg)`);
 
     // Shadows on the floor: each panel projected along the light, from its bottom edge.
     if (floor) {
-      floor.style.display = vertical ? 'none' : '';
+      put(floor, 'display', vertical ? 'none' : 'block');
       if (vertical) return;
-      floor.style.transform = `translate3d(0, ${h / 2}px, 0) rotateX(90deg)`;
-      floor.style.opacity = String(state.ground);
+      put(floor, 'transform', `translate3d(0, ${h / 2}px, 0) rotateX(90deg)`);
+      put(floor, 'opacity', String(state.ground));
       const off = { x: h * 0.62, z: -h * 0.36 };
       panels.forEach((_, i) => {
         if (!shadows[i]) return;
@@ -104,10 +113,10 @@ export function createFold(root: HTMLElement) {
         const present = i === 1 ? state.link : 1;
         const lift = i === 2 ? (1 - state.lock) * 10 : i === 1 ? (1 - state.link) * h * 0.62 : 0;
         const q = (p: Vec, k: number) => `${(p.x - cx + off.x * k + lift * 0.4).toFixed(1)},${(p.z - cz + off.z * k).toFixed(1)}`;
-        shadows[i].setAttribute('points', [q(a0, 0), q(a1, 0), q(a1, 1), q(a0, 1)].join(' '));
-        shadows[i].style.opacity = String(present * 0.9);
+        put(shadows[i], '@points', [q(a0, 0), q(a1, 0), q(a1, 1), q(a0, 1)].join(' '));
+        put(shadows[i], 'opacity', (present * 0.9).toFixed(3));
         const c = contacts[i];
-        if (c) { c.setAttribute('x1', String(a0.x - cx)); c.setAttribute('y1', String(a0.z - cz)); c.setAttribute('x2', String(a1.x - cx)); c.setAttribute('y2', String(a1.z - cz)); c.style.opacity = String(present * Math.max(0, 1 - lift / 30)); }
+        if (c) { put(c, '@x1', (a0.x - cx).toFixed(1)); put(c, '@y1', (a0.z - cz).toFixed(1)); put(c, '@x2', (a1.x - cx).toFixed(1)); put(c, '@y2', (a1.z - cz).toFixed(1)); put(c, 'opacity', (present * Math.max(0, 1 - lift / 30)).toFixed(3)); }
       });
     }
   };
