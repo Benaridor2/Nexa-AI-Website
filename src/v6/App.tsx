@@ -3,6 +3,7 @@ import { useNarrativeScroll } from './useNarrativeScroll';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Arrow, BookingJourney, Comparison, Conversation, Label } from './Scenes';
+import { SiteHeader } from './Header';
 
 
 
@@ -23,7 +24,8 @@ export default function App() {
   const page = useRef<HTMLDivElement>(null);
   const dialog = useRef<HTMLDialogElement>(null);
   const opener = useRef<HTMLElement | null>(null);
-  const open = () => { opener.current = document.activeElement as HTMLElement; dialog.current?.showModal(); };
+  const [dialogMode, setDialogMode] = useState<'priced' | 'signin'>('priced');
+  const open = (mode: 'priced' | 'signin' = 'priced') => { opener.current = document.activeElement as HTMLElement; setDialogMode(mode); dialog.current?.showModal(); };
   const trapDialogFocus = (event: React.KeyboardEvent<HTMLDialogElement>) => {
     if (event.key !== 'Tab') return;
     const buttons = [...event.currentTarget.querySelectorAll<HTMLButtonElement>('button')];
@@ -110,11 +112,11 @@ export default function App() {
       window.removeEventListener('keydown', onInput);
     };
   }, [flow]);
-  const action = (className = 'button') => <button className={className} onClick={open}>Get Priced <Arrow diagonal /></button>;
+  const action = (className = 'button') => <button className={className} onClick={() => open()}>Get Priced <Arrow diagonal /></button>;
 
   return <div className={`v3-page v7-light ${flow ? 'is-flow' : 'is-motion'}`} ref={page}>
     <a className="skip-link" href="#main">Skip to content</a>
-    <header className="main-header wrap"><a href="#" aria-label="Nexa home"><img src="/nexa-purple.png" width="128" height="28" alt="Nexa"/></a><nav aria-label="Main navigation"><a href="#how-it-works">How it works</a><a href="#connector">The connector</a><a href="#faq">FAQ</a></nav>{action('button button-outline')}</header>
+    <SiteHeader onGetPriced={() => open('priced')} onSignIn={() => open('signin')}/>
     <main id="main">
       <section className="hero wrap" aria-labelledby="hero-title">
         <div className="hero-grid" aria-hidden="true"/><div className="hero-content"><Label>THE AI CONNECTOR FOR HOTELS & VACATION RENTALS</Label><h1 id="hero-title">Your next guest is asking an AI.<br/><em>Be the answer.</em></h1><p>Right now, as you read this, a traveler is asking ChatGPT where to stay. If your property is not part of that conversation, your competitor's is. NEXA AI makes sure your property is priced, listed, bookable direct.</p><div className="hero-actions">{action('button button-dark')}<a className="text-link" href="#how-it-works">Watch a booking happen <Arrow/></a></div></div>
@@ -132,7 +134,7 @@ export default function App() {
       <section id="get-priced" className="closing section-pad" aria-labelledby="closing-title"><div className="closing-aperture" aria-hidden="true"><i/><i/></div><div className="wrap"><Label>GET PRICED</Label><h2 id="closing-title">Get PRICED<br/><em>before your competitor does.</em></h2>{action('button button-light')}<p>For hotels and vacation rental operators.</p></div></section>
     </main>
     <footer className="footer wrap"><div className="footer-top"><a href="#" aria-label="Nexa home"><img src="/nexa-purple.png" alt="Nexa" width="128" height="28"/></a><p>Be where your next guest is asking, not where they used to search.</p><a href="#main">Back to top ↑</a></div><div className="footer-bottom"><span>© 2026 NEXA</span><div><a href="/v1">V1</a><a href="/v2">V2</a><a href="/v3">V3</a><a href="/v4">V4</a><a href="/v5">V5</a></div></div><p className="example-note">Sea N' Rent is used as a property example, not a customer endorsement. All booking data shown is illustrative.</p></footer>
-    <dialog ref={dialog} aria-labelledby="get-priced-title" onKeyDown={trapDialogFocus} className="onboarding-dialog" onClose={() => opener.current?.focus()} onClick={e => { if (e.target === dialog.current) dialog.current.close(); }}><div><button className="dialog-close" aria-label="Close" onClick={() => dialog.current?.close()}>×</button><Label>GET PRICED</Label><h2 id="get-priced-title">A direct connection<br/><em>starts with your property.</em></h2><p>The next step is a conversation about your PMS, your booking website, and the properties you operate.</p><ul><li>Your existing PMS</li><li>Your direct booking website</li><li>Your hotel or rental portfolio</li></ul><p className="dialog-note">Prototype preview. No information is collected or submitted. Commercial terms and an onboarding contact will be added when approved.</p><button className="button button-dark" onClick={() => dialog.current?.close()}>Back to NEXA <Arrow/></button></div></dialog>
+    <dialog ref={dialog} aria-labelledby="get-priced-title" onKeyDown={trapDialogFocus} className="onboarding-dialog" onClose={() => opener.current?.focus()} onClick={e => { if (e.target === dialog.current) dialog.current.close(); }}><div><button className="dialog-close" aria-label="Close" onClick={() => dialog.current?.close()}>×</button>{dialogMode === 'signin' ? <><Label>CUSTOMER PANEL</Label><h2 id="get-priced-title">Welcome back.<br/><em>Your panel opens here.</em></h2><p>Existing customers sign in to the NEXA panel to follow their AI channel and direct bookings.</p><p className="dialog-note">Prototype preview. The customer panel link will be connected here; nothing is collected or submitted.</p></> : <><Label>GET PRICED</Label><h2 id="get-priced-title">A direct connection<br/><em>starts with your property.</em></h2><p>The next step is a conversation about your PMS, your booking website, and the properties you operate.</p><ul><li>Your existing PMS</li><li>Your direct booking website</li><li>Your hotel or rental portfolio</li></ul><p className="dialog-note">Prototype preview. No information is collected or submitted. Commercial terms and an onboarding contact will be added when approved.</p></>}<button className="button button-dark" onClick={() => dialog.current?.close()}>Back to NEXA <Arrow/></button></div></dialog>
   </div>;
 }
 

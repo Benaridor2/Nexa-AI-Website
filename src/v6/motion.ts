@@ -31,8 +31,13 @@ export function useScene(ref: RefObject<HTMLElement | null>, enabled: boolean, s
       onRefresh: self => { tl.progress(self.progress); render(self.progress); },
     });
     render(trigger.progress);
+    // Click-driven state (a new chat message, the checkout opened by hand)
+    // asks for a redraw at the current scroll position.
+    const redraw = () => render(clock.p);
+    root.addEventListener('scene-redraw', redraw);
     return () => {
       active = false;
+      root.removeEventListener('scene-redraw', redraw);
       trigger.kill(); tl.kill();
       originalAttributes.forEach((original, el) => {
         if (original.style === null) el.removeAttribute('style'); else el.setAttribute('style', original.style);

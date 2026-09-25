@@ -1,6 +1,7 @@
-import { useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { STAY, type Amenity, type ListingPhoto } from './stay';
+import { STAY } from './stay';
+import { FALLBACK_REPLY, FIRST_ANSWER, LISTINGS, OPTIONS, POOL_ANSWER, completion, highlightsFor, matchRequest, suggest, type AmenityIcon, type Listing, type ListingPhoto, type Option, type Request } from './listings';
 import { between, phase, styles, useScene, visible } from './motion';
 
 export function Arrow({ diagonal = false }: { diagonal?: boolean }) {
@@ -30,6 +31,8 @@ const chatRenderer = (root: HTMLElement) => {
   const replyChunks=[...root.querySelectorAll<HTMLElement>('.reply-chunk')];
   const viewport = q('.conversation-viewport'), track = q('.conversation-track'), followUp = q('.chat-followup'), poolIntro = q('.pool-intro'), poolCard = q('.pool-card'), poolPhoto = q('.pool-card .option-photo');
   const poolBeats = [...root.querySelectorAll<HTMLElement>('.pool-beat')];
+  const thread = q('.chat-thread'), cursor = q('.demo-cursor'), sheet = q('.chat-checkout');
+  let rewound = false;
   const narrow = matchMedia('(max-width: 699px)');
   const stage = q('.scene-stage'), shutters = [...root.querySelectorAll<HTMLElement>('.portal-shutter')];
   const depth = [...root.querySelectorAll<HTMLElement>('.depth-frame')];
@@ -42,7 +45,8 @@ const chatRenderer = (root: HTMLElement) => {
       const room = viewport.clientHeight - 12;
       const overflow = (el: HTMLElement | null) => el ? Math.max(0, response.offsetTop + el.offsetTop + el.offsetHeight - room) : 0;
       const first = overflow(followUp), last = overflow(poolCard);
-      lift = first * phase(progress, .54, .57) + (last - first) * phase(progress, .60, .63);
+      const latest = thread?.childElementCount ? Math.max(last, overflow(thread)) : last;
+      lift = first * phase(progress, .54, .57) + (last - first) * phase(progress, .60, .63) + (latest - last) * phase(progress, .64, .655);
     }
     styles(track, { transform: `translateY(${-lift}px)` });
     const request = phase(progress, .54, .57), offer = phase(progress, .60, .62);
@@ -50,10 +54,17 @@ const chatRenderer = (root: HTMLElement) => {
     visible(poolIntro, offer); styles(poolIntro, { transform: `translateY(${12*(1-offer)}px)` });
     poolBeats.forEach((el,i)=>{const t=phase(progress,.61+i*.007,.625+i*.007);visible(el,t);styles(el,{transform:`translateY(${12*(1-t)}px)`});});
     styles(poolPhoto, { 'clip-path': `inset(${(1-phase(progress,.618,.655))*100}% 0 0 0 round 9px)` });
-    const checkout = phase(progress,.826,.877);
-    visible(q(".chat-checkout"),checkout);
-    styles(q(".chat-checkout"),{transform:`translateX(${50*(1-checkout)}px) scale(${.96+.04*checkout})`});
-    visible(q(".demo-cursor"),between(progress,.76,.775,.822,.833),false);
+    // The guest's turn: once the pool answer is read, the composer takes requests
+    // and their answers follow it. Opening or closing the checkout by hand
+    // overrides the scroll until the story is scrolled back before the follow-up.
+    const live = progress >= .645, mode = root.dataset.checkout;
+    visible(thread, phase(progress, .64, .655));
+    if (dock) { dock.classList.toggle('is-live', live); dock.inert = !live; }
+    if (progress < .6 && mode !== 'auto') { if (!rewound) root.dispatchEvent(new Event('story-rewind')); rewound = true; } else rewound = false;
+    const checkout = mode === 'open' ? 1 : mode === 'closed' ? 0 : phase(progress,.826,.877);
+    visible(sheet,checkout);
+    styles(sheet,{transform:`translateX(${50*(1-checkout)}px) scale(${.96+.04*checkout})`});
+    visible(cursor,root.dataset.cursor === 'off' ? 0 : between(progress,.76,.775,.822,.833),false);
     styles(q(".demo-cursor"),{transform:`translate(${75*(1-phase(progress,.775,.812))}px,${-65*(1-phase(progress,.775,.812))}px) scale(${1-.18*between(progress,.812,.815,.819,.822)})`});
     styles(q(".pool-card .source-link"),{boxShadow:`0 0 0 ${8*between(progress,.812,.815,.822,.83)}px #863db329`});
     styles(q(".checkout-takeaway"),{'--takeaway':phase(progress,.892,.921)});
@@ -162,7 +173,7 @@ function PhotoGallery({ photos, start, title, onClose }: { photos: readonly List
   </dialog>, document.body);
 }
 
-const AMENITY_PATHS: Record<Amenity, string> = {
+const AMENITY_PATHS: Record<AmenityIcon, string> = {
   pool: 'M8 3v11M16 3v11M8 7h8M8 11h8M3 18.5c1.5 0 1.5-1 3-1s1.5 1 3 1 1.5-1 3-1 1.5 1 3 1 1.5-1 3-1 1.5 1 3 1',
   beach: 'M12 4a8 8 0 0 1 8 7H4a8 8 0 0 1 8-7ZM12 11v7M3 20.5c1.5 0 1.5-1 3-1s1.5 1 3 1 1.5-1 3-1 1.5 1 3 1 1.5-1 3-1 1.5 1 3 1',
   parking: 'M12 3a9 9 0 1 1 0 18 9 9 0 0 1 0-18ZM10 17V7.5h3a3 3 0 0 1 0 6h-3',
@@ -179,14 +190,17 @@ const AMENITY_PATHS: Record<Amenity, string> = {
   dishes: 'M7 3v18M4 3v5a3 3 0 0 0 6 0V3M17.5 21V3c-2 1-3.5 3-3.5 6.5V13h3.5',
   dishwasher: 'M6 3h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2ZM4 8h16M8 12.5h8M8 16.5h8M7.5 5.5h.1M10.5 5.5h.1',
   dryer: 'M6 3h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2ZM4 7.5h16M12 10a4 4 0 1 1 0 8 4 4 0 0 1 0-8ZM7.5 5.3h.1',
+  garden: 'M12 20.5V12M12 12C12 8 9 5 5 5c0 4 3 7 7 7ZM12 12c0-4 3-7 7-7 0 4-3 7-7 7ZM6.5 20.5h11',
+  bath: 'M4 12h16v3a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4v-3ZM6 12V6.5a2.5 2.5 0 0 1 5 0M7.5 19l-1 2M16.5 19l1 2',
+  check: 'M5 12.5l4.5 4.5L19 7.5',
 };
 
-function AmenityIcon({ name }: { name: Amenity }) {
+function AmenityIcon({ name }: { name: AmenityIcon }) {
   return <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d={AMENITY_PATHS[name]} stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>;
 }
 
 // The complete listing text, opened from the short summary in the checkout.
-function ListingDetails({ onClose }: { onClose: () => void }) {
+function ListingDetails({ listing, onClose }: { listing: Listing; onClose: () => void }) {
   const dialog = useRef<HTMLDialogElement>(null), body = useRef<HTMLDivElement>(null);
   useLayoutEffect(() => {
     const el = dialog.current;
@@ -204,29 +218,28 @@ function ListingDetails({ onClose }: { onClose: () => void }) {
     event.preventDefault();
     body.current?.scrollBy({ top: delta, behavior: Math.abs(delta) > 1e4 ? 'instant' : 'smooth' });
   };
-  const listing = STAY.pool;
   return createPortal(<dialog ref={dialog} className="listing-details" aria-labelledby="listing-details-title" onKeyDown={keys} onClose={onClose} onClick={event => { if (event.target === dialog.current) dialog.current?.close(); }}>
     <div className="details-sheet">
-      <header className="details-header"><div><small>About this apartment</small><h2 id="listing-details-title">{listing.property}</h2></div><button type="button" className="gallery-close details-close" aria-label="Close description" onClick={() => dialog.current?.close()}><Close/></button></header>
+      <header className="details-header"><div><small>About this apartment</small><h2 id="listing-details-title">{listing.title}</h2><p className="details-facts">{[listing.ratingLabel, listing.sizeLabel].filter(Boolean).join(' · ')}</p></div><button type="button" className="gallery-close details-close" aria-label="Close description" onClick={() => dialog.current?.close()}><Close/></button></header>
       <div className="details-body" ref={body}>
         <p className="details-summary">{listing.summary}</p>
-        {listing.sections.map(section => <section key={section.title}><h3>{section.title}</h3>{section.paragraphs.map(text => <p key={text.slice(0, 24)}>{text}</p>)}</section>)}
-        <section><h3>House rules</h3><ul>{listing.rules.map(rule => <li key={rule}>{rule}</li>)}</ul></section>
+        {listing.sections.map(section => <section key={section.title}><h3>{section.title}</h3>{section.paragraphs.map(text => <p key={text.slice(0, 32)}>{text}</p>)}</section>)}
+        {listing.rules.length > 0 && <section><h3>House rules</h3><ul>{listing.rules.map(rule => <li key={rule}>{rule}</li>)}</ul></section>}
       </div>
     </div>
   </dialog>, document.body);
 }
 
 // The property's checkout responds to the visitor's clicks, never to scroll progress.
-function CheckoutSummary() {
+function CheckoutSummary({ listing, highlights }: { listing: Listing; highlights: readonly string[] }) {
   const [index, setIndex] = useState(0);
   const [panel, setPanel] = useState<'description' | 'amenities' | null>(null);
   const [gallery, setGallery] = useState(false), [details, setDetails] = useState(false);
   const readMore = useRef<HTMLButtonElement>(null);
   const toggle = (name: 'description' | 'amenities') => setPanel(panel === name ? null : name);
-  const listing = STAY.pool;
   const next = useRef<HTMLButtonElement>(null), previous = useRef<HTMLButtonElement>(null), opener = useRef<HTMLButtonElement>(null);
-  const photos = STAY.pool.photos, last = photos.length - 1;
+  const photos = listing.photos, last = photos.length - 1, photo = photos[index];
+  const amenities = [...listing.amenities].sort((a, b) => Number(highlights.includes(b.label)) - Number(highlights.includes(a.label)));
   const show = (target: number) => {
     setIndex(target);
     // Keep keyboard focus on a usable control when an edge button leaves or is disabled.
@@ -236,38 +249,105 @@ function CheckoutSummary() {
   return <div className="checkout-summary">
     <div className="checkout-carousel">
       <button type="button" ref={opener} className="carousel-open" aria-label={`Open photo ${index + 1} of ${photos.length} full size`} onClick={() => setGallery(true)}>
-        <img src={photos[index].src} alt={photos[index].alt} width={photos[index].width} height={photos[index].height} style={{ objectPosition: photos[index].focus }} loading="lazy"/>
+        <img src={photo.src} alt={photo.alt} width={photo.width} height={photo.height} style={{ objectPosition: photo.focus }} loading="lazy"/>
         <span className="carousel-count" aria-hidden="true"><Expand/>{index + 1} / {photos.length}</span>
       </button>
       {index > 0 && <button type="button" ref={previous} className="carousel-button carousel-previous" aria-label="Previous photo" onClick={() => show(index - 1)}><Chevron back/></button>}
       <button type="button" ref={next} className="carousel-button carousel-next" aria-label="Next photo" disabled={index === last} onClick={() => show(index + 1)}><Chevron/></button>
     </div>
-    {gallery && <PhotoGallery photos={photos} start={index} title={STAY.pool.property} onClose={shownLast => { setIndex(shownLast); setGallery(false); requestAnimationFrame(() => opener.current?.focus()); }}/>}
+    {gallery && <PhotoGallery photos={photos} start={index} title={listing.title} onClose={shownLast => { setIndex(shownLast); setGallery(false); requestAnimationFrame(() => opener.current?.focus()); }}/>}
     <div className="checkout-toggles">
       <button type="button" className="description-toggle" aria-expanded={panel === 'description'} aria-controls="checkout-description" onClick={() => toggle('description')}>{panel === 'description' ? 'Hide description' : 'Show description'}<Chevron/></button>
       <button type="button" className="description-toggle amenities-toggle" aria-expanded={panel === 'amenities'} aria-controls="checkout-amenities" onClick={() => toggle('amenities')}>{panel === 'amenities' ? 'Hide amenities' : 'Show amenities'}<Chevron/></button>
     </div>
     <div className="checkout-description" id="checkout-description" data-open={panel === 'description'}><div><p>{listing.summary}</p><button type="button" ref={readMore} className="read-more" onClick={() => setDetails(true)}>Read the full description <Arrow/></button></div></div>
-    <div className="checkout-description checkout-amenities" id="checkout-amenities" data-open={panel === 'amenities'}><div><ul aria-label="Amenities">{listing.amenities.map(([icon, label]) => <li key={icon} className={listing.highlights.includes(icon) ? 'is-highlight' : ''}><AmenityIcon name={icon}/>{label}</li>)}</ul></div></div>
-    {details && <ListingDetails onClose={() => { setDetails(false); requestAnimationFrame(() => readMore.current?.focus()); }}/>}
-    <h3>{listing.property}</h3><p>{STAY.dates} · {STAY.guests} · {STAY.nights}</p><div className="checkout-total"><span>Final total</span><strong>{listing.total}</strong></div>
+    <div className="checkout-description checkout-amenities" id="checkout-amenities" data-open={panel === 'amenities'}><div><ul aria-label="Amenities">{amenities.map(item => <li key={item.label} className={highlights.includes(item.label) ? 'is-highlight' : ''}><AmenityIcon name={item.icon}/>{item.label}</li>)}</ul></div></div>
+    {details && <ListingDetails listing={listing} onClose={() => { setDetails(false); requestAnimationFrame(() => readMore.current?.focus()); }}/>}
+    <h3>{listing.title}</h3><p>{STAY.dates} · {STAY.guests} · {STAY.nights}</p><div className="checkout-total"><span>Final total<small>Illustrative, 4 nights</small></span><strong>{listing.total}</strong></div>
   </div>;
 }
 
-function OptionCard({ property, total, photo, eager = false, className = '', beat = 'answer-beat', children }: { property: string; total: string; photo: ListingPhoto; eager?: boolean; className?: string; beat?: string; children?: React.ReactNode }) {
+function OptionCard({ listing, extraLine, eager = false, className = '', beat = 'answer-beat', children }: { listing: Listing; extraLine?: string; eager?: boolean; className?: string; beat?: string; children?: React.ReactNode }) {
+  const photo = listing.photos[0];
   return <article className={`option-card ${beat} ${className}`} data-animated>
     <div className="option-photo" data-animated><img src={photo.src} alt={photo.alt} width={photo.width} height={photo.height} style={{ objectPosition: photo.focus }} loading={eager ? 'eager' : 'lazy'} fetchPriority={eager ? 'high' : 'auto'}/></div>
     <div className="option-body">
-      <h3 className={beat} data-animated>{property}</h3>
-      <p className={`option-meta ${beat}`} data-animated>{STAY.shortDates} · {STAY.guests} · {STAY.nights}</p>
-      <div className={`option-total ${beat}`} data-animated><strong>{total} <span>final total</span></strong><span className="connected-badge">Connected to NEXA AI</span></div>
+      <h3 className={beat} data-animated>{listing.title}</h3>
+      <p className={`option-meta ${beat}`} data-animated>{[listing.ratingLabel, listing.sizeLabel].filter(Boolean).join(' · ')}</p>
+      {extraLine && <p className={`option-extra ${beat}`} data-animated>{extraLine}</p>}
+      <div className={`option-total ${beat}`} data-animated><strong>{listing.total} <span>final total</span></strong><span className="connected-badge">Connected to NEXA AI</span></div>
     </div>
     {children}
   </article>;
 }
 
+function Sparkle() {
+  return <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3.5c.6 3.9 2.6 5.9 6.5 6.5-3.9.6-5.9 2.6-6.5 6.5-.6-3.9-2.6-5.9-6.5-6.5 3.9-.6 5.9-2.6 6.5-6.5ZM18.5 15.5c.3 1.6 1.1 2.4 2.7 2.7-1.6.3-2.4 1.1-2.7 2.7-.3-1.6-1.1-2.4-2.7-2.7 1.6-.3 2.4-1.1 2.7-2.7Z" fill="currentColor"/></svg>;
+}
+
+// The guest's own follow-up requests: suggestions while typing, an inline
+// completion (Tab), and free text matched to a listing.
+function Composer({ busy, onAsk, input }: { busy: boolean; onAsk: (text: string, option?: Option) => void; input: React.RefObject<HTMLInputElement | null> }) {
+  const [value, setValue] = useState('');
+  const [open, setOpen] = useState(false);
+  const [active, setActive] = useState(-1);
+  const list = suggest(value).slice(0, 6);
+  const ghost = completion(value, list[0]);
+  const expanded = open && list.length > 0;
+  const send = (text: string, option?: Option) => {
+    if (busy || !text.trim()) return;
+    onAsk(text.trim(), option);
+    setValue(''); setActive(-1); setOpen(false);
+  };
+  const keys = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if ((event.key === 'ArrowDown' || event.key === 'ArrowUp') && list.length) {
+      event.preventDefault();
+      setOpen(true);
+      const down = event.key === 'ArrowDown';
+      setActive(current => down ? (current + 1) % list.length : current <= 0 ? list.length - 1 : current - 1);
+    } else if ((event.key === 'Tab' || event.key === 'ArrowRight') && ghost && event.currentTarget.selectionStart === value.length) {
+      event.preventDefault();
+      setValue(value + ghost);
+    } else if (event.key === 'Escape' && expanded) {
+      event.preventDefault();
+      setOpen(false); setActive(-1);
+    }
+  };
+  const chosen = active >= 0 && active < list.length ? list[active] : undefined;
+  return <form className="chat-dock" data-animated role="search" aria-label="Ask ChatGPT for another stay" onSubmit={event => { event.preventDefault(); if (chosen) send(chosen.userMessage, chosen); else send(value); }}>
+    <span className="composer-plus" aria-hidden="true">+</span>
+    <span className="dock-hint dock-idle" aria-hidden="true">Ask ChatGPT</span>
+    <label className="composer-field">
+      <span className="sr-only">Ask for another stay</span>
+      <span className="composer-ghost" aria-hidden="true"><span>{value}</span>{ghost}</span>
+      <input ref={input} value={value} disabled={busy} autoComplete="off" spellCheck={false} placeholder="Ask for more, like the cheapest option" role="combobox" aria-expanded={expanded} aria-controls="composer-suggestions" aria-autocomplete="both" aria-activedescendant={chosen ? `suggestion-${chosen.id}` : undefined}
+        onChange={event => { setValue(event.target.value); setOpen(true); setActive(-1); }} onFocus={() => setOpen(true)} onBlur={() => setOpen(false)} onKeyDown={keys}/>
+    </label>
+    <span className="composer-mic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><rect x="9" y="3" width="6" height="12" rx="3" stroke="currentColor" strokeWidth="1.5"/><path d="M6 10v2a6 6 0 0 0 12 0v-2M12 18v3" stroke="currentColor" strokeWidth="1.5"/></svg></span>
+    <button type="submit" className="composer-send" aria-label="Send" disabled={busy || (!value.trim() && !chosen)}>↑</button>
+    <div className="composer-suggestions" id="composer-suggestions" role="listbox" aria-label="Suggestions" hidden={!expanded} data-lenis-prevent>
+      <p className="suggestions-head" aria-hidden="true"><Sparkle/>Keep searching<span>↑↓ choose · Tab complete · Enter ask</span></p>
+      {list.map((option, i) => {
+        const listing = LISTINGS[option.listing];
+        return <div role="option" id={`suggestion-${option.id}`} key={option.id} aria-selected={i === active} className="suggestion" onMouseDown={event => { event.preventDefault(); send(option.userMessage, option); }} onMouseEnter={() => setActive(i)}>
+          <img src={listing.photos[0].src} alt="" loading="lazy"/>
+          <span>I also want <b>{option.chip}</b></span>
+          <small>{listing.total}</small>
+        </div>;
+      })}
+    </div>
+  </form>;
+}
+
+type Turn = { id: number; text: string; request: Request | null; ready: boolean };
+type Checkout = { mode: 'auto' | 'open' | 'closed'; request: Request };
+
 export function Conversation({ motion }: { motion: boolean }) {
-  const ref = useRef<HTMLElement>(null);
+  const ref = useRef<HTMLElement>(null), composer = useRef<HTMLInputElement>(null), checkoutRef = useRef<HTMLDivElement>(null);
+  const [turns, setTurns] = useState<Turn[]>([]);
+  const [checkout, setCheckout] = useState<Checkout>({ mode: 'auto', request: POOL_ANSWER });
+  const [settling, setSettling] = useState(false);
+  const timers = useRef<number[]>([]);
   useScene(ref, motion, chatRenderer);
   // The halo sits behind the window (which clips its own content) and copies its box.
   useLayoutEffect(() => {
@@ -281,7 +361,40 @@ export function Conversation({ motion }: { motion: boolean }) {
     void document.fonts.ready.then(place);
     return () => observer.disconnect();
   }, [motion]);
-  return <section id="guest-story" className="conversation scene-section" ref={ref} aria-labelledby="guest-title">
+  // Scrolling back before the follow-up replays the story: the checkout returns to the scroll.
+  useEffect(() => {
+    const root = ref.current;
+    const rewind = () => setCheckout(current => ({ ...current, mode: 'auto' }));
+    root?.addEventListener('story-rewind', rewind);
+    return () => root?.removeEventListener('story-rewind', rewind);
+  }, []);
+  useEffect(() => () => timers.current.forEach(clearTimeout), []);
+  // Click-driven changes redraw the scene at the current scroll position, easing the change in.
+  useLayoutEffect(() => { ref.current?.dispatchEvent(new Event('scene-redraw')); }, [turns, checkout]);
+  const ease = () => { setSettling(true); timers.current.push(window.setTimeout(() => setSettling(false), 520)); };
+  const ask = (text: string, option?: Option) => {
+    const id = Date.now();
+    ease();
+    setTurns(current => [...current, { id, text: option?.userMessage ?? text, request: option ?? matchRequest(text), ready: false }]);
+    timers.current.push(window.setTimeout(() => { ease(); setTurns(current => current.map(turn => turn.id === id ? { ...turn, ready: true } : turn)); }, 950));
+  };
+  const book = (request: Request) => {
+    ease();
+    setCheckout({ mode: 'open', request });
+    if (!motion) requestAnimationFrame(() => checkoutRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }));
+  };
+  const backToChat = () => {
+    ease();
+    setCheckout(current => ({ ...current, mode: 'closed' }));
+    if (!motion) composer.current?.closest('form')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    window.setTimeout(() => composer.current?.focus({ preventScroll: true }), motion ? 420 : 500);
+  };
+  // Without a choice by hand, the scroll-driven checkout shows the latest stay the guest asked for.
+  const latest = [...turns].reverse().find(turn => turn.ready && turn.request)?.request ?? POOL_ANSWER;
+  const request = checkout.mode === 'open' ? checkout.request : latest;
+  const listing = LISTINGS[request.listing];
+  const busy = turns.some(turn => !turn.ready);
+  return <section id="guest-story" className="conversation scene-section" ref={ref} aria-labelledby="guest-title" data-checkout={checkout.mode} data-cursor={turns.length || checkout.mode !== 'auto' ? 'off' : 'on'}>
     <div className="scene-stage wrap" data-animated>
       <div className="depth-frame" data-animated aria-hidden="true"/><div className="depth-frame" data-animated aria-hidden="true"/><div className="depth-frame" data-animated aria-hidden="true"/><div className="portal-clip" aria-hidden="true"><div className="portal-shutter shutter-left" data-animated><span>ASK.</span></div><div className="portal-shutter shutter-right" data-animated><span>ANSWER.</span></div></div><h2 className="sr-only" id="guest-title">A question becomes a bookable answer</h2><div className="scene-orbit" aria-hidden="true"/>
       <div className="chat-halo" data-animated aria-hidden="true"/>
@@ -289,22 +402,31 @@ export function Conversation({ motion }: { motion: boolean }) {
         <div className="chat-rail" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="16" rx="3" stroke="currentColor" strokeWidth="1.5"/><path d="M9 4v16" stroke="currentColor" strokeWidth="1.5"/></svg><svg viewBox="0 0 24 24" fill="none"><path d="M15 4H5v15h15V9M10 14 20 4l2 2-10 10-3 1 1-3Z" stroke="currentColor" strokeWidth="1.5"/></svg><svg viewBox="0 0 24 24" fill="none"><circle cx="10" cy="10" r="6" stroke="currentColor" strokeWidth="1.5"/><path d="m15 15 5 5" stroke="currentColor" strokeWidth="1.5"/></svg></div>
         <div className="chat-app-header"><span>ChatGPT <span className="chevron">⌄</span></span><span className="chat-header-actions" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 15V3m-4 4 4-4 4 4M5 12v8h14v-8" stroke="currentColor" strokeWidth="1.5"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg></span></div>
         <p className="chat-welcome" data-animated>Where should we begin?</p>
-        <div className="conversation-viewport"><div className="conversation-track" data-animated><div className="query-morph" data-animated><p>{STAY.queryChunks.map((text, i) => <span className="query-chunk" data-animated key={i}>{text}</span>)}</p><div className="query-tools" data-animated><ComposerTools /></div></div>
+        <div className="conversation-viewport"><div className={`conversation-track${settling ? ' is-settling' : ''}`} data-animated><div className="query-morph" data-animated><p>{STAY.queryChunks.map((text, i) => <span className="query-chunk" data-animated key={i}>{text}</span>)}</p><div className="query-tools" data-animated><ComposerTools /></div></div>
         <p className="chat-clarification" data-animated>{STAY.clarification}</p><div className="chat-details" data-animated>{STAY.replyChunks.map((text,i)=><span className="reply-chunk" data-animated key={i}>{text}</span>)}</div><div className="chat-search" data-animated><span aria-hidden="true">◎</span><div>Searching the web<small>Apartments near the sea in Tel Aviv</small></div></div>
         <div className="chat-response" data-animated>
-          <p className="answer-beat" data-animated>{STAY.optionsIntro}</p>
+          <p className="answer-beat" data-animated>{FIRST_ANSWER.reply}</p>
           <div className="answer-options">
-            <OptionCard property={STAY.property} total={STAY.total} photo={STAY.photo} eager/>
-            <OptionCard property={STAY.second.property} total={STAY.second.total} photo={STAY.second.photo}/>
+            {FIRST_ANSWER.listings.map((item, i) => <OptionCard key={item.key} listing={item} eager={i === 0}/>)}
           </div>
           <div className="chat-followup" data-animated>{STAY.followUp}</div>
-          <p className="pool-intro" data-animated>{STAY.poolIntro}</p>
-          <OptionCard property={STAY.pool.property} total={STAY.pool.total} photo={STAY.pool.photo} beat="pool-beat" className="pool-card">
-            <a className="pool-beat source-link" data-animated href="#how-it-works">Book direct <Arrow diagonal /><svg className="demo-cursor" data-animated aria-hidden="true" viewBox="0 0 28 36"><path d="M3 2v27l7-7 6 12 5-3-6-11h10Z" fill="#202123" stroke="white" strokeWidth="2"/></svg></a>
+          <p className="pool-intro" data-animated>{POOL_ANSWER.reply}</p>
+          <OptionCard listing={LISTINGS[POOL_ANSWER.listing]} extraLine={POOL_ANSWER.extraLine} beat="pool-beat" className="pool-card">
+            <button type="button" className="pool-beat source-link" data-animated onClick={() => book(POOL_ANSWER)}>Book direct <Arrow diagonal /><svg className="demo-cursor" data-animated aria-hidden="true" viewBox="0 0 28 36"><path d="M3 2v27l7-7 6 12 5-3-6-11h10Z" fill="#202123" stroke="white" strokeWidth="2"/></svg></button>
           </OptionCard>
+          <div className="chat-thread" data-animated aria-live="polite">
+            {turns.map(turn => <div className="thread-turn" key={turn.id}>
+              <div className="chat-followup thread-user">{turn.text}</div>
+              {!turn.ready ? <p className="thread-searching"><span aria-hidden="true"/>Searching Sea N' Rent</p>
+                : turn.request ? <div className="thread-answer"><p className="thread-reply">{turn.request.reply}</p>
+                  <OptionCard listing={LISTINGS[turn.request.listing]} extraLine={turn.request.extraLine} beat="thread-beat" className="thread-card"><button type="button" className="source-link" onClick={() => book(turn.request!)}>Book direct <Arrow diagonal/></button></OptionCard></div>
+                : <div className="thread-answer"><p className="thread-reply">{FALLBACK_REPLY}</p><div className="thread-chips">{OPTIONS.slice(0, 6).map(option => <button type="button" key={option.id} disabled={busy} onClick={() => ask(option.userMessage, option)}>{option.chip}</button>)}</div></div>}
+            </div>)}
+          </div>
         </div>
-        </div></div><div className="chat-dock" data-animated aria-hidden="true"><span>Ask ChatGPT</span><ComposerTools /></div>
-        <div className="chat-checkout" data-animated><div className="checkout-browser">The property's own website <span>Illustrative checkout</span></div><div className="checkout-brand"><img src="/seanrent/logo.svg" alt="Sea N’ Rent" width="140" height="30"/><span>Complete your stay</span></div><div className="checkout-grid"><CheckoutSummary/><div className="checkout-payment"><small>ONE LAST STEP</small><h3>Make it your stay.</h3><p>Your apartment and stay details are ready.<br/>Add your card to complete the booking.</p><div className="sample-card" aria-label="Illustrative payment fields, not editable"><span>Cardholder name</span><div>Name on card</div><span>Card number</span><div>1234 &nbsp; 1234 &nbsp; 1234 &nbsp; 1234</div><div className="sample-card-row"><div>MM / YY</div><div>CVC</div></div></div><button disabled className="sample-pay">Pay {STAY.pool.total} <Arrow/></button><p className="checkout-takeaway" data-animated>Your booking. Your website.</p><small className="checkout-note">Demo only. No card details collected or payment made.</small></div></div></div>
+        </div></div>
+        <Composer busy={busy} onAsk={ask} input={composer}/>
+        <div ref={checkoutRef} className={`chat-checkout${settling ? ' is-switching' : ''}`} data-animated><div className="checkout-browser">The property's own website <span>Illustrative checkout</span></div><div className="checkout-brand"><img src="/seanrent/logo.svg" alt="Sea N’ Rent" width="140" height="30"/><button type="button" className="checkout-back" onClick={backToChat}><Chevron back/><span>Back to chat</span><small>Keep searching</small></button></div><div className="checkout-grid"><CheckoutSummary key={listing.key} listing={listing} highlights={highlightsFor(listing, request)}/><div className="checkout-payment"><small>ONE LAST STEP</small><h3>Make it your stay.</h3><p>Your apartment and stay details are ready.<br/>Add your card to complete the booking.</p><div className="sample-card" aria-label="Illustrative payment fields, not editable"><span>Cardholder name</span><div>Name on card</div><span>Card number</span><div>1234 &nbsp; 1234 &nbsp; 1234 &nbsp; 1234</div><div className="sample-card-row"><div>MM / YY</div><div>CVC</div></div></div><button disabled className="sample-pay">Pay {listing.total} <Arrow/></button><p className="checkout-takeaway" data-animated>Your booking. Your website.</p><small className="checkout-note">Demo only. No card details collected or payment made.</small></div></div></div>
       </div>
       <div className="story-progress" aria-hidden="true"><i className="story-progress-fill" data-animated/></div><p className="scene-caption">Illustrative ChatGPT conversation. Dates, availability and checkout are examples.</p>
     </div>

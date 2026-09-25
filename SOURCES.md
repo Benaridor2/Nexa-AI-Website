@@ -23,6 +23,8 @@ Base URL: `https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7c
 | `public/seanrent/interior.jpg` | `0a4a68e0-a247-11f1-b874-d3aafb3446ec.jpg` |
 | `public/seanrent/bedroom.jpg` | `09e6f530-a247-11f1-a6d6-87280edddbc2.jpg` |
 
+Tel Aviv listings in the guest conversation (`src/v6/listings.json`): titles, addresses, descriptions (lightly shortened, no facts added), amenities, ratings and from-prices as displayed on booking.seanrent.com on 2026-09-25, supplied by Ben. The three photos per listing were downloaded from the listing's image CDN into `public/seanrent/tel-aviv/<key>/`. Totals are 4 × the from-price and illustrative only. No outgoing link to the listings is published.
+
 Coastal Panorama Apartment by Sea N' Rent (the pool result in the V7 conversation): listing name, description, house rules, amenities and four photos (`public/seanrent/coastal-panorama/`, 1200 x 800) were supplied by Ben from Sea N' Rent's listing on 2026-09-25. "Near the beach" and "Swimming pool" are added to the amenities from the listing description. The dates and total shown with it are illustrative.
 
 The real property logo, used only inside its website reconstruction, was read from the listing's rendered image:

@@ -1,0 +1,240 @@
+{
+  "source": "booking.seanrent.com (Sea N' Rent), collected 2026-09-25. Titles, addresses, descriptions, amenities, ratings and from-prices as displayed on the site that day; descriptions lightly shortened, no facts added. totalUsd is 4 x the from-price, illustrative only. Photos are saved at /seanrent/tel-aviv/<key>/<n>.jpg by scripts/fetch-listing-photos.mjs during the build.",
+  "listings": [
+    {
+      "key": "med", "title": "Mediterranean Sea Views | 1BR Apt with Balcony", "address": "HaYarkon Street 78, Tel Aviv-Yafo, Israel",
+      "bedrooms": 1, "bathrooms": 2, "maxGuests": 4, "fromPriceUsd": 82, "totalUsd": 328, "rating": 5.0, "reviewCount": 15,
+      "ratingLabel": "★ 5.0 (15)", "sizeLabel": "1 bedroom · up to 4 guests",
+      "description": "Ocean-view waterfront apartment on the 19th floor with shared pool and gym, free parking, and elevator access. Walk to Frishman Beach and Shlomo Lahat Promenade along the Mediterranean, with central Tel Aviv easily accessible by public transport. Includes washer, dryer, and dishwasher. Bright one-bedroom with Mediterranean views from bedroom and private balcony. Spacious living and dining area with natural light and direct balcony access. Fully equipped kitchen. Building features shared pool, gym, free parking, secure staircase, and elevator. Located 8-minute walk from Frishman Beach. Abundant restaurants, bars, and cafes nearby.",
+      "amenities": ["Free parking", "Gym", "Kitchen", "Lift/Elevator", "Patio or balcony", "Waterfront", "Wireless Internet", "Air conditioning", "Children allowed", "Coffee maker", "Cookware", "Crib", "Dishes and silverware", "Dishwasher", "Washer", "Dryer"],
+      "photos": [
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/89493e11-39a2-42b6-8755-1d6872e4f032/0983b5d0-a247-11f1-998d-1b706e03f638.jpg?w=1080",
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/89493e11-39a2-42b6-8755-1d6872e4f032/0be5f770-a247-11f1-9be3-c9e0898f5da0.jpg?w=1080",
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/89493e11-39a2-42b6-8755-1d6872e4f032/09e6f530-a247-11f1-a6d6-87280edddbc2.jpg?w=1080"
+      ]
+    },
+    {
+      "key": "rus", "title": "Mamad Bright 2BR Beachside w/ Balcony & Sea Views", "address": "Russlan Street 14, Tel Aviv-Yafo, Tel Aviv District, Israel",
+      "bedrooms": 2, "bathrooms": 2, "maxGuests": 4, "fromPriceUsd": 43, "totalUsd": 172, "rating": 5.0, "reviewCount": 5,
+      "ratingLabel": "★ 5.0 (5)", "sizeLabel": "2 bedrooms · up to 4 guests",
+      "description": "Step into this bright, beachside apartment, where thoughtful interiors and a peaceful atmosphere meet the energy of Tel Aviv's shoreline. Just steps from the sand, this freshly renovated 2-bedroom retreat offers a tranquil base with views of the sea from your private balcony. The apartment includes a Mamad (reinforced safe room) for your safety and peace of mind. The living room opens to a dining area and a sleek, fully equipped kitchen. The master bedroom includes an en-suite bathroom with walk-in shower; the second bedroom sits beside an additional bathroom.",
+      "amenities": ["Free parking", "Kitchen", "Lift/Elevator", "Wireless Internet", "Air conditioning", "Children allowed", "Coffee", "Coffee maker", "Cookware", "Crib", "Dishes and silverware", "Dishwasher", "Enhanced cleaning practices", "Essentials"],
+      "photos": [
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/7d8bed18-7417-4608-95cf-1f4f4ae31d83/1ef206d0-a247-11f1-90dc-85ea7712e210.jpg?w=1080",
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/7d8bed18-7417-4608-95cf-1f4f4ae31d83/1e72a270-a247-11f1-bfc7-572254b34d61.jpg?w=1080",
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/7d8bed18-7417-4608-95cf-1f4f4ae31d83/206ac820-a247-11f1-acba-7d5f2917150f.jpg?w=1080"
+      ]
+    },
+    {
+      "key": "pool", "title": "Mamad Deluxe 2BR Apt w Pool in Historical Jaffa", "address": "Yefet Street 38, Tel Aviv-Yafo, Tel Aviv District, Israel",
+      "bedrooms": 2, "bathrooms": 1, "maxGuests": 4, "fromPriceUsd": 92, "totalUsd": 368, "rating": 4.67, "reviewCount": 3,
+      "ratingLabel": "★ 4.67 (3)", "sizeLabel": "2 bedrooms · up to 4 guests",
+      "description": "A getaway in the heart of the Old City walls of Jaffa, with a panoramic view of the Mediterranean coast just meters away. The luxury complex features a saltwater swimming pool, lounge deck, fitness spa, open promenade, gardens, parking, and 24/7 security. The apartment accommodates up to 4 guests with a main bedroom (queen bed) and a second bedroom with a sofa bed, a fully functional kitchen, a living room with Netflix TV, and a balcony with Mediterranean views. Ground-floor amenities include an outdoor saltwater pool, spa with gym, saunas, snooker and ping-pong, all included.",
+      "amenities": ["Gym", "Kitchen", "Lift/Elevator", "Swimming pool", "Wireless Internet", "Air conditioning", "Carbon monoxide detector", "Children allowed", "Coffee", "Coffee maker", "Cookware", "Dishwasher", "Dryer", "Enhanced cleaning practices"],
+      "photos": [
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/b349753d-71b3-4396-8f26-d8065e85bdce/2eff0310-a247-11f1-949d-83416c7424a5.jpg?w=1080",
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/b349753d-71b3-4396-8f26-d8065e85bdce/303bd780-a247-11f1-8caa-e73ad53f2054.jpg?w=1080",
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/b349753d-71b3-4396-8f26-d8065e85bdce/2e883bf0-a247-11f1-95b3-6b0f73ae4f79.jpg?w=1080"
+      ]
+    },
+    {
+      "key": "coz", "title": "Cozy Old North Stay • Steps from Yarkon Park", "address": "Weizmann Street, Tel Aviv-Yafo, Tel Aviv District 6226416, Israel",
+      "bedrooms": 1, "bathrooms": 1, "maxGuests": 2, "fromPriceUsd": 41, "totalUsd": 164, "rating": 5.0, "reviewCount": 1,
+      "ratingLabel": "★ 5.0 (1)", "sizeLabel": "1 bedroom · up to 2 guests",
+      "description": "A charming 1-bedroom apartment in Tel Aviv's Old North, a minute's walk from Yarkon Park. This ground-floor retreat offers a peaceful atmosphere while keeping you close to the city. It includes a bedroom, a living room with a 43-inch smart TV, and a fully equipped kitchen with oven, toaster, kettle, Nespresso machine and refrigerator, plus a washing machine, iron and hairdryer. Natural light and garden views. Near Kikar Hamedina, Ibn Gabirol Street and HaYarkon Park, with excellent public transportation.",
+      "amenities": ["Kitchen", "Wireless Internet", "Air conditioning", "Children allowed", "Coffee maker", "Cookware", "Crib", "Dishes and silverware", "Essentials", "Garden or backyard", "Hair dryer", "Heating", "Hot water", "Infants allowed", "Iron"],
+      "photos": [
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/0efe5f0e-dc14-4a7d-adb2-b49dda174f67/1338aac0-a247-11f1-b5d2-c98919f4f343.jpg?w=1080",
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/0efe5f0e-dc14-4a7d-adb2-b49dda174f67/0ed07b20-a247-11f1-9ab4-3bc7a1f2bacf.jpg?w=1080",
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/0efe5f0e-dc14-4a7d-adb2-b49dda174f67/12ccca20-a247-11f1-a495-85e1c2e411e7.jpg?w=1080"
+      ]
+    },
+    {
+      "key": "pearl", "title": "The Pearl of Jaffa: 3BR Luxury with Patio", "address": "HaPninim 2, Tel Aviv-Yafo, Tel Aviv District, Israel",
+      "bedrooms": 3, "bathrooms": 3, "maxGuests": 6, "fromPriceUsd": 535, "totalUsd": 2140, "rating": null, "reviewCount": 0,
+      "ratingLabel": "New", "sizeLabel": "3 bedrooms · up to 6 guests",
+      "description": "A luxurious 3-bedroom apartment in the heart of historic Jaffa. Well-preserved arches adorned with art and paintings create a timeless atmosphere with carefully designed lighting. The master bedroom has a king-sized bed and the other two bedrooms queen-sized beds, with three private bathrooms. A large kitchen with contemporary appliances, a dining area for up to 10 guests, and a private patio with outdoor seating. The apartment overlooks the Mediterranean in ancient Jaffa; a ten-minute walk along the seaside promenade puts you in the heart of Tel Aviv. 5 minutes' walk from the Setai Hotel and 10 minutes to Alma Beach.",
+      "amenities": ["Kitchen", "Patio or balcony", "Wireless Internet", "Air conditioning", "Children allowed", "Coffee maker", "Cookware", "Crib", "Dishes and silverware", "Dishwasher", "Dryer", "Enhanced cleaning practices", "Essentials", "Garage"],
+      "photos": [
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/0a9542dd-27d5-4391-936c-c5bc6a29da08/046635f0-a247-11f1-9b5b-c577841c2e41.jpg?w=1080",
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/0a9542dd-27d5-4391-936c-c5bc6a29da08/067187a0-a247-11f1-9566-87f704fa8a65.jpg?w=1080",
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/0a9542dd-27d5-4391-936c-c5bc6a29da08/055d21c0-a247-11f1-afad-491c13784ca6.jpg?w=1080"
+      ]
+    },
+    {
+      "key": "svb", "title": "Sea View Balcony Near Tayelet Promenade", "address": "HaYarkon Street 78, Tel Aviv-Yafo, Israel",
+      "bedrooms": 2, "bathrooms": 1.5, "maxGuests": 4, "fromPriceUsd": 156, "totalUsd": 624, "rating": 5.0, "reviewCount": 10,
+      "ratingLabel": "★ 5.0 (10)", "sizeLabel": "2 bedrooms · up to 4 guests",
+      "description": "A 17th-floor apartment with a balcony overlooking the Mediterranean, steps from Bugrashov Beach and Gordon Beach. Free parking included, rare for central Tel Aviv, plus rooftop pool access (May to October) and a shared gym. Fully equipped kitchen with an island, two bedrooms with sea-view windows, and elevator access. Built for families and groups who want a beachfront location with the convenience of a car. The beach is a 2-minute walk away.",
+      "amenities": ["Free parking", "Gym", "Kitchen", "Lift/Elevator", "Patio or balcony", "Wireless Internet", "Air conditioning", "Beach", "Children allowed", "Coffee", "Coffee maker", "Cookware", "Crib", "Dishes and silverware"],
+      "photos": [
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/e2038f3b-2190-4ebd-b7f3-496e731f09df/237f3200-a247-11f1-b150-6fc078eed539.jpg?w=1080",
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/e2038f3b-2190-4ebd-b7f3-496e731f09df/245ab8e0-a247-11f1-bbd2-8945f1c95163.jpg?w=1080",
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/e2038f3b-2190-4ebd-b7f3-496e731f09df/24c42390-a247-11f1-9f99-1b0937a73424.jpg?w=1080"
+      ]
+    },
+    {
+      "key": "beach", "title": "Bright Beachfront Stay • 1BR with Balcony Views", "address": "Trumpeldor Street 1, Tel Aviv-Yafo, Tel Aviv District 6343315, Israel",
+      "bedrooms": 1, "bathrooms": 1, "maxGuests": 4, "fromPriceUsd": 120, "totalUsd": 480, "rating": 4.67, "reviewCount": 3,
+      "ratingLabel": "★ 4.67 (3)", "sizeLabel": "1 bedroom · up to 4 guests",
+      "description": "Wake up to the sound of the waves in this bright one-bedroom apartment on the Tel Aviv promenade. A living area, dining space and a balcony with partial sea views. The bedroom has a queen bed and the bathroom a walk-in shower. The kitchen has a stove, oven, microwave, dishwasher, refrigerator and Nespresso machine. Building amenities include a gym, sauna and laundry. Near Trumpeldor Beach, the Shlomo Lahat Promenade, and Jaffa's galleries and markets.",
+      "amenities": ["Gym", "Internet", "Kitchen", "Lift/Elevator", "Patio or balcony", "Sea view", "Wireless Internet", "Air conditioning", "Children allowed", "Coffee maker", "Cookware", "Crib", "Dishes and silverware", "Dishwasher"],
+      "photos": [
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/1d3bf67e-a608-44ec-9b96-8ebecd54519d/15d17ae0-a247-11f1-8fe6-47bfe46fbe9b.jpg?w=1080",
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/1d3bf67e-a608-44ec-9b96-8ebecd54519d/154eac20-a247-11f1-b563-bb61e1174e6e.jpg?w=1080",
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/1d3bf67e-a608-44ec-9b96-8ebecd54519d/163d6c10-a247-11f1-8237-d158e04b30dc.jpg?w=1080"
+      ]
+    },
+    {
+      "key": "spac", "title": "Spacious 3BR Apartment Near Tel Aviv Beach", "address": "HaYarkon Street 185, Tel Aviv-Yafo, Tel Aviv District 6345333, Israel",
+      "bedrooms": 3, "bathrooms": 2, "maxGuests": 8, "fromPriceUsd": 155, "totalUsd": 620, "rating": 4.33, "reviewCount": 3,
+      "ratingLabel": "★ 4.33 (3)", "sizeLabel": "3 bedrooms · up to 8 guests",
+      "description": "A 5-minute walk from the beach, this renovated apartment offers a spacious base for enjoying Tel Aviv-Yafo. The open living space is filled with natural light, while free parking and elevator access make coming and going easy. Three bedrooms, fresh linens, and an in-unit washer and dryer. A building shelter provides added peace of mind, a great fit for families and groups.",
+      "amenities": ["Free parking", "Kitchen", "Lift/Elevator", "Air conditioning", "Children allowed", "Coffee maker", "Cookware", "Dryer", "Essentials", "Fire extinguisher", "Garage", "Hair dryer", "Heating", "Hot water", "Washer", "Central air conditioning"],
+      "photos": [
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/d89772fc-3b91-47c2-a7de-c2ebe1b7f484/1116af20-a247-11f1-85e8-edc6927ab47c.jpg?w=1080",
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/d89772fc-3b91-47c2-a7de-c2ebe1b7f484/12482090-a247-11f1-a2be-031c10c59174.jpg?w=1080",
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/d89772fc-3b91-47c2-a7de-c2ebe1b7f484/0e8b4d10-a247-11f1-8231-e7e6b15bcfc0.jpg?w=1080"
+      ]
+    },
+    {
+      "key": "jaffa3", "title": "Stunning 3BR Jaffa Gem • Sea Views & Charm", "address": "Louis Pasteur Street 3, Tel Aviv-Yafo, Tel Aviv District, Israel",
+      "bedrooms": 3, "bathrooms": 2, "maxGuests": 6, "fromPriceUsd": 254, "totalUsd": 1016, "rating": 4.25, "reviewCount": 4,
+      "ratingLabel": "★ 4.25 (4)", "sizeLabel": "3 bedrooms · up to 6 guests",
+      "description": "An exceptional 3-bedroom, 120-square-meter apartment in Jaffa with a Mamad (safe room). Sea views, an expansive sitting area with sun loungers, a spacious living room, queen-sized beds, full bathrooms, complimentary high-speed WiFi, a fully equipped kitchen with dishwasher, a dining table for 6, washing machine and dryer, parking, a large communal pool, a gym with steam room, pool table, ping pong and a yoga studio. Floor 1 with elevator access, a ten-minute walk from central Tel Aviv, near the flea market and 10 minutes from Alma Beach.",
+      "amenities": ["Free parking", "Gym", "Kitchen", "Lift/Elevator", "Wireless Internet", "Air conditioning", "Bathtub", "Beach essentials", "Children allowed", "Children books and toys", "Coffee maker", "Cookware", "Crib", "Dishes and silverware"],
+      "photos": [
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/5836d4c0-f8c5-4213-9fc9-a7382b3ad895/047add90-a247-11f1-bb0d-234754929250.jpg?w=1080",
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/5836d4c0-f8c5-4213-9fc9-a7382b3ad895/06ced790-a247-11f1-85c9-9fb33f0c3ca7.jpg?w=1080",
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/5836d4c0-f8c5-4213-9fc9-a7382b3ad895/05d7b3e0-a247-11f1-acbb-595c39f6c01a.jpg?w=1080"
+      ]
+    },
+    {
+      "key": "lca", "title": "Large Classic Apartment in the Heart of Tel Aviv", "address": "Antokolski Street 21, 6404417 Tel Aviv-Yafo, Israel",
+      "bedrooms": 4, "bathrooms": 3, "maxGuests": 8, "fromPriceUsd": 490, "totalUsd": 1960, "rating": 4.89, "reviewCount": 9,
+      "ratingLabel": "★ 4.89 (9)", "sizeLabel": "4 bedrooms · up to 8 guests",
+      "description": "Recently renovated with modern architectural design, this 120 sqm apartment combines contemporary style with family-home comfort. 2nd floor with elevator, 4 rooms, 3 bathrooms and a balcony, with a comfortable layout for families and groups. In a lively central neighborhood with cafés and restaurants; Gan HaIr is close, Ben Gurion Boulevard a 5-minute walk, and Hilton Beach about 15 to 20 minutes on foot. Near Rabin Square, the Tel Aviv Museum of Art and the Cameri Theater.",
+      "amenities": ["Kitchen", "Lift/Elevator", "Patio or balcony", "Wireless Internet", "Air conditioning", "Bathtub", "Ceiling fan", "Children allowed", "Children dinnerware", "Coffee", "Cookware", "Crib", "Dishes and silverware", "Dishwasher"],
+      "photos": [
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/79efa2d6-4d1b-4c1e-a0d1-539a368dd7fb/03ce74b0-a247-11f1-a089-9712eeae5814.jpg?w=1080",
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/79efa2d6-4d1b-4c1e-a0d1-539a368dd7fb/046bb380-a247-11f1-a8f9-f98eadcbe408.jpg?w=1080",
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/79efa2d6-4d1b-4c1e-a0d1-539a368dd7fb/04d2eb90-a247-11f1-a00d-f528359877c1.jpg?w=1080"
+      ]
+    },
+    {
+      "key": "gard", "title": "Old North Charm | 2BR with Private Garden", "address": "Ben Yehuda Street 218, Tel Aviv-Yafo, Tel Aviv District 6347316, Israel",
+      "bedrooms": 2, "bathrooms": 2, "maxGuests": 4, "fromPriceUsd": 66, "totalUsd": 264, "rating": 4.43, "reviewCount": 7,
+      "ratingLabel": "★ 4.43 (7)", "sizeLabel": "2 bedrooms · up to 4 guests",
+      "description": "An inviting 2-bedroom garden apartment in the Old North, with courtyard and garden views. A 55-inch smart TV, a fully equipped kitchen with dishwasher, espresso machine, oven, refrigerator, stove and toaster. Outdoor dining and a private backyard. Washing machine and dryer. On Ben Yehuda Street, close to the beaches, the Tel Aviv port and Yarkon Park. Note: construction nearby may cause daytime noise.",
+      "amenities": ["Kitchen", "Patio or balcony", "Wireless Internet", "Air conditioning", "Children allowed", "Coffee", "Coffee maker", "Cookware", "Crib", "Dishes and silverware", "Dishwasher", "Dryer", "Essentials", "Garden or backyard"],
+      "photos": [
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/8bd18b16-1937-4505-b2bc-d1318144b7cf/5dab8c40-a247-11f1-94e2-af459fa2c1d0.jpg?w=1080",
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/8bd18b16-1937-4505-b2bc-d1318144b7cf/5e38f2b0-a247-11f1-a3f7-b54e14a946f8.jpg?w=1080",
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/8bd18b16-1937-4505-b2bc-d1318144b7cf/5eb1ecb0-a247-11f1-87fa-2dd888a40bc5.jpg?w=1080"
+      ]
+    },
+    {
+      "key": "pent", "title": "Luminous Penthouse with Terrace & City Charm", "address": "Hovevei Tsiyon Street 53, Tel Aviv-Yafo, Tel Aviv District, Israel",
+      "bedrooms": 3, "bathrooms": 2, "maxGuests": 7, "fromPriceUsd": 258, "totalUsd": 1032, "rating": 4.67, "reviewCount": 6,
+      "ratingLabel": "★ 4.67 (6)", "sizeLabel": "3 bedrooms · up to 7 guests",
+      "description": "A spacious two-floor Bauhaus penthouse in the heart of Tel Aviv, surrounded by greenery and trees. Three bedrooms and two bathrooms, abundant natural light, and an open layout connecting indoor and outdoor areas. Fully equipped kitchens indoors and outdoors. A private 60 m balcony for morning coffee or afternoon tea. The building includes a shelter.",
+      "amenities": ["Kitchen", "Pack and play travel crib", "Patio or balcony", "Wireless Internet", "Air conditioning", "Baby bath", "Babysitter recommendations", "Carbon monoxide detector", "Children allowed", "Children dinnerware", "Coffee maker", "Cookware", "Crib", "Dishes and silverware"],
+      "photos": [
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/b16817e0-1eba-43cf-98b7-cf8906c41a32/03fe9940-a247-11f1-9061-5f30f62a5baf.jpg?w=1080",
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/b16817e0-1eba-43cf-98b7-cf8906c41a32/05306b50-a247-11f1-84f4-3fa1b5133993.jpg?w=1080",
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/b16817e0-1eba-43cf-98b7-cf8906c41a32/04ac0400-a247-11f1-8032-ef51d4f3fa9b.jpg?w=1080"
+      ]
+    },
+    {
+      "key": "sky", "title": "Mamad Sky High Tel Aviv Escape w/ Breathtaking", "address": "Gindi Park, 1331 Street 7-1, 6713352 Tel Aviv-Yafo, Israel",
+      "bedrooms": 3, "bathrooms": 2, "maxGuests": 7, "fromPriceUsd": 131, "totalUsd": 524, "rating": 5.0, "reviewCount": 9,
+      "ratingLabel": "★ 5.0 (9)", "sizeLabel": "3 bedrooms · up to 7 guests",
+      "description": "On the 36th floor of a towering building, with awe-inspiring views. The apartment includes a Mamad (reinforced safe room). A private balcony overlooking the city and sea. 100 square meters with three bedrooms, two bathrooms and a fully equipped kitchen with a dining table. Steps from the TLV Fashion Mall and a 5-minute walk from Sarona Market.",
+      "amenities": ["Free parking", "Kitchen", "Lift/Elevator", "Wireless Internet", "Air conditioning", "Children allowed", "Cookware", "Crib", "Dishes and silverware", "Dishwasher", "Dryer", "Enhanced cleaning practices", "Essentials", "Family kid friendly"],
+      "photos": [
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/757497ee-7de3-4179-be63-b5de5e07e75f/0482f800-a247-11f1-acf4-016834913c9f.jpg?w=1080",
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/757497ee-7de3-4179-be63-b5de5e07e75f/0573fb30-a247-11f1-bb6a-a5ddc990c88e.jpg?w=1080",
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/757497ee-7de3-4179-be63-b5de5e07e75f/03d4c450-a247-11f1-be14-a736ffdec2fe.jpg?w=1080"
+      ]
+    },
+    {
+      "key": "rust", "title": "Rustic Charm Hideaway • Balcony Oasis", "address": "Balfour Street 37, Tel Aviv-Yafo, Tel Aviv District 6521145, Israel",
+      "bedrooms": 2, "bathrooms": 2, "maxGuests": 4, "fromPriceUsd": 72, "totalUsd": 288, "rating": 4.93, "reviewCount": 15,
+      "ratingLabel": "★ 4.93 (15)", "sizeLabel": "2 bedrooms · up to 4 guests",
+      "description": "Moments from Rothschild Boulevard, a 2-bedroom retreat blending modern comfort with rustic charm. A 55-inch TV with smart features and Netflix, and two balconies with outdoor furniture overlooking the city. On Balfour Street, among art galleries, cafés and boutiques, near Rothschild Boulevard and Independence Park. Note: construction near the property may cause noise.",
+      "amenities": ["Kitchen", "Patio or balcony", "Wireless Internet", "Air conditioning", "Bathtub", "Cookware", "Crib", "Dishes and silverware", "Dishwasher", "Essentials", "Fire extinguisher", "Garden or backyard", "Hair dryer", "Heating"],
+      "photos": [
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/5037b069-7c9a-4f21-8552-5fe4179e585b/08379120-a247-11f1-bf51-bfed3823e7d7.jpg?w=1080",
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/5037b069-7c9a-4f21-8552-5fe4179e585b/08c25ec0-a247-11f1-90d6-1f00245d0ac5.jpg?w=1080",
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/5037b069-7c9a-4f21-8552-5fe4179e585b/094d6250-a247-11f1-8b7a-73269cd39d67.jpg?w=1080"
+      ]
+    },
+    {
+      "key": "rail", "title": "Mamad City Rail Pulse: Modern Design w Balcony", "address": "Arlozorov Street 15, Tel Aviv-Yafo, Tel Aviv District 897700, Israel",
+      "bedrooms": 1, "bathrooms": 1, "maxGuests": 2, "fromPriceUsd": 80, "totalUsd": 320, "rating": 5.0, "reviewCount": 4,
+      "ratingLabel": "★ 5.0 (4)", "sizeLabel": "1 bedroom · up to 2 guests",
+      "description": "A light-filled, 60-square-meter apartment on the second floor of a relatively new building, steps from Dizengoff Street. An open-plan living area with a 55-inch smart TV, a fully equipped kitchen with espresso machine and breakfast bar, and a private balcony overlooking the new Tel Aviv light rail. The bedroom is a Mamad (reinforced room). In the Old North, close to Dizengoff's boutiques and cafés and the Mediterranean coastline.",
+      "amenities": ["Kitchen", "Lift/Elevator", "Patio or balcony", "Wireless Internet", "Air conditioning", "Children allowed", "Coffee maker", "Crib", "Dishes and silverware", "Dishwasher", "Dryer", "Essentials", "Infants allowed", "Kettle", "Microwave"],
+      "photos": [
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/06311815-a88e-4e90-8dd8-dabdf884c1d5/362f8970-a247-11f1-9989-65d937a38514.jpg?w=1080",
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/06311815-a88e-4e90-8dd8-dabdf884c1d5/327545f0-a247-11f1-bb02-9390410ae668.jpg?w=1080",
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/06311815-a88e-4e90-8dd8-dabdf884c1d5/32e0b3c0-a247-11f1-8ef1-df1de20f2942.jpg?w=1080"
+      ]
+    },
+    {
+      "key": "sun", "title": "Your Sunlit 3BR Retreat • Prime Beachside Spot", "address": "J. L. Gordon Street 10, Tel Aviv-Yafo, Tel Aviv District 6438901, Israel",
+      "bedrooms": 3, "bathrooms": 2, "maxGuests": 6, "fromPriceUsd": 125, "totalUsd": 500, "rating": 4.71, "reviewCount": 7,
+      "ratingLabel": "★ 4.71 (7)", "sizeLabel": "3 bedrooms · up to 6 guests",
+      "description": "A bright and spacious apartment on one of the city's best streets, a 3-minute walk from Hilton and Gordon Beach. A fully equipped kitchen, a spacious dining area, a private balcony with Mediterranean views, and private parking. 1st floor with elevator. Near Gordon and Hilton beaches, cafés, boutique shops, galleries and nightlife.",
+      "amenities": ["Kitchen", "Lift/Elevator", "Patio or balcony", "Wireless Internet", "Air conditioning", "Bathtub", "Children allowed", "Coffee maker", "Cookware", "Crib", "Dishes and silverware", "Dishwasher", "Dryer", "Essentials", "Hair dryer", "Heating", "Oven", "Refrigerator", "Stove", "Toaster", "Washing machine", "Iron", "Ironing board"],
+      "photos": [
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/320cf5a8-81c6-4471-bbd2-db25dc4aa317/14a56fb0-a247-11f1-adb5-b34f7b96180e.jpg?w=1080",
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/320cf5a8-81c6-4471-bbd2-db25dc4aa317/13b20f90-a247-11f1-8889-71d6e0fa0e6f.jpg?w=1080",
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/320cf5a8-81c6-4471-bbd2-db25dc4aa317/151b6ac0-a247-11f1-8b34-0f9fde4e653c.jpg?w=1080"
+      ]
+    },
+    {
+      "key": "shen", "title": "Mamad Chic & Comfortable City Stay on Shenkin", "address": "Sheinkin Street 16, Tel Aviv-Yafo, Tel Aviv District 6523120, Israel",
+      "bedrooms": 2, "bathrooms": 1, "maxGuests": 5, "fromPriceUsd": 80, "totalUsd": 320, "rating": 4.5, "reviewCount": 2,
+      "ratingLabel": "★ 4.5 (2)", "sizeLabel": "2 bedrooms · up to 5 guests",
+      "description": "A modern, spacious 2-bedroom apartment on Shenkin Street in soothing blue tones, with a Mamad (reinforced safe room). A newly renovated building with an elevator, a large balcony with lush greenery, a fully equipped kitchen, a dining area, and a living room with a 45-inch smart TV.",
+      "amenities": ["Kitchen", "Lift/Elevator", "Patio or balcony", "Wireless Internet", "Air conditioning", "Children allowed", "Coffee maker", "Cookware", "Crib", "Dishes and silverware", "Dryer", "Essentials", "Garden view", "Hair dryer", "Heating"],
+      "photos": [
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/dbfa2021-76b2-4375-aed9-6c3e70f60448/0cb5ccb0-a247-11f1-b7a6-3754e26c353f.jpg?w=1080",
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/dbfa2021-76b2-4375-aed9-6c3e70f60448/0d4bb5e0-a247-11f1-ac89-1bdb16050495.jpg?w=1080",
+        "https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/unit/dbfa2021-76b2-4375-aed9-6c3e70f60448/0dc323a0-a247-11f1-babf-c724a695ed89.jpg?w=1080"
+      ]
+    }
+  ],
+  "firstAnswer": { "reply": "Here are two Sea N' Rent apartments that fit:", "listings": ["rus", "sun"] },
+  "options": [
+    { "id": "cheapest", "chip": "the cheapest option", "userMessage": "I also want the cheapest option.", "listing": "coz", "reply": "The lowest nightly rate I found in Tel Aviv:", "extraLine": "A minute's walk from Yarkon Park",
+      "keywords": ["cheap", "cheaper", "cheapest", "budget", "affordable", "lowest", "low price", "lower price", "inexpensive", "not expensive", "less expensive", "not too expensive", "save"] },
+    { "id": "luxury", "chip": "something more luxurious", "userMessage": "I also want something more luxurious.", "listing": "pearl", "reply": "The most premium stay I found, in historic Jaffa:", "extraLine": "Private patio, 3 bathrooms",
+      "keywords": ["luxury", "luxurious", "premium", "expensive", "most expensive", "upscale", "high end", "high-end", "fancy"] },
+    { "id": "top-rated", "chip": "the highest rated", "userMessage": "I also want the highest rated place.", "listing": "med", "reply": "A perfect 5.0 from 15 guests, with sea views from the 19th floor:", "extraLine": "Sea views from the bedroom and balcony",
+      "keywords": ["rating", "rated", "review", "top", "highest", "top rated", "best rated", "best reviewed", "5 star", "five star"] },
+    { "id": "beachfront", "chip": "to be right on the beach", "userMessage": "I also want to be right on the beach.", "listing": "beach", "reply": "Right on the Tel Aviv promenade:", "extraLine": "Balcony with partial sea views",
+      "keywords": ["beach", "beachfront", "on the beach", "seafront", "promenade", "waterfront", "shore", "sand"] },
+    { "id": "parking", "chip": "free parking", "userMessage": "I also want free parking.", "listing": "spac", "reply": "Free parking and a garage, five minutes from the beach:", "extraLine": "Free parking, elevator",
+      "keywords": ["parking", "car", "garage", "free parking", "to park"] },
+    { "id": "wifi", "chip": "fast Wi-Fi to work from", "userMessage": "I also want fast Wi-Fi to work from.", "listing": "jaffa3", "reply": "This one lists complimentary high-speed Wi-Fi:", "extraLine": "Sea views, pool and gym in the complex",
+      "keywords": ["wifi", "wi-fi", "internet", "work", "remote", "laptop", "fast internet", "connection"] },
+    { "id": "family", "chip": "room for 8 guests", "userMessage": "I also want room for 8 guests.", "listing": "lca", "reply": "Four bedrooms and room for 8:", "extraLine": "120 sqm, 3 bathrooms",
+      "keywords": ["family", "kids", "children", "group", "8", "eight", "big", "large", "friends", "bedrooms"] },
+    { "id": "garden", "chip": "a private garden", "userMessage": "I also want a private garden.", "listing": "gard", "reply": "A garden apartment with a private backyard:", "extraLine": "Old North, near the beach and the port",
+      "keywords": ["garden", "yard", "backyard", "courtyard", "green", "outdoor dining"] },
+    { "id": "terrace", "chip": "a big terrace", "userMessage": "I also want a big terrace.", "listing": "pent", "reply": "A two-floor Bauhaus penthouse with a spacious private terrace:", "extraLine": "Kitchens indoors and outdoors",
+      "keywords": ["terrace", "penthouse", "rooftop", "roof", "outdoor", "big balcony"] },
+    { "id": "view", "chip": "a view from a high floor", "userMessage": "I also want a view from a high floor.", "listing": "sky", "reply": "36 floors up, over the city and the sea:", "extraLine": "Free parking",
+      "keywords": ["view", "high floor", "top floor", "skyline", "tower", "high", "panoramic", "sky"] }
+  ],
+  "extraKeywords": [
+    { "listing": "pool", "keywords": ["pool", "swim", "swimming", "rooftop pool"], "reply": "This one has a saltwater pool in the complex:", "extraLine": "Saltwater pool, gym and saunas" },
+    { "listing": "rust", "keywords": ["center", "centre", "central", "rothschild", "downtown", "nightlife"], "reply": "Moments from Rothschild Boulevard, rated 4.93 by 15 guests:", "extraLine": "Two balconies over the city" },
+    { "listing": "rail", "keywords": ["couple", "romantic", "two of us", "honeymoon", "studio"], "reply": "A modern one-bedroom for two, steps from Dizengoff:", "extraLine": "60 sqm with a private balcony" },
+    { "listing": "svb", "keywords": ["sea view", "sea-view", "ocean view", "balcony"], "reply": "A 17th-floor balcony over the sea, two minutes from the beach:", "extraLine": "Free parking and a shared gym" },
+    { "listing": "shen", "keywords": ["shenkin", "shopping", "boutique", "cafe", "café"], "reply": "On Shenkin Street, in a newly renovated building:", "extraLine": "Large balcony with greenery" }
+  ],
+  "fallback": { "reply": "I can narrow it down. Try one of these:" }
+}
