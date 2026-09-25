@@ -4,56 +4,80 @@ import 'lenis/dist/lenis.css';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-const beats: Record<string, number[]> = {
-  'guest-story': [.12,.20,.25,.33,.44,.63,.81,.94,1],
-  'priced': [.12,.34,.50,.66,.77,.87,.99,1],
-  'how-it-works': [.08,.25,.43,.60,.78,.91,.99,1],
-  'connector': [.15,.43,.63,.84,.99,1],
+// Only completed data checks have a small magnetic landing zone. Everything
+// else, including the question and website handoff, follows scroll distance.
+const checkpoints: Record<string, number[]> = {
+  priced: [.65, .755, .86],
+  'how-it-works': [.43],
 };
+const scenes = new Set(['guest-story', 'priced', 'how-it-works', 'connector']);
 
-// Wheel gestures advance one narrative beat. Native touch and keyboard scrolling
-// remain continuous, as do the portal entrance and the spaces between chapters.
-export function useNarrativeScroll(enabled: boolean){
- useEffect(()=>{
-  if(!enabled)return;
-  let animating=false, settledUntil=0, lastInput=0, accumulated=0, direction=0;
-  const lenis=new Lenis({lerp:.14,smoothWheel:true,syncTouch:false,anchors:true,
-   prevent:node=>Boolean(node.closest('dialog')),
-   virtualScroll:({deltaY,event})=>{
-    if(event.type!=='wheel'||(event as WheelEvent).ctrlKey||document.querySelector('dialog[open]'))return true;
-    const now=performance.now(),fresh=now-lastInput>180;
-    lastInput=now;
-    const sign=Math.sign(deltaY);
-    if(!sign)return true;
-    if(sign!==direction){animating=false;settledUntil=0;}
-    if(animating||now<settledUntil){event.preventDefault();return false;}
-    if(fresh||direction!==sign)accumulated=0;
-    direction=sign;
-    const trigger=ScrollTrigger.getAll().find(t=>{
-     const el=t.trigger as HTMLElement|undefined;
-     return el?.id && beats[el.id] && t.progress<1 && ((t.progress>0 && el.getBoundingClientRect().top<=1) || (sign>0 && t.start>=lenis.scroll && t.start-lenis.scroll<innerHeight*.5 && lenis.scroll+Math.abs(deltaY)>=t.start));
+export function useNarrativeScroll(enabled: boolean) {
+  useEffect(() => {
+    if (!enabled) return;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let settling = false;
+    let direction = 0;
+    const cancelLanding = () => {
+      clearTimeout(timer);
+      if (settling) {
+        settling = false;
+        lenis.scrollTo(lenis.scroll, { immediate: true });
+      }
+    };
+    const activeScene = () => ScrollTrigger.getAll().find(trigger => {
+      const el = trigger.trigger as HTMLElement | undefined;
+      return el?.id && scenes.has(el.id) && trigger.progress > 0 && trigger.progress < 1 && el.getBoundingClientRect().top <= 1;
     });
-    if(!trigger)return true;
-    accumulated+=Math.abs(deltaY);
-    if(accumulated<4){event.preventDefault();return false;}
-    accumulated=0;
-    const stops=beats[(trigger.trigger as HTMLElement).id];
-    const p=trigger.progress;
-    const target=sign>0?stops.find(n=>n>p+.012):[0,...stops].reverse().find(n=>n<p-.012);
-    if(target===undefined)return true;
-    event.preventDefault();
-    animating=true;
-    lenis.scrollTo(trigger.start+(trigger.end-trigger.start)*target,{
-     duration:Math.min(.72,.45+Math.abs(target-p)),
-     easing:t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2,
-     onComplete:()=>{animating=false;settledUntil=performance.now()+90;},
+    const landNearby = () => {
+      const trigger = activeScene();
+      if (!trigger || document.querySelector('dialog[open]')) return;
+      const points = checkpoints[(trigger.trigger as HTMLElement).id];
+      if (!points) return;
+      // Never pull against a gesture or jump across a narrative beat.
+      const target = points.map(p => trigger.start + (trigger.end - trigger.start) * p)
+        .find(y => (y - lenis.scroll) * direction > 2 && Math.abs(y - lenis.scroll) < 42);
+      if (target === undefined) return;
+      settling = true;
+      lenis.scrollTo(target, {
+        duration: .24,
+        easing: t => 1 - Math.pow(1 - t, 3),
+        onComplete: () => { settling = false; },
+      });
+    };
+    const lenis = new Lenis({
+      lerp: .18,
+      smoothWheel: true,
+      syncTouch: false,
+      anchors: true,
+      prevent: node => Boolean(node.closest('dialog')),
+      virtualScroll: data => {
+        cancelLanding();
+        if (data.event.type !== 'wheel' || (data.event as WheelEvent).ctrlKey || document.querySelector('dialog[open]')) return true;
+        direction = Math.sign(data.deltaY);
+        // Small wheel/trackpad input is unchanged. Only unusually large
+        // impulses are compressed: no minimum distance or forced next step.
+        if (activeScene()) {
+          const distance = Math.abs(data.deltaY);
+          if (distance > 180) data.deltaY = direction * (180 + 420 * (1 - Math.exp(-(distance - 180) / 420)));
+          timer = setTimeout(landNearby, 260);
+        }
+        return true;
+      },
     });
-    return false;
-   },
-  });
-  lenis.on('scroll',ScrollTrigger.update);
-  const tick=(seconds:number)=>lenis.raf(seconds*1000);
-  gsap.ticker.add(tick);
-  return()=>{gsap.ticker.remove(tick);lenis.destroy();};
- },[enabled]);
+    window.addEventListener('keydown', cancelLanding);
+    window.addEventListener('pointerdown', cancelLanding, { passive: true });
+    window.addEventListener('touchstart', cancelLanding, { passive: true });
+    lenis.on('scroll', ScrollTrigger.update);
+    const tick = (seconds: number) => lenis.raf(seconds * 1000);
+    gsap.ticker.add(tick);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('keydown', cancelLanding);
+      window.removeEventListener('pointerdown', cancelLanding);
+      window.removeEventListener('touchstart', cancelLanding);
+      gsap.ticker.remove(tick);
+      lenis.destroy();
+    };
+  }, [enabled]);
 }
