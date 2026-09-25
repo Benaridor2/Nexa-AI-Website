@@ -16,6 +16,14 @@ export const MOTION = {
 
 export const prefersReducedMotion = () => typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+// The still version: reduced motion, a low-power device, or ?still in the URL.
+// Everything is shown in its finished, readable state; nothing waits to animate.
+export const isStill = () => {
+  if (prefersReducedMotion() || new URLSearchParams(location.search).has('still')) return true;
+  const nav = navigator as Navigator & { deviceMemory?: number };
+  return (nav.deviceMemory ?? 8) <= 2 || (nav.hardwareConcurrency ?? 8) <= 2;
+};
+
 // Elements marked data-reveal get .is-in once they reach the viewport, and keep it:
 // returning to a section never hides what was already read.
 export function useReveal(root: React.RefObject<HTMLElement | null>) {
@@ -23,7 +31,7 @@ export function useReveal(root: React.RefObject<HTMLElement | null>) {
     const el = root.current;
     if (!el) return;
     const items = [...el.querySelectorAll<HTMLElement>('[data-reveal]')];
-    if (prefersReducedMotion() || !('IntersectionObserver' in window)) { items.forEach(i => i.classList.add('is-in')); return; }
+    if (isStill() || !('IntersectionObserver' in window)) { items.forEach(i => i.classList.add('is-in')); return; }
     const io = new IntersectionObserver(entries => entries.forEach(entry => {
       if (!entry.isIntersecting) return;
       entry.target.classList.add('is-in');

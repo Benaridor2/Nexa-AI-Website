@@ -1,11 +1,10 @@
 import '@fontsource/instrument-serif/400.css';
-import '@fontsource/instrument-serif/400-italic.css';
 import '@fontsource-variable/mona-sans/standard.css';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { Fold, Mark } from './Fold';
-import { prefersReducedMotion } from './motion';
-import { Scene } from './Scene';
+import { isStill } from './motion';
+import { Scene, StillScene } from './Scene';
 import { Audience, Closing, Connect, Faq, Footer, Guests, PricedDialog, Proof, Yours } from './Sections';
 import { PMS } from './data';
 import type { FoldController, FoldState } from './fold';
@@ -32,9 +31,17 @@ function Header({ onPriced }: { onPriced: () => void }) {
     addEventListener('scroll', onScroll, { passive: true });
     return () => { removeEventListener('scroll', onScroll); cancelAnimationFrame(frame); };
   }, []);
-  return <header className={`lab-header${dark ? ' is-dark' : ''}`}>
+  const [menu, setMenu] = useState(false);
+  useEffect(() => {
+    if (!menu) return;
+    const key = (e: KeyboardEvent) => { if (e.key === 'Escape') setMenu(false); };
+    addEventListener('keydown', key);
+    return () => removeEventListener('keydown', key);
+  }, [menu]);
+  return <header className={`lab-header${dark ? ' is-dark' : ''}${menu ? ' is-menu' : ''}`}>
     <a className="lab-logo" href="/lab" aria-label="Nexa home"><img src="/nexa-purple.png" alt="Nexa" width="116" height="25"/></a>
-    <nav aria-label="Main">
+    <button type="button" className="lab-menu-button" aria-expanded={menu} aria-controls="lab-nav" onClick={() => setMenu(!menu)}><span>{menu ? 'Close' : 'Menu'}</span></button>
+    <nav aria-label="Main" id="lab-nav" onClick={e => { if ((e.target as Element).closest('a')) setMenu(false); }}>
       <a href="#layer">The layer</a>
       <a href="#connect">How it connects</a>
       <a href="/pricing">Pricing</a>
@@ -56,7 +63,7 @@ function Hero({ onPriced }: { onPriced: () => void }) {
     const root = section.current!, f = fold.current;
     if (!f) return;
     const o = orient();
-    if (prefersReducedMotion()) { f.set(HERO_REST[o]); root.classList.add('is-drawn'); settled.current = true; return; }
+    if (isStill()) { f.set(HERO_REST[o]); root.classList.add('is-drawn'); settled.current = true; return; }
     f.set({ ...HERO_REST[o], ...HERO_START[o] });
     root.classList.add('is-intro');
     const img = root.querySelector<HTMLImageElement>('.place-photo img');
@@ -75,7 +82,7 @@ function Hero({ onPriced }: { onPriced: () => void }) {
   useEffect(() => {
     const root = section.current!;
     const svg = root.querySelector<SVGSVGElement>('.hero-thread')!, path = svg.querySelector('path')!, dot = root.querySelector('.hero-seam')!;
-    const fine = matchMedia('(pointer: fine)').matches && !prefersReducedMotion();
+    const fine = matchMedia('(pointer: fine)').matches && !isStill();
     const move = (e: PointerEvent) => { const b = root.getBoundingClientRect(); pointer.current.x = (e.clientX - b.left) / b.width - .5; pointer.current.y = (e.clientY - b.top) / b.height - .5; };
     if (fine) root.addEventListener('pointermove', move);
     let frame = 0, on = false;
@@ -119,6 +126,7 @@ function Hero({ onPriced }: { onPriced: () => void }) {
 }
 
 export default function App() {
+  const [still] = useState(isStill);
   const dialog = useRef<HTMLDialogElement>(null);
   const opener = useRef<HTMLElement | null>(null);
   const onPriced = () => { opener.current = document.activeElement as HTMLElement; dialog.current?.showModal(); };
@@ -128,12 +136,12 @@ export default function App() {
     d?.addEventListener('close', back);
     return () => d?.removeEventListener('close', back);
   }, []);
-  return <div className="lab">
+  return <div className={`lab${still ? ' is-still' : ''}`}>
     <a className="lab-skip" href="#main">Skip to content</a>
     <Header onPriced={onPriced}/>
     <main id="main">
       <Hero onPriced={onPriced}/>
-      <Scene/>
+      {still ? <StillScene/> : <Scene/>}
       <Guests/>
       <Connect/>
       <Yours/>

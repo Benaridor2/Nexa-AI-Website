@@ -167,3 +167,34 @@ export function Scene() {
     </div>
   </section>;
 }
+
+// The still version of the scene (reduced motion, low-power devices): the same
+// four chapters in normal flow, each with the object in its finished state, and
+// the priced chapter showing both states side by side.
+export function StillScene() {
+  const vertical = useVertical();
+  const poses = POSES[vertical ? 'down' : 'across'];
+  const figure = (i: number, extra: Pose = {}, priced = true) => <Fold className="still-fold" priced={priced} label={i === 2 ? `${PROPERTY.name} ${priced ? 'priced: the Nexa layer in place, available, final price shown, book direct' : 'unpriced: no layer, availability and price unknown'}` : `${PROPERTY.name}: ${CHAPTERS[i].title}`}
+    initial={{ ...poses[i], ...extra, scale: (poses[i].scale ?? 1) * (i === 0 ? .78 : .86) }}/>;
+  return <section className="scene is-static" id="layer" data-tone="dark" aria-labelledby="still-title">
+    <h2 id="still-title" className="still-title">One property, seen by a guest and by an AI.</h2>
+    {CHAPTERS.map((c, i) => <article key={c.id} className={`still-chapter is-${c.id}`}>
+      <div className="still-copy"><p className="scene-count"><span>0{i + 1}</span> / 0{CHAPTERS.length}</p><h3>{c.title}</h3><p>{c.text}</p></div>
+      <div className="still-figure">
+        {i === 0 && figure(0)}
+        {i === 1 && figure(1)}
+        {i === 2 && <div className="still-pair">
+          <figure><figcaption><b className="is-unpriced">Unpriced</b>“I can't confirm its availability or final price. You could check a booking site.”</figcaption>{figure(2, { link: 0, lock: 0 }, false)}</figure>
+          <figure><figcaption><b className="is-priced">Priced</b>“Available May 1–5. Final price {money(PROPERTY.total)}. Book direct on the property's website.”</figcaption>{figure(2, { link: 1, lock: 1 })}</figure>
+        </div>}
+        {i === 3 && <div className="still-site" role="img" aria-label={`The same stay on the property's website: ${PROPERTY.name}, ${PROPERTY.dates}, final price ${money(PROPERTY.total)}, continue to payment.`}>
+          <div className="site-bar"><i/><i/><i/><span className="site-url">{PROPERTY.website}/the-pearl-of-jaffa</span><em>Illustrative</em></div>
+          <div className="still-site-body">
+            <img src={PROPERTY.photo} alt="" loading="lazy"/>
+            <div><p className="section-kicker">Your stay</p><p className="still-site-name">{PROPERTY.name}</p><p className="still-site-dates">{PROPERTY.dates} · {PROPERTY.nights} nights</p><p className="still-site-total"><span>Final price</span><b>{money(PROPERTY.total)}</b></p><span className="still-site-pay">Continue to payment</span><small>Arrives in your PMS as a direct booking</small></div>
+          </div>
+        </div>}
+      </div>
+    </article>)}
+  </section>;
+}

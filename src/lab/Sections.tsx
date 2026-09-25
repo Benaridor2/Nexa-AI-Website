@@ -3,7 +3,7 @@ import { FAQ, PMS, PROPERTY } from './data';
 import { Fold, Mark, useVertical } from './Fold';
 import gsap from 'gsap';
 import { useEffect } from 'react';
-import { prefersReducedMotion } from './motion';
+import { isStill } from './motion';
 import type { FoldController } from './fold';
 import { useReveal } from './motion';
 import { anchor, setPath, slantRoute, slantRouteDown, useThreads } from './threads';
@@ -214,7 +214,7 @@ export function Closing({ onPriced }: { onPriced: () => void }) {
     if (!f) return;
     const open = vertical ? { fold: 24, yaw: 16, pitch: -6, scale: .8 } : { fold: 38, yaw: -8, pitch: -16, scale: .82 };
     const closed = vertical ? { fold: 84, yaw: 0, pitch: -80, scale: .78 } : { fold: -84, yaw: 70, pitch: -10, scale: .8 };
-    if (prefersReducedMotion()) { f.set(open); return; }
+    if (isStill()) { f.set(open); return; }
     f.set(closed);
     const io = new IntersectionObserver(([entry]) => {
       if (!entry.isIntersecting) return;
