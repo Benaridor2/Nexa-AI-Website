@@ -619,8 +619,6 @@ a.menu-item:hover,a.menu-item:focus-visible{background:#f7f3fa}
 @media(min-width:700px) and (max-height:780px){.chat-response .option-card .source-link{font-size:12px}.chat-response .option-card .source-link svg{width:12px;height:12px}}
 @media(max-width:699px){.chat-response .option-card .source-link{font-size:11px;gap:4px}.chat-response .option-card .source-link svg{width:11px;height:11px}}
 /* PRICED: the OTA detour lights up when the route reaches it, and the booking it takes is underlined. */
-.is-motion .comparison{height:480svh}
-@media(max-width:699px){.is-motion .comparison{height:500svh}}
 .ota-route-line{background:linear-gradient(90deg,#bd859055,#e7a3b1)}
 .ota-route>.ota-chip{--arrive:1;--pulse:0;position:relative;white-space:nowrap;background:color-mix(in srgb,#45303b,#74404f calc(var(--arrive)*100%));border-color:color-mix(in srgb,#78505a,#eaa6b4 calc(var(--arrive)*100%));color:color-mix(in srgb,#e7b1ba,#fff3f5 calc(var(--arrive)*100%));box-shadow:0 0 0 calc(var(--pulse)*10px) rgba(234,166,180,calc(var(--pulse)*.14)),0 0 calc(var(--arrive)*36px) rgba(214,120,142,calc(var(--arrive)*.42));transform:scale(calc(1 + var(--pulse)*.07))}
 .ota-detour>p{--books:1}

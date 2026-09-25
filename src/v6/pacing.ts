@@ -6,12 +6,11 @@
 // busy transitions get more room, so every bit of scrolling shows something.
 //
 // `windows` are the transitions that look unfinished when frozen halfway (a
-// card fading in, a crossfade, a panel sliding). Scrolling that stops inside
-// one completes it in the direction of travel. A fast gesture stops once at
-// the end of a `key` window, so the main beats are never flicked past.
+// card fading in, a crossfade, a panel sliding). Scrolling that stops just
+// short of a window's end completes it in the direction of travel.
 export type Pacing = {
   readonly knots?: readonly (readonly [story: number, scroll: number])[];
-  readonly windows: readonly (readonly [start: number, end: number, key?: 'key'])[];
+  readonly windows: readonly (readonly [start: number, end: number])[];
 };
 
 // Scroll positions below come from lengths in viewport heights over the
@@ -19,15 +18,15 @@ export type Pacing = {
 export const PACING: Record<string, Pacing> = {
   'guest-story': {
     knots: [[0, 0], [.455, .455], [.54, .529], [.57, .5809], [.60, .6164], [.655, .6831], [.76, .735], [.826, .7972], [.877, .889], [.892, .9039], [.921, .9409], [1, 1]],
-    windows: [[.135, .18], [.2825, .295], [.325, .335], [.36, .47, 'key'], [.563, .585], [.585, .655, 'key'], [.826, .877, 'key']],
+    windows: [[.135, .18], [.2825, .295], [.325, .335], [.36, .47], [.563, .585], [.585, .655], [.826, .877]],
   },
-  // 480svh: the added distance goes to the line reaching the OTA and its hold.
+  // The OTA beat gets more of PRICED's 3.4 viewport heights; the rest is a little tighter.
   priced: {
-    knots: [[0, 0], [.28, .2505], [.33, .3163], [.395, .4532], [1, 1]],
-    windows: [[.20, .28], [.28, .365, 'key'], [.395, .48, 'key'], [.53, .57], [.57, .64, 'key'], [.675, .745, 'key'], [.78, .85, 'key'], [.865, .93, 'key'], [.93, .96]],
+    knots: [[0, 0], [.28, .25], [.33, .3147], [.395, .4324], [1, 1]],
+    windows: [[.20, .28], [.28, .365], [.395, .48], [.53, .57], [.57, .64], [.675, .745], [.78, .85], [.865, .93], [.93, .96]],
   },
   'how-it-works': {
-    windows: [[.13, .20], [.4606, .5302, 'key'], [.6346, .7338, 'key'], [.786, .817], [.8695, .9165, 'key'], [.9426, .9687]],
+    windows: [[.13, .20], [.4606, .5302], [.6346, .7338], [.786, .817], [.8695, .9165], [.9426, .9687]],
   },
 };
 

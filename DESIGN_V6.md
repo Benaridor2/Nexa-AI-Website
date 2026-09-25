@@ -116,3 +116,13 @@ The booking answer is now a flex layout with an explicit photo slot between its 
   - Who we are (37 countries, 6 PMS integrations, up to 3,000 units), Lior's quote, how we work, the three shifts, the vision and the SHIC proof line.
 - The Contact form is not connected yet: Send shows "Preview only: this form is not connected yet, so nothing was sent."
 - Blocks fade up as they enter the viewport (not with reduced motion). Checked at 1440x900, 1280x712, 1024x768, 390x844 and 358x694: no console errors, no horizontal overflow, every block revealed.
+- Scroll follow-up ("it feels a little stuck"). The scroll is never held or slowed any more, and every gesture travels its full distance.
+  - Removed: the flick catch, which stopped fast flicks at the main beats and absorbed their inertia. It made ordinary fast scrolling stop and wait.
+  - Settling is now subtle. It completes a transition only when the scroll rests within 0.22 viewport heights of its end, in the direction of travel, and a stop anywhere else stays exactly where it is. It waits 180ms, and a wheel glide eases with lerp 0.12.
+  - PRICED is back to 440svh (460svh on phones). The OTA beat keeps its extra room within the same length, and the other beats are slightly tighter.
+  - Gesture checks, all passing:
+    - One notch moves exactly 100px.
+    - A 1,807px flick, a burst of twelve notches and slow scrolling all travel in full.
+    - A stop just short of the checkout's end completes it, and a stop well inside it is left alone.
+    - Scrolling up just past the start returns to it.
+    - Arrow keys and a touch swipe that stop just short of the end complete it.
