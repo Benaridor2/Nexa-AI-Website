@@ -590,3 +590,31 @@ a.menu-item:hover,a.menu-item:focus-visible{background:#f7f3fa}
 @media(max-width:699px){.checkout-total span small{display:inline;margin:0 0 0 6px}}
 @media(max-width:699px) and (max-height:740px){.checkout-back{padding:5px 10px 5px 7px}}
 @media(max-width:699px) and (max-height:740px){.checkout-brand{padding-block:7px}.checkout-back{padding-block:4px}}
+/* Suggestions are questions only; choosing one fills the composer. */
+.suggestion{padding:9px 10px}
+.suggestion-fill{flex:none;width:16px;height:16px;color:#b3aab9;opacity:0;transition:opacity .15s,color .15s}
+.suggestion[aria-selected="true"] .suggestion-fill{opacity:1;color:var(--nexa-purple)}
+.thread-edited{display:block;margin:4px -2.6% 0 0;text-align:right;font-size:11px;color:#8e8e8e}
+.thread-user{animation:turn-in .35s cubic-bezier(.2,.7,.2,1)}
+.option-body .source-link.is-static{display:inline-flex;margin-top:6px;font-size:13px;cursor:default}
+@media(min-width:700px) and (max-height:780px){.option-body .source-link.is-static{margin-top:3px;font-size:11.5px}.option-body .source-link.is-static svg{width:12px;height:12px}}
+@media(max-width:699px){.thread-edited{margin-right:-2.3%;font-size:10px}.option-body .source-link.is-static{margin-top:3px;font-size:11px}.option-body .source-link.is-static svg{width:11px;height:11px}}
+/* PRICED / UNPRICED: the row in the spotlight grows and glows, red while missing, green once NEXA makes it ready. */
+.comparison-row{--spot-missing:0;--spot-ready:0;--spot-dim:0;transform-origin:center;z-index:calc(1 + var(--spot-missing) + var(--spot-ready))}
+.comparison-row:after{content:'';position:absolute;inset:0 -12px;border-radius:12px;pointer-events:none;background:linear-gradient(90deg,rgba(211,154,156,calc(var(--spot-missing)*.16)),rgba(211,154,156,calc(var(--spot-missing)*.03)) 70%),linear-gradient(90deg,rgba(168,205,187,calc(var(--spot-ready)*.16)),rgba(168,205,187,calc(var(--spot-ready)*.03)) 70%);box-shadow:inset 3px 0 0 rgba(211,154,156,calc(var(--spot-missing)*.9)),inset 3px 0 0 rgba(168,205,187,calc(var(--spot-ready)*.9))}
+.comparison-row>*{position:relative;z-index:1;opacity:calc(1 - var(--spot-dim)*.55)}
+.comparison-row .row-missing{color:rgb(calc(216 + var(--spot-missing)*30),calc(163 + var(--spot-missing)*30),calc(165 + var(--spot-missing)*30))}
+.comparison-row .row-ready{color:rgb(calc(175 + var(--spot-ready)*35),calc(205 + var(--spot-ready)*35),calc(189 + var(--spot-ready)*35))}
+.comparison-row h4{color:rgb(calc(215 + var(--spot-missing)*40 + var(--spot-ready)*40),calc(209 + var(--spot-missing)*46 + var(--spot-ready)*46),calc(221 + var(--spot-missing)*34 + var(--spot-ready)*34))}
+@media(min-width:700px) and (max-height:780px){
+.chat-followup{margin-top:7px}
+.chat-response>p.pool-intro{margin:7px 0 5px}
+.option-meta{margin-top:1px}
+.option-body .source-link.is-static{margin-top:2px}
+.chat-response>p.answer-beat{margin-bottom:5px}
+}
+/* One Book direct size on every card, clickable or not. */
+.chat-response .option-card .source-link{font-size:13px;gap:6px}
+.chat-response .option-card .source-link svg{width:13px;height:13px}
+@media(min-width:700px) and (max-height:780px){.chat-response .option-card .source-link{font-size:12px}.chat-response .option-card .source-link svg{width:12px;height:12px}}
+@media(max-width:699px){.chat-response .option-card .source-link{font-size:11px;gap:4px}.chat-response .option-card .source-link svg{width:11px;height:11px}}

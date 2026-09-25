@@ -14,7 +14,7 @@ export function Photo({ name = 'balcony', className = '', eager = false }: { nam
 export function Label({ children }: { children: React.ReactNode }) {
   if (typeof children === 'string' && children.includes(' / ')) {
     const [left, ...right] = children.split(' / ');
-    return <p className="eyebrow section-label"><span>{left}</span><span>/ {right.join(' / ')}</span></p>;
+    return <p className="eyebrow section-label"><span>{left}</span><span>{right.join(' / ')}</span></p>;
   }
   return <p className="eyebrow">{children}</p>;
 }
@@ -267,7 +267,7 @@ function CheckoutSummary({ listing, highlights }: { listing: Listing; highlights
   </div>;
 }
 
-function OptionCard({ listing, extraLine, eager = false, className = '', beat = 'answer-beat', children }: { listing: Listing; extraLine?: string; eager?: boolean; className?: string; beat?: string; children?: React.ReactNode }) {
+function OptionCard({ listing, extraLine, eager = false, className = '', beat = 'answer-beat', shownLink = false, children }: { listing: Listing; extraLine?: string; eager?: boolean; className?: string; beat?: string; shownLink?: boolean; children?: React.ReactNode }) {
   const photo = listing.photos[0];
   return <article className={`option-card ${beat} ${className}`} data-animated>
     <div className="option-photo" data-animated><img src={photo.src} alt={photo.alt} width={photo.width} height={photo.height} style={{ objectPosition: photo.focus }} loading={eager ? 'eager' : 'lazy'} fetchPriority={eager ? 'high' : 'auto'}/></div>
@@ -276,6 +276,8 @@ function OptionCard({ listing, extraLine, eager = false, className = '', beat = 
       <p className={`option-meta ${beat}`} data-animated>{[listing.ratingLabel, listing.sizeLabel].filter(Boolean).join(' · ')}</p>
       {extraLine && <p className={`option-extra ${beat}`} data-animated>{extraLine}</p>}
       <div className={`option-total ${beat}`} data-animated><strong>{listing.total} <span>final total</span></strong><span className="connected-badge">Connected to NEXA AI</span></div>
+      {/* The same Book direct as the booked cards, shown but not clickable in the scripted answer. */}
+      {shownLink && <div className={`option-link ${beat}`} data-animated><span className="source-link is-static" aria-hidden="true">Book direct <Arrow diagonal/></span></div>}
     </div>
     {children}
   </article>;
@@ -285,19 +287,19 @@ function Sparkle() {
   return <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3.5c.6 3.9 2.6 5.9 6.5 6.5-3.9.6-5.9 2.6-6.5 6.5-.6-3.9-2.6-5.9-6.5-6.5 3.9-.6 5.9-2.6 6.5-6.5ZM18.5 15.5c.3 1.6 1.1 2.4 2.7 2.7-1.6.3-2.4 1.1-2.7 2.7-.3-1.6-1.1-2.4-2.7-2.7 1.6-.3 2.4-1.1 2.7-2.7Z" fill="currentColor"/></svg>;
 }
 
-// The guest's own follow-up requests: suggestions while typing, an inline
-// completion (Tab), and free text matched to a listing.
-function Composer({ busy, onAsk, input }: { busy: boolean; onAsk: (text: string, option?: Option) => void; input: React.RefObject<HTMLInputElement | null> }) {
-  const [value, setValue] = useState('');
+// The guest's own follow-up request. Suggestions are questions: choosing one
+// fills the composer, and the guest sends it. Tab accepts the inline completion.
+function Composer({ busy, editing, value, onChange, onAsk, input }: { busy: boolean; editing: boolean; value: string; onChange: (text: string) => void; onAsk: (text: string) => void; input: React.RefObject<HTMLInputElement | null> }) {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
   const list = suggest(value).slice(0, 6);
   const ghost = completion(value, list[0]);
   const expanded = open && list.length > 0;
-  const send = (text: string, option?: Option) => {
-    if (busy || !text.trim()) return;
-    onAsk(text.trim(), option);
-    setValue(''); setActive(-1); setOpen(false);
+  const chosen = active >= 0 && active < list.length ? list[active] : undefined;
+  const fill = (option: Option) => {
+    onChange(option.userMessage);
+    setOpen(false); setActive(-1);
+    requestAnimationFrame(() => { const field = input.current; if (field) { field.focus(); field.setSelectionRange(field.value.length, field.value.length); } });
   };
   const keys = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if ((event.key === 'ArrowDown' || event.key === 'ArrowUp') && list.length) {
@@ -307,44 +309,50 @@ function Composer({ busy, onAsk, input }: { busy: boolean; onAsk: (text: string,
       setActive(current => down ? (current + 1) % list.length : current <= 0 ? list.length - 1 : current - 1);
     } else if ((event.key === 'Tab' || event.key === 'ArrowRight') && ghost && event.currentTarget.selectionStart === value.length) {
       event.preventDefault();
-      setValue(value + ghost);
+      onChange(value + ghost);
     } else if (event.key === 'Escape' && expanded) {
       event.preventDefault();
       setOpen(false); setActive(-1);
+    } else if (event.key === 'Enter') {
+      // Handled here: an empty composer disables Send, which would block implicit submission.
+      event.preventDefault();
+      if (chosen && expanded) fill(chosen); else submit();
     }
   };
-  const chosen = active >= 0 && active < list.length ? list[active] : undefined;
-  return <form className="chat-dock" data-animated role="search" aria-label="Ask ChatGPT for another stay" onSubmit={event => { event.preventDefault(); if (chosen) send(chosen.userMessage, chosen); else send(value); }}>
+  const submit = () => {
+    if (busy || !value.trim()) return;
+    onAsk(value.trim());
+    setOpen(false); setActive(-1);
+  };
+  return <form className="chat-dock" data-animated role="search" aria-label="Ask ChatGPT for another stay" onSubmit={event => { event.preventDefault(); submit(); }}>
     <span className="composer-plus" aria-hidden="true">+</span>
     <span className="dock-hint dock-idle" aria-hidden="true">Ask ChatGPT</span>
     <label className="composer-field">
-      <span className="sr-only">Ask for another stay</span>
+      <span className="sr-only">{editing ? 'Change your request' : 'Ask for another stay'}</span>
       <span className="composer-ghost" aria-hidden="true"><span>{value}</span>{ghost}</span>
-      <input ref={input} value={value} disabled={busy} autoComplete="off" spellCheck={false} placeholder="Ask for more, like the cheapest option" role="combobox" aria-expanded={expanded} aria-controls="composer-suggestions" aria-autocomplete="both" aria-activedescendant={chosen ? `suggestion-${chosen.id}` : undefined}
-        onChange={event => { setValue(event.target.value); setOpen(true); setActive(-1); }} onFocus={() => setOpen(true)} onBlur={() => setOpen(false)} onKeyDown={keys}/>
+      <input ref={input} value={value} disabled={busy} autoComplete="off" spellCheck={false} placeholder={editing ? 'Change your request, like free parking' : 'Ask for more, like the cheapest option'} role="combobox" aria-expanded={expanded} aria-controls="composer-suggestions" aria-autocomplete="both" aria-activedescendant={chosen && expanded ? `suggestion-${chosen.id}` : undefined}
+        onChange={event => { onChange(event.target.value); setOpen(true); setActive(-1); }} onFocus={() => { if (!value) setOpen(true); }} onClick={() => setOpen(true)} onBlur={() => { setOpen(false); setActive(-1); }} onKeyDown={keys}/>
     </label>
     <span className="composer-mic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><rect x="9" y="3" width="6" height="12" rx="3" stroke="currentColor" strokeWidth="1.5"/><path d="M6 10v2a6 6 0 0 0 12 0v-2M12 18v3" stroke="currentColor" strokeWidth="1.5"/></svg></span>
-    <button type="submit" className="composer-send" aria-label="Send" disabled={busy || (!value.trim() && !chosen)}>↑</button>
-    <div className="composer-suggestions" id="composer-suggestions" role="listbox" aria-label="Suggestions" hidden={!expanded} data-lenis-prevent>
-      <p className="suggestions-head" aria-hidden="true"><Sparkle/>Keep searching<span>↑↓ choose · Tab complete · Enter ask</span></p>
-      {list.map((option, i) => {
-        const listing = LISTINGS[option.listing];
-        return <div role="option" id={`suggestion-${option.id}`} key={option.id} aria-selected={i === active} className="suggestion" onMouseDown={event => { event.preventDefault(); send(option.userMessage, option); }} onMouseEnter={() => setActive(i)}>
-          <img src={listing.photos[0].src} alt="" loading="lazy"/>
-          <span>I also want <b>{option.chip}</b></span>
-          <small>{listing.total}</small>
-        </div>;
-      })}
+    <button type="submit" className="composer-send" aria-label="Send" disabled={busy || !value.trim()}>↑</button>
+    <div className="composer-suggestions" id="composer-suggestions" role="listbox" aria-label="Suggested requests" hidden={!expanded} data-lenis-prevent>
+      <p className="suggestions-head" aria-hidden="true"><Sparkle/>{editing ? 'Change your request' : 'Keep searching'}<span>Choose one, then send</span></p>
+      {list.map((option, i) => <div role="option" id={`suggestion-${option.id}`} key={option.id} aria-selected={i === active} className="suggestion" onMouseDown={event => { event.preventDefault(); fill(option); }} onMouseEnter={() => setActive(i)}>
+        <span>I also want <b>{option.chip}</b></span>
+        <svg className="suggestion-fill" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M17 17 7 7M7 15V7h8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg>
+      </div>)}
     </div>
   </form>;
 }
 
-type Turn = { id: number; text: string; request: Request | null; ready: boolean };
+// One follow-up from the guest. Asking again edits it, as in ChatGPT, rather than adding another.
+type Turn = { id: number; text: string; request: Request | null; ready: boolean; edits: number };
 type Checkout = { mode: 'auto' | 'open' | 'closed'; request: Request };
 
 export function Conversation({ motion }: { motion: boolean }) {
   const ref = useRef<HTMLElement>(null), composer = useRef<HTMLInputElement>(null), checkoutRef = useRef<HTMLDivElement>(null);
-  const [turns, setTurns] = useState<Turn[]>([]);
+  const [turn, setTurn] = useState<Turn | null>(null);
+  const [draft, setDraft] = useState('');
   const [checkout, setCheckout] = useState<Checkout>({ mode: 'auto', request: POOL_ANSWER });
   const [settling, setSettling] = useState(false);
   const timers = useRef<number[]>([]);
@@ -370,13 +378,18 @@ export function Conversation({ motion }: { motion: boolean }) {
   }, []);
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
   // Click-driven changes redraw the scene at the current scroll position, easing the change in.
-  useLayoutEffect(() => { ref.current?.dispatchEvent(new Event('scene-redraw')); }, [turns, checkout]);
+  useLayoutEffect(() => { ref.current?.dispatchEvent(new Event('scene-redraw')); }, [turn, checkout]);
   const ease = () => { setSettling(true); timers.current.push(window.setTimeout(() => setSettling(false), 520)); };
-  const ask = (text: string, option?: Option) => {
-    const id = Date.now();
+  const ask = (text: string) => {
+    const id = Date.now(), option = OPTIONS.find(item => item.userMessage === text);
     ease();
-    setTurns(current => [...current, { id, text: option?.userMessage ?? text, request: option ?? matchRequest(text), ready: false }]);
-    timers.current.push(window.setTimeout(() => { ease(); setTurns(current => current.map(turn => turn.id === id ? { ...turn, ready: true } : turn)); }, 950));
+    setDraft('');
+    setTurn(current => ({ id, text, request: option ?? matchRequest(text), ready: false, edits: current ? current.edits + 1 : 0 }));
+    timers.current.push(window.setTimeout(() => { ease(); setTurn(current => current?.id === id ? { ...current, ready: true } : current); }, 950));
+  };
+  const fill = (option: Option) => {
+    setDraft(option.userMessage);
+    requestAnimationFrame(() => { const field = composer.current; if (field) { field.focus({ preventScroll: true }); field.setSelectionRange(field.value.length, field.value.length); } });
   };
   const book = (request: Request) => {
     ease();
@@ -390,11 +403,11 @@ export function Conversation({ motion }: { motion: boolean }) {
     window.setTimeout(() => composer.current?.focus({ preventScroll: true }), motion ? 420 : 500);
   };
   // Without a choice by hand, the scroll-driven checkout shows the latest stay the guest asked for.
-  const latest = [...turns].reverse().find(turn => turn.ready && turn.request)?.request ?? POOL_ANSWER;
+  const latest = turn?.ready && turn.request ? turn.request : POOL_ANSWER;
   const request = checkout.mode === 'open' ? checkout.request : latest;
   const listing = LISTINGS[request.listing];
-  const busy = turns.some(turn => !turn.ready);
-  return <section id="guest-story" className="conversation scene-section" ref={ref} aria-labelledby="guest-title" data-checkout={checkout.mode} data-cursor={turns.length || checkout.mode !== 'auto' ? 'off' : 'on'}>
+  const busy = Boolean(turn && !turn.ready);
+  return <section id="guest-story" className="conversation scene-section" ref={ref} aria-labelledby="guest-title" data-checkout={checkout.mode} data-cursor={turn || checkout.mode !== 'auto' ? 'off' : 'on'}>
     <div className="scene-stage wrap" data-animated>
       <div className="depth-frame" data-animated aria-hidden="true"/><div className="depth-frame" data-animated aria-hidden="true"/><div className="depth-frame" data-animated aria-hidden="true"/><div className="portal-clip" aria-hidden="true"><div className="portal-shutter shutter-left" data-animated><span>ASK.</span></div><div className="portal-shutter shutter-right" data-animated><span>ANSWER.</span></div></div><h2 className="sr-only" id="guest-title">A question becomes a bookable answer</h2><div className="scene-orbit" aria-hidden="true"/>
       <div className="chat-halo" data-animated aria-hidden="true"/>
@@ -407,7 +420,7 @@ export function Conversation({ motion }: { motion: boolean }) {
         <div className="chat-response" data-animated>
           <p className="answer-beat" data-animated>{FIRST_ANSWER.reply}</p>
           <div className="answer-options">
-            {FIRST_ANSWER.listings.map((item, i) => <OptionCard key={item.key} listing={item} eager={i === 0}/>)}
+            {FIRST_ANSWER.listings.map((item, i) => <OptionCard key={item.key} listing={item} eager={i === 0} shownLink/>)}
           </div>
           <div className="chat-followup" data-animated>{STAY.followUp}</div>
           <p className="pool-intro" data-animated>{POOL_ANSWER.reply}</p>
@@ -415,17 +428,18 @@ export function Conversation({ motion }: { motion: boolean }) {
             <button type="button" className="pool-beat source-link" data-animated onClick={() => book(POOL_ANSWER)}>Book direct <Arrow diagonal /><svg className="demo-cursor" data-animated aria-hidden="true" viewBox="0 0 28 36"><path d="M3 2v27l7-7 6 12 5-3-6-11h10Z" fill="#202123" stroke="white" strokeWidth="2"/></svg></button>
           </OptionCard>
           <div className="chat-thread" data-animated aria-live="polite">
-            {turns.map(turn => <div className="thread-turn" key={turn.id}>
-              <div className="chat-followup thread-user">{turn.text}</div>
+            {turn && <div className="thread-turn">
+              <div className="chat-followup thread-user" key={turn.edits}>{turn.text}</div>
+              {turn.edits > 0 && <small className="thread-edited">Edited</small>}
               {!turn.ready ? <p className="thread-searching"><span aria-hidden="true"/>Searching Sea N' Rent</p>
-                : turn.request ? <div className="thread-answer"><p className="thread-reply">{turn.request.reply}</p>
+                : turn.request ? <div className="thread-answer" key={turn.id}><p className="thread-reply">{turn.request.reply}</p>
                   <OptionCard listing={LISTINGS[turn.request.listing]} extraLine={turn.request.extraLine} beat="thread-beat" className="thread-card"><button type="button" className="source-link" onClick={() => book(turn.request!)}>Book direct <Arrow diagonal/></button></OptionCard></div>
-                : <div className="thread-answer"><p className="thread-reply">{FALLBACK_REPLY}</p><div className="thread-chips">{OPTIONS.slice(0, 6).map(option => <button type="button" key={option.id} disabled={busy} onClick={() => ask(option.userMessage, option)}>{option.chip}</button>)}</div></div>}
-            </div>)}
+                : <div className="thread-answer" key={turn.id}><p className="thread-reply">{FALLBACK_REPLY}</p><div className="thread-chips">{OPTIONS.slice(0, 6).map(option => <button type="button" key={option.id} onClick={() => fill(option)}>{option.chip}</button>)}</div></div>}
+            </div>}
           </div>
         </div>
         </div></div>
-        <Composer busy={busy} onAsk={ask} input={composer}/>
+        <Composer busy={busy} editing={Boolean(turn)} value={draft} onChange={setDraft} onAsk={ask} input={composer}/>
         <div ref={checkoutRef} className={`chat-checkout${settling ? ' is-switching' : ''}`} data-animated><div className="checkout-browser">The property's own website <span>Illustrative checkout</span></div><div className="checkout-brand"><img src="/seanrent/logo.svg" alt="Sea N’ Rent" width="140" height="30"/><button type="button" className="checkout-back" onClick={backToChat}><Chevron back/><span>Back to chat</span><small>Keep searching</small></button></div><div className="checkout-grid"><CheckoutSummary key={listing.key} listing={listing} highlights={highlightsFor(listing, request)}/><div className="checkout-payment"><small>ONE LAST STEP</small><h3>Make it your stay.</h3><p>Your apartment and stay details are ready.<br/>Add your card to complete the booking.</p><div className="sample-card" aria-label="Illustrative payment fields, not editable"><span>Cardholder name</span><div>Name on card</div><span>Card number</span><div>1234 &nbsp; 1234 &nbsp; 1234 &nbsp; 1234</div><div className="sample-card-row"><div>MM / YY</div><div>CVC</div></div></div><button disabled className="sample-pay">Pay {listing.total} <Arrow/></button><p className="checkout-takeaway" data-animated>Your booking. Your website.</p><small className="checkout-note">Demo only. No card details collected or payment made.</small></div></div></div>
       </div>
       <div className="story-progress" aria-hidden="true"><i className="story-progress-fill" data-animated/></div><p className="scene-caption">Illustrative ChatGPT conversation. Dates, availability and checkout are examples.</p>
@@ -443,9 +457,14 @@ const compareRenderer = (root: HTMLElement) => {
     visible(q('.ota-detour'),detour);styles(q('.ota-detour'),{transform:`translateY(${24*(1-detour)}px)`});
     visible(q('.nexa-intervention'),connect);styles(q('.nexa-intervention'),{transform:`scale(${.92+.08*connect})`});
     styles(q('.ota-route-line'),{transform:`scaleX(${phase(p,.28,.34)})`});
+    // Each row takes the spotlight in turn: what is missing, then what NEXA makes ready.
+    const spotMissing=rows.map((_,i)=>between(p,.02+i*.055,.04+i*.055,.07+i*.055,.09+i*.055));
+    const spotReady=rows.map((_,i)=>between(p,.575+i*.105,.60+i*.105,.655+i*.105,.675+i*.105));
+    const focus=rows.map((_,i)=>Math.max(spotMissing[i],spotReady[i]));
     rows.forEach((row,i)=>{
       const t=phase(p,.57+i*.105,.64+i*.105);
-      styles(row,{'--row-ready':t,transform:`translateX(${-8*Math.sin(t*Math.PI)}px)`});
+      const others=Math.max(0,...focus.filter((_,j)=>j!==i)), dim=others*(1-focus[i]);
+      styles(row,{'--row-ready':t,'--spot-missing':spotMissing[i],'--spot-ready':spotReady[i],'--spot-dim':dim,transform:`translateX(${-8*Math.sin(t*Math.PI)}px) scale(${1+.03*focus[i]})`});
       const missing=row.querySelector<HTMLElement>('.row-missing'),ready=row.querySelector<HTMLElement>('.row-ready');
       visible(missing,1-phase(t,0,.45));visible(ready,phase(t,.50,1));
       styles(ready,{transform:`translateY(${8*(1-t)}px)`});
