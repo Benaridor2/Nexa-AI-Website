@@ -57,6 +57,11 @@ export function PageShell({ page, title, children }: { page: Page; title: string
   const { open, element } = useOnboarding();
   useRise();
   useEffect(() => { document.title = `${title} | NEXA`; }, [title]);
+  // The page renders after load, so a link to one of its sections scrolls there once laid out.
+  useEffect(() => {
+    if (!location.hash) return;
+    void document.fonts.ready.then(() => requestAnimationFrame(() => document.getElementById(decodeURIComponent(location.hash.slice(1)))?.scrollIntoView()));
+  }, []);
   return <Priced.Provider value={() => open('priced')}>
     <div className={`v3-page v7-light is-flow inner-page page-${page}`}>
       <a className="skip-link" href="#main">Skip to content</a>
