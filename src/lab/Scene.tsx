@@ -122,7 +122,7 @@ export function Scene() {
   };
 
   const current = CHAPTERS[chapter];
-  return <section className="scene" id="layer" ref={section} aria-labelledby="scene-title" data-chapter={current.id} data-priced={priced} data-view={view}>
+  return <section className="scene" id="layer" data-tone="dark" ref={section} aria-labelledby="scene-title" data-chapter={current.id} data-priced={priced} data-view={view}>
     <div className="scene-sticky">
       <div className="scene-copy">
         <p className="scene-count"><span>{String(chapter + 1).padStart(2, '0')}</span> / 0{CHAPTERS.length}</p>
