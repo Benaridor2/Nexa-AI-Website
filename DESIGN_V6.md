@@ -164,3 +164,41 @@ References: Stripe, Linear and Vercel. Their common approach is real product vis
   - Blocks fade in once, gently, and stay.
   - Larger body text: 16–18px on desktop, with larger FAQ, section labels and headings.
 - **Page length**: the homepage is about 10 screens on desktop (it was over 24), with no pinned scenes. Reduced motion stops every ambient loop.
+
+## The conversation follows the scroll again; research pass
+
+Feedback: the film version changed the first chat too much, and the purple window was already open when the page loaded. The chat should stay fun to scroll through, but anyone who wants to skip it must be able to.
+
+- **The conversation follows the scroll again** (`storyPlayer.ts`), as a short pinned scene of 340svh (350svh on phones). The old one was 700svh.
+  - Scrolling it into place opens the window. At load the purple window is closed.
+  - While the scene is pinned, the scroll plays the story at the pace of `TIMELINE`, so a relaxed scroll reads like watching it.
+  - The player under the window:
+    - **Play** scrolls the page through the rest of the story by itself, and any wheel, touch or key scroll from the reader takes over at once;
+    - **Skip** glides past the section;
+    - the chapters jump within it;
+    - "Watch a booking happen" glides to the start and plays.
+  - Phones name the current chapter under the timeline (e.g. "4 / 6 · A pool, please") instead of cutting the six names off.
+  - Keyboard: the first Tab stop in the conversation is a "Skip the conversation" button. It is hidden until focused, passes the section and moves focus to the next one.
+- **Research** (three agents):
+  - hospitality and AI SaaS sites;
+  - iconic brands (Apple, Stripe, Linear, Vercel);
+  - Awwwards winners and scrollytelling practice.
+
+  What was applied:
+  - **Words stay put.** No text fades in or out on the homepage, and only the product visuals move. Fast scrollers never meet an empty screen, per NN/g on scrolljacking and parallax and The Pudding on responsive scrollytelling.
+  - **Larger type.**
+    - Hero lead: 19px (16px on short screens, 15.5px on phones). It was 12–14px.
+    - Section body: 17–18.5px on desktop and 16–16.5px on phones.
+    - FAQ questions: 19px.
+  - **Pausable ambient motion.**
+    - [01], [02] and [03] each have a small pause button (WCAG 2.2.2 applies to loops longer than 5s).
+    - Their loops run only while the section is on screen, SVG dots included.
+    - Reduced motion removes both the loops and the buttons.
+  - **Reassurance under the CTA.** A mono line lists the PMSs NEXA connects through, which the hospitality research found to be the strongest trust cue for operators.
+  - **Data voice.** Machine facts in the product visuals use Geist Mono with tabular figures: prices, dates, "Verified · live", "Your PMS · May 1-5". Words stay in Geist and Crimson.
+- **Pricing calculator** (`/pricing#calculator`, linked from the homepage's "Calculate what you keep").
+  - Inputs: listings, nightly rate, occupancy, the share of bookings that come through an AI conversation, and the OTA commission today (15–25%, default 18%, the plan's example).
+  - Output: the yearly commission through an OTA, NEXA Direct (1–3%) and NEXA Agent (5–9%), and the range the operator keeps.
+  - Results are rounded to $100 and labelled illustrative: they are the reader's own numbers, not a forecast.
+  - Colours: OTA #d8735f and NEXA purple.
+  - The sliders have their own labels and value text, and the result is a polite live region.

@@ -1,6 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import '@fontsource-variable/geist';
+import '@fontsource-variable/geist-mono';
 import '@fontsource-variable/crimson-pro';
 import '@fontsource-variable/crimson-pro/wght-italic.css';
 const isV1 = window.location.pathname.startsWith('/v1');

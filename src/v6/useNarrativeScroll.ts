@@ -17,6 +17,9 @@ const scrollKeys = new Set(['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', ' ', '
 //    pacing.ts) completes it, in the direction of travel, so a pause never
 //    leaves a card half faded. Only the last short stretch is completed.
 // 2. Unusually large single wheel impulses are compressed.
+// The page's Lenis instance, for controls that scroll the page (the story's Play and Skip).
+export const smoothScroll: { lenis: Lenis | null } = { lenis: null };
+
 export function useNarrativeScroll(enabled: boolean) {
   useEffect(() => {
     if (!enabled) return;
@@ -100,6 +103,7 @@ export function useNarrativeScroll(enabled: boolean) {
     // A mouse press (a click, the scrollbar) is not a scroll to settle; touches are handled above.
     const onPointer = (event: PointerEvent) => { interrupt(); if (event.pointerType === 'mouse') input = null; };
 
+    smoothScroll.lenis = lenis;
     measure();
     ScrollTrigger.addEventListener('refresh', measure);
     ScrollTrigger.config({ ignoreMobileResize: true });
@@ -126,6 +130,7 @@ export function useNarrativeScroll(enabled: boolean) {
       gsap.ticker.remove(tick);
       gsap.ticker.lagSmoothing(500, 33);
       lenis.destroy();
+      if (smoothScroll.lenis === lenis) smoothScroll.lenis = null;
     };
   }, [enabled]);
 }

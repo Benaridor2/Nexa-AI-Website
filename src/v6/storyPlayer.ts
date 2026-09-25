@@ -1,12 +1,13 @@
 import { useLayoutEffect, useRef, useState, type RefObject } from 'react';
-import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { clamp } from './motion';
+import { smoothScroll } from './useNarrativeScroll';
 
-// The booking conversation plays by itself, like a video, instead of asking
-// for seven screens of scrolling. Scrolling into the section opens the window;
-// once it is in view the story plays, and it can be paused, scrubbed, replayed
-// or jumped chapter by chapter. The live chat, Edit and checkout stay usable.
+// The booking conversation follows the scroll, as a short pinned scene.
+// Scrolling it into place opens the window; while it is pinned, the scroll
+// plays the story at the pace of TIMELINE, so a relaxed scroll reads like
+// watching it. Play makes the page scroll through it by itself, Skip jumps
+// past it, and the chapters jump within it. The reader's own scroll takes over at once.
 
 // When each beat of the story happens, in seconds: [story progress, time].
 // Typing and streaming are quick; the reading holds are longer.
@@ -37,105 +38,117 @@ export const CHAPTERS = [
   { label: 'Checkout', title: "The property's checkout", story: .826 },
 ].map((chapter, i, all) => ({ ...chapter, start: timeOf(chapter.story), end: i < all.length - 1 ? timeOf(all[i + 1].story) : STORY_SECONDS }));
 
-export type PlayerStatus = 'waiting' | 'playing' | 'paused' | 'ended';
-export type PlayerControls = { toggle: () => void; seek: (seconds: number) => void; replay: () => void; pause: () => void };
+export type PlayerStatus = 'idle' | 'playing' | 'ended';
+export type PlayerControls = { toggle: () => void; seek: (seconds: number) => void; skip: () => void };
 
 type Renderer = (root: HTMLElement) => (progress: number) => void;
+const easeInOut = (t: number) => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 
 export function useStoryPlayer(ref: RefObject<HTMLElement | null>, enabled: boolean, setup: Renderer) {
-  const [status, setStatus] = useState<PlayerStatus>('waiting');
-  const controls = useRef<PlayerControls>({ toggle: () => undefined, seek: () => undefined, replay: () => undefined, pause: () => undefined });
+  const [status, setStatus] = useState<PlayerStatus>('idle');
+  const controls = useRef<PlayerControls>({ toggle: () => undefined, seek: () => undefined, skip: () => undefined });
   useLayoutEffect(() => {
     const root = ref.current;
     if (!root || !enabled) return;
     const originalAttributes = new Map([...root.querySelectorAll<HTMLElement>('[data-animated]')].map(el => [el, { style: el.getAttribute('style'), hidden: el.getAttribute('aria-hidden'), inert: el.hasAttribute('inert') }]));
     const draw = setup(root);
-    const frame = root.querySelector<HTMLElement>('.chat-window');
     const chapters = [...root.querySelectorAll<HTMLElement>('.player-chapter')], labels = [...root.querySelectorAll<HTMLElement>('.player-labels li')];
     const track = root.querySelector<HTMLElement>('.player-track');
-    let active = true, seconds = 0, entry = 0, started = false, playing = false, userPaused = false, inView = false, replayOnView = false;
-    let shownChapter = -1;
+    const now = root.querySelector<HTMLElement>('.player-now');
+    // entry: the section scrolling into place (opens the window). u: the pinned story.
+    let active = true, entry = 0, u = 0, playing = false, shownChapter = -2, shownStatus: PlayerStatus = 'idle';
+    const set = (next: PlayerStatus) => { if (next !== shownStatus) { shownStatus = next; setStatus(next); } };
 
     const render = () => {
       if (!active) return;
-      // Before it plays, the scroll into the section opens the window.
-      const story = started ? storyAt(seconds) : OPEN * clamp(entry / .85);
+      const seconds = u * STORY_SECONDS;
+      const story = u > 0 ? storyAt(seconds) : OPEN * entry;
       draw(story);
       root.dataset.story = story.toFixed(5);
       chapters.forEach((el, i) => el.style.setProperty('--fill', String(clamp((seconds - CHAPTERS[i].start) / (CHAPTERS[i].end - CHAPTERS[i].start)))));
       let current = -1;
-      if (started) CHAPTERS.forEach((chapter, i) => { if (seconds >= chapter.start - .01) current = i; });
+      if (u > 0 || entry >= 1) CHAPTERS.forEach((chapter, i) => { if (seconds >= chapter.start - .01) current = i; });
       if (current !== shownChapter) {
         shownChapter = current;
         [chapters, labels].forEach(list => list.forEach((el, i) => el.classList.toggle('is-current', i === current)));
         track?.setAttribute('aria-valuetext', current < 0 ? 'Not started' : `${CHAPTERS[current].title}, chapter ${current + 1} of ${CHAPTERS.length}`);
+        if (now) now.textContent = `${Math.max(0, current) + 1} / ${CHAPTERS.length} · ${CHAPTERS[Math.max(0, current)].title}`;
       }
       track?.setAttribute('aria-valuenow', seconds.toFixed(1));
       if (track) track.dataset.seconds = seconds.toFixed(3);
+      if (!playing) set(u >= .999 ? 'ended' : 'idle');
     };
-    const set = (next: PlayerStatus) => { playing = next === 'playing'; setStatus(next); };
-    const play = () => { if (!started) { started = true; seconds = 0; } if (seconds >= STORY_SECONDS) seconds = 0; userPaused = false; set('playing'); };
-    const pause = (byUser = true) => { if (!started) return; if (byUser) userPaused = true; if (playing || byUser) set(seconds >= STORY_SECONDS ? 'ended' : 'paused'); };
-    const seek = (to: number) => { started = true; seconds = clamp(to / STORY_SECONDS) * STORY_SECONDS; userPaused = true; render(); set(seconds >= STORY_SECONDS ? 'ended' : 'paused'); };
-    const replay = () => { started = true; seconds = 0; render(); play(); };
-    const maybeStart = () => {
-      if (!inView || entry < .85) return;
-      if (replayOnView) { replayOnView = false; replay(); return; }
-      if (!started) { started = true; seconds = 0; play(); }
-      else if (!playing && !userPaused && seconds < STORY_SECONDS) play();
-    };
-    controls.current = { toggle: () => { if (!started || seconds >= STORY_SECONDS) replay(); else if (playing) pause(); else play(); }, seek, replay, pause: () => pause() };
 
-    const tick = (_time: number, delta: number) => {
-      if (!playing) return;
-      seconds = Math.min(STORY_SECONDS, seconds + Math.min(delta, 100) / 1000);
-      render();
-      if (seconds >= STORY_SECONDS) set('ended');
-    };
-    gsap.ticker.add(tick);
-
-    // Scrolling into the section opens the window; scrolling well back above it
-    // closes it again, and the story starts over next time.
-    const entryTrigger = ScrollTrigger.create({
-      trigger: root, start: 'top bottom', end: 'top top',
-      onUpdate: self => {
-        entry = self.progress;
-        if (started && entry < .45) { started = false; seconds = 0; userPaused = false; set('waiting'); }
-        render();
-        maybeStart();
-      },
+    const opening = ScrollTrigger.create({
+      trigger: root, start: 'top 75%', end: 'top top',
+      onUpdate: self => { entry = self.progress; render(); },
       onRefresh: self => { entry = self.progress; render(); },
     });
-    entry = entryTrigger.progress;
-    render();
+    const trigger = ScrollTrigger.create({
+      trigger: root, start: 'top top', end: 'bottom bottom',
+      onUpdate: self => { u = self.progress; render(); },
+      onRefresh: self => { u = self.progress; render(); },
+    });
+    const yAt = (at: number) => trigger.start + (trigger.end - trigger.start) * at;
+    const go = (y: number, options: { duration: number; easing?: (t: number) => number; onComplete?: () => void }) => {
+      const lenis = smoothScroll.lenis;
+      if (lenis) lenis.scrollTo(y, { easing: easeInOut, ...options, force: true });
+      else window.scrollTo({ top: y, behavior: 'smooth' });
+    };
+    const jump = (y: number) => { if (smoothScroll.lenis) smoothScroll.lenis.scrollTo(y, { immediate: true, force: true }); else window.scrollTo(0, y); };
+    const stop = () => { if (!playing) return; playing = false; smoothScroll.lenis?.scrollTo(smoothScroll.lenis.animatedScroll, { immediate: true, force: true }); render(); };
+    // Play: the page scrolls through the rest of the story at its own pace.
+    const play = () => {
+      if (u >= .999) jump(yAt(0));
+      playing = true; set('playing');
+      const run = () => {
+        if (!playing) return;
+        const remaining = STORY_SECONDS * (1 - u);
+        go(yAt(1), { duration: Math.max(.3, remaining), easing: t => t, onComplete: () => { playing = false; render(); } });
+      };
+      if (u <= 0 && window.scrollY < yAt(0) - 2) go(yAt(0), { duration: 1.1, onComplete: run }); else run();
+    };
+    const seek = (seconds: number) => { stop(); go(yAt(clamp(seconds / STORY_SECONDS)), { duration: .9 }); };
+    const skip = () => { stop(); go(root.getBoundingClientRect().bottom + window.scrollY, { duration: 1.1 }); };
+    controls.current = { toggle: () => { if (playing) stop(); else play(); }, seek, skip };
 
-    const observer = new IntersectionObserver(([record]) => {
-      inView = record.intersectionRatio >= .55;
-      if (!inView && playing) pause(false);
-      maybeStart();
-    }, { threshold: [0, .35, .55, .8, 1] });
-    if (frame) observer.observe(frame);
-
-    // Taking a hand in the conversation pauses the film.
-    const takeOver = (event: Event) => { if (playing && frame?.contains(event.target as Node)) pause(); };
-    root.addEventListener('pointerdown', takeOver);
-    root.addEventListener('focusin', takeOver);
+    // Any scroll of the reader's own takes over from Play.
+    const takeOver = (event: Event) => {
+      if (!playing) return;
+      if (event.type === 'keydown' && !['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', ' ', 'Home', 'End'].includes((event as KeyboardEvent).key)) return;
+      if ((event.target as Element | null)?.closest?.('.story-player')) return;
+      playing = false; render();
+    };
+    const onPointer = (event: Event) => { if (playing && root.querySelector('.chat-window')?.contains(event.target as Node)) stop(); };
+    window.addEventListener('wheel', takeOver, { passive: true });
+    window.addEventListener('touchstart', takeOver, { passive: true });
+    window.addEventListener('keydown', takeOver);
+    root.addEventListener('pointerdown', onPointer);
+    // "Watch a booking happen": glide to the start of the story and play it.
+    // On window, after React has handled the click and before Lenis's anchor handling.
+    const watch = (event: MouseEvent) => {
+      if (!(event.target as Element | null)?.closest?.('a[href$="#watch-a-booking"]') || location.pathname !== '/') return;
+      event.preventDefault(); event.stopImmediatePropagation();
+      stop();
+      playing = true; set('playing');
+      go(yAt(0), { duration: 1.2, onComplete: () => { playing = false; play(); } });
+    };
+    window.addEventListener('click', watch);
     const redraw = () => render();
-    const seekTo = (event: Event) => { const detail = (event as CustomEvent<{ story?: number; seconds?: number }>).detail ?? {}; seek(detail.seconds ?? timeOf(detail.story ?? OPEN)); };
-    const replayRequest = () => { if (inView && entry >= .85) replay(); else replayOnView = true; };
+    const seekTo = (event: Event) => { const detail = (event as CustomEvent<{ story?: number; seconds?: number }>).detail ?? {}; const seconds = detail.seconds ?? timeOf(detail.story ?? OPEN); stop(); jump(yAt(clamp(seconds / STORY_SECONDS))); };
     root.addEventListener('scene-redraw', redraw);
     root.addEventListener('story-seek', seekTo);
-    root.addEventListener('story-replay', replayRequest);
+    render();
     return () => {
       active = false;
-      gsap.ticker.remove(tick);
-      entryTrigger.kill();
-      observer.disconnect();
-      root.removeEventListener('pointerdown', takeOver);
-      root.removeEventListener('focusin', takeOver);
+      trigger.kill(); opening.kill();
+      window.removeEventListener('wheel', takeOver);
+      window.removeEventListener('touchstart', takeOver);
+      window.removeEventListener('keydown', takeOver);
+      root.removeEventListener('pointerdown', onPointer);
+      window.removeEventListener('click', watch);
       root.removeEventListener('scene-redraw', redraw);
       root.removeEventListener('story-seek', seekTo);
-      root.removeEventListener('story-replay', replayRequest);
       originalAttributes.forEach((original, el) => {
         if (original.style === null) el.removeAttribute('style'); else el.setAttribute('style', original.style);
         if (original.hidden === null) el.removeAttribute('aria-hidden'); else el.setAttribute('aria-hidden', original.hidden);

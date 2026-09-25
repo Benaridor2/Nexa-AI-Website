@@ -35,6 +35,55 @@ function StayLedger() {
   </figure>;
 }
 
+// The reader's own numbers: what the same bookings would cost through an OTA,
+// and through NEXA. Every input is theirs; nothing here is a forecast.
+const money = (value: number) => '$' + (Math.round(value / 100) * 100).toLocaleString('en-US');
+const INPUTS = [
+  { id: 'listings', label: 'Listings', min: 1, max: 300, step: 1, show: (v: number) => String(v) },
+  { id: 'rate', label: 'Average nightly rate', min: 60, max: 1000, step: 10, show: (v: number) => `$${v}` },
+  { id: 'occupancy', label: 'Occupancy', min: 20, max: 95, step: 1, show: (v: number) => `${v}%` },
+  { id: 'share', label: 'Bookings that come through an AI conversation', min: 5, max: 100, step: 5, show: (v: number) => `${v}%` },
+  { id: 'ota', label: 'OTA commission today', min: 15, max: 25, step: 1, show: (v: number) => `${v}%` },
+] as const;
+type CalcInput = typeof INPUTS[number]['id'];
+
+function Calculator() {
+  const [values, setValues] = useState<Record<CalcInput, number>>({ listings: 12, rate: 180, occupancy: 65, share: 20, ota: 18 });
+  const revenue = values.listings * values.rate * 365 * values.occupancy / 100 * values.share / 100;
+  const cost = (rate: number) => revenue * rate / 100;
+  const ota = cost(values.ota);
+  const rows = [
+    { id: 'ota', name: 'Through an OTA', rate: `${values.ota}%`, low: ota, high: ota },
+    { id: 'direct', name: 'NEXA Direct', note: 'they ask for you by name', rate: '1-3%', low: cost(1), high: cost(3) },
+    { id: 'agent', name: 'NEXA Agent', note: 'NEXA AI puts you in the answer', rate: '5-9%', low: cost(5), high: cost(9) },
+  ];
+  const keepLow = ota - cost(9), keepHigh = ota - cost(1);
+  return <div className="calculator">
+    <form className="calc-inputs" onSubmit={event => event.preventDefault()}>
+      {INPUTS.map(input => <div key={input.id} className="calc-input">
+        <span><label htmlFor={`calc-${input.id}`}>{input.label}</label><output htmlFor={`calc-${input.id}`}>{input.show(values[input.id])}</output></span>
+        <input id={`calc-${input.id}`} type="range" min={input.min} max={input.max} step={input.step} value={values[input.id]} aria-valuetext={input.show(values[input.id])} onChange={event => setValues({ ...values, [input.id]: Number(event.target.value) })} style={{ '--at': `${(values[input.id] - input.min) / (input.max - input.min) * 100}%` } as React.CSSProperties}/>
+      </div>)}
+      <p className="calc-basis">These bookings are worth <b>{money(revenue)}</b> a year: listings × nightly rate × 365 nights × occupancy × the AI share.</p>
+    </form>
+    <div className="calc-result">
+      <div aria-live="polite" aria-atomic="true">
+        <p className="calc-kicker">You keep, every year</p>
+        <p className="calc-number"><strong>{money(keepLow)}</strong><span>to</span><strong>{money(keepHigh)}</strong></p>
+        <p className="calc-sub">more than if the same bookings came through an OTA.</p>
+      </div>
+      <ol className="calc-bars" aria-label="Commission on these bookings, per year">
+        {rows.map(row => <li key={row.id} className={`is-${row.id}`}>
+          <span className="calc-name"><b>{row.name}</b>{row.note && <small>{row.note}</small>}</span>
+          <span className="calc-bar" aria-hidden="true"><i style={{ width: `${row.high / ota * 100}%` }}/><i style={{ width: `${row.low / ota * 100}%` }}/></span>
+          <span className="calc-cost"><em>{row.rate}</em>{row.low === row.high ? money(row.low) : `${money(row.low)}–${money(row.high)}`}</span>
+        </li>)}
+      </ol>
+      <p className="calc-note">Commission on these bookings, per year. Illustrative: your numbers, not a forecast. NEXA charges commission on AI-generated revenue only.</p>
+    </div>
+  </div>;
+}
+
 export function PricingPage() {
   return <PageShell page="pricing" title="Pricing">
     <section className="page-hero wrap">
@@ -45,8 +94,13 @@ export function PricingPage() {
     <section className="page-section wrap pricing-example" aria-label="Example stay">
       <StayLedger/>
     </section>
+    <section className="page-section wrap pricing-calculator" id="calculator" aria-labelledby="calculator-title">
+      <PageLabel left="[01] YOUR NUMBERS" right="WHAT YOU KEEP"/>
+      <h2 id="calculator-title" className="page-h2">Your bookings.<br/><em>Your commission.</em></h2>
+      <Calculator/>
+    </section>
     <section className="page-section wrap pricing-terms" aria-labelledby="definitions-title">
-      <PageLabel left="[01] TWO KINDS OF BOOKING" right="PRICED BY HOW THE GUEST ARRIVED"/>
+      <PageLabel left="[02] TWO KINDS OF BOOKING" right="PRICED BY HOW THE GUEST ARRIVED"/>
       <h2 id="definitions-title" className="page-h2" data-rise>One connection.<br/><em>Two commissions.</em></h2>
       <div className="definition-grid">
         <article data-rise><span className="definition-rate">1-3%</span><h3>NEXA Direct, branded</h3><p>The traveler asked for your brand by name.</p></article>
@@ -56,7 +110,7 @@ export function PricingPage() {
       <p className="comparison-note" data-rise><strong>OTA commissions typically run 15-25%.</strong> Same guest, same room, direct into your own flow, with the guest relationship intact.</p>
     </section>
     <section className="page-section wrap pricing-websites" aria-labelledby="websites-title">
-      <PageLabel left="[02] YOUR WEBSITE" right="BOOKING ENGINE AND MULTI WEBSITE"/>
+      <PageLabel left="[03] YOUR WEBSITE" right="BOOKING ENGINE AND MULTI WEBSITE"/>
       <div className="split-intro" data-rise><h2 id="websites-title" className="page-h2">Need a website<br/><em>the AI can read?</em></h2><p>For operators with no direct booking website, or one that is not bringing direct bookings. <a className="inline-link" href="/solutions">See the solutions <Arrow/></a></p></div>
       <div className="price-cards">
         <article className="price-card" data-rise>

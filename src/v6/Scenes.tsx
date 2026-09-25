@@ -439,9 +439,9 @@ function StoryPlayer({ status, controls }: { status: PlayerStatus; controls: Rea
     event.preventDefault();
     controls.current.seek(to);
   };
-  const label = status === 'playing' ? 'Pause the conversation' : status === 'ended' ? 'Replay the conversation' : 'Play the conversation';
+  const label = status === 'playing' ? 'Pause' : status === 'ended' ? 'Watch it again' : 'Play it for me';
   return <div className={`story-player is-${status}`}>
-    <button type="button" className="player-toggle" aria-label={label} onClick={() => controls.current.toggle()}><PlayerIcon status={status}/></button>
+    <button type="button" className="player-toggle" aria-label={label} title={label} onClick={() => controls.current.toggle()}><PlayerIcon status={status}/></button>
     <div className="player-timeline">
       <div className="player-track" role="slider" tabIndex={0} aria-label="Conversation timeline, in seconds" aria-valuemin={0} aria-valuemax={Math.round(STORY_SECONDS)} aria-valuenow={0}
         onPointerDown={event => { scrubbing.current = true; event.currentTarget.setPointerCapture(event.pointerId); at(event); }}
@@ -450,7 +450,9 @@ function StoryPlayer({ status, controls }: { status: PlayerStatus; controls: Rea
         {CHAPTERS.map(chapter => <span key={chapter.label} className="player-chapter" data-animated style={{ flexGrow: chapter.end - chapter.start }}><i/></span>)}
       </div>
       <ol className="player-labels">{CHAPTERS.map(chapter => <li key={chapter.label} style={{ flexGrow: chapter.end - chapter.start }}><button type="button" onClick={() => controls.current.seek(chapter.start)} aria-label={`Go to: ${chapter.title}`}>{chapter.label}</button></li>)}</ol>
+      <p className="player-now" aria-hidden="true">{CHAPTERS[0].title}</p>
     </div>
+    <button type="button" className="player-skip" onClick={() => controls.current.skip()}>Skip<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14m-6-6 6 6 6-6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg></button>
   </div>;
 }
 
@@ -475,12 +477,6 @@ export function Conversation({ motion }: { motion: boolean }) {
   const busy = Boolean(turn && !turn.ready);
   const timers = useRef<number[]>([]);
   const player = useStoryPlayer(ref, motion, chatRenderer);
-  // "Watch a booking happen" plays the conversation from the start.
-  useEffect(() => {
-    const replay = (event: MouseEvent) => { if ((event.target as Element | null)?.closest?.('a[href$="#watch-a-booking"]')) ref.current?.dispatchEvent(new Event('story-replay')); };
-    document.addEventListener('click', replay);
-    return () => document.removeEventListener('click', replay);
-  }, []);
   // The halo sits behind the window (which clips its own content) and copies its box.
   useLayoutEffect(() => {
     const root = ref.current, frame = root?.querySelector<HTMLElement>('.chat-window');
@@ -556,6 +552,7 @@ export function Conversation({ motion }: { motion: boolean }) {
   const listing = LISTINGS[request.listing];
 
   return <section id="guest-story" className="conversation scene-section" ref={ref} aria-labelledby="guest-title" data-checkout={checkout.mode} data-cursor={turn || checkout.mode !== 'auto' ? 'off' : 'on'}>
+    {motion && <button type="button" className="scene-skip" onClick={() => { player.controls.current.skip(); const next = ref.current?.nextElementSibling; if (next instanceof HTMLElement) { next.tabIndex = -1; next.focus({ preventScroll: true }); } }}>Skip the conversation</button>}
     {/* "Watch a booking happen" lands here: the window is open, the question about to be typed. */}
     <span id="watch-a-booking" className="scene-anchor" aria-hidden="true"/>
     <div className="scene-stage wrap" data-animated>
