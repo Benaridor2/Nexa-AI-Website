@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { STAY, type ListingPhoto } from './stay';
+import { STAY, type Amenity, type ListingPhoto } from './stay';
 import { between, phase, styles, useScene, visible } from './motion';
 
 export function Arrow({ diagonal = false }: { diagonal?: boolean }) {
@@ -154,19 +154,77 @@ function PhotoGallery({ photos, start, title, onClose }: { photos: readonly List
   return createPortal(<dialog ref={dialog} className="photo-gallery" aria-label={`Photos of ${title}`} onKeyDown={keys} onClose={() => onClose(shown.current)} onClick={event => { const target = event.target as HTMLElement; if (target === dialog.current || target.classList.contains('gallery-slide')) dialog.current?.close(); }}>
     <div className="gallery-top"><p className="gallery-title">{title}</p><span className="gallery-count" aria-live="polite">{current + 1} / {photos.length}</span><button type="button" className="gallery-close" aria-label="Close photos" onClick={() => dialog.current?.close()}><Close/></button></div>
     <div className="gallery-track" ref={track} onScroll={settle} onPointerDown={() => { heading.current = null; }}>
-      {photos.map((item, i) => <figure className="gallery-slide" key={item.src} aria-hidden={i !== current}><img src={item.src} alt={item.alt} width="1080" height="721" loading={Math.abs(i - start) <= 1 ? 'eager' : 'lazy'}/></figure>)}
+      {photos.map((item, i) => <figure className="gallery-slide" key={item.src} aria-hidden={i !== current}><img src={item.src} alt={item.alt} width={item.width} height={item.height} loading={Math.abs(i - start) <= 1 ? 'eager' : 'lazy'}/></figure>)}
     </div>
     <button type="button" className="gallery-nav gallery-previous" aria-label="Previous photo" disabled={current === 0} onClick={() => go(current - 1)}><Chevron back/></button>
     <button type="button" className="gallery-nav gallery-next" aria-label="Next photo" disabled={current === last} onClick={() => go(current + 1)}><Chevron/></button>
-    <div className="gallery-thumbs">{photos.map((item, i) => <button type="button" key={item.src} aria-label={`Show photo ${i + 1} of ${photos.length}`} aria-current={i === current} onClick={() => go(i)}><img src={item.src} alt="" loading="lazy"/></button>)}</div>
+    <div className="gallery-thumbs">{photos.map((item, i) => <button type="button" key={item.src} aria-label={`Show photo ${i + 1} of ${photos.length}`} aria-current={i === current} onClick={() => go(i)}><img src={item.src} alt="" style={{ objectPosition: item.focus }} loading="lazy"/></button>)}</div>
+  </dialog>, document.body);
+}
+
+const AMENITY_PATHS: Record<Amenity, string> = {
+  pool: 'M8 3v11M16 3v11M8 7h8M8 11h8M3 18.5c1.5 0 1.5-1 3-1s1.5 1 3 1 1.5-1 3-1 1.5 1 3 1 1.5-1 3-1 1.5 1 3 1',
+  beach: 'M12 4a8 8 0 0 1 8 7H4a8 8 0 0 1 8-7ZM12 11v7M3 20.5c1.5 0 1.5-1 3-1s1.5 1 3 1 1.5-1 3-1 1.5 1 3 1 1.5-1 3-1 1.5 1 3 1',
+  parking: 'M12 3a9 9 0 1 1 0 18 9 9 0 0 1 0-18ZM10 17V7.5h3a3 3 0 0 1 0 6h-3',
+  gym: 'M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11',
+  kitchen: 'M3 11h18M5 11v6a3 3 0 0 0 3 3h8a3 3 0 0 0 3-3v-6M9 7.5h6M12 5v2.5',
+  elevator: 'M7 3h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2ZM9 10l3-3 3 3M9 14l3 3 3-3',
+  balcony: 'M3 11h18M5 11v8.5M9.5 11v8.5M14.5 11v8.5M19 11v8.5M3 19.5h18M8 11V4.5h8V11',
+  wifi: 'M2.5 9a14 14 0 0 1 19 0M5.5 12.5a9.5 9.5 0 0 1 13 0M8.8 15.8a4.8 4.8 0 0 1 6.4 0M12 19.2v.1',
+  ac: 'M12 3v18M4.2 7.5l15.6 9M4.2 16.5l15.6-9M9.5 4.5 12 7l2.5-2.5M9.5 19.5 12 17l2.5 2.5',
+  children: 'M8 3.5a2 2 0 1 1 0 4 2 2 0 0 1 0-4ZM16.5 6a1.6 1.6 0 1 1 0 3.2 1.6 1.6 0 0 1 0-3.2ZM5.5 21v-5.5L4.5 10h7l-1 5.5V21M14.5 21v-4l-1-4.5h6l-1 4.5v4',
+  coffee: 'M4 9h12v5.5A4.5 4.5 0 0 1 11.5 19h-3A4.5 4.5 0 0 1 4 14.5V9ZM16 10.5h1.5a2.5 2.5 0 0 1 0 5H16M8 3.5v3M12 3.5v3',
+  cookware: 'M9 7a6 6 0 1 1 0 12A6 6 0 0 1 9 7ZM15 13h6.5',
+  crib: 'M4 5v15M20 5v15M4 9.5h16M4 17h16M8 9.5V17M12 9.5V17M16 9.5V17',
+  dishes: 'M7 3v18M4 3v5a3 3 0 0 0 6 0V3M17.5 21V3c-2 1-3.5 3-3.5 6.5V13h3.5',
+  dishwasher: 'M6 3h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2ZM4 8h16M8 12.5h8M8 16.5h8M7.5 5.5h.1M10.5 5.5h.1',
+  dryer: 'M6 3h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2ZM4 7.5h16M12 10a4 4 0 1 1 0 8 4 4 0 0 1 0-8ZM7.5 5.3h.1',
+};
+
+function AmenityIcon({ name }: { name: Amenity }) {
+  return <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d={AMENITY_PATHS[name]} stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+}
+
+// The complete listing text, opened from the short summary in the checkout.
+function ListingDetails({ onClose }: { onClose: () => void }) {
+  const dialog = useRef<HTMLDialogElement>(null), body = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const el = dialog.current;
+    if (!el) return;
+    el.showModal();
+    // Only the text scrolls; the page behind the sheet stays where it is.
+    const wheel = (event: WheelEvent) => { if (!(event.target as HTMLElement).closest('.details-body')) event.preventDefault(); };
+    el.addEventListener('wheel', wheel, { passive: false });
+    return () => el.removeEventListener('wheel', wheel);
+  }, []);
+  const keys = (event: React.KeyboardEvent) => {
+    const page = (body.current?.clientHeight ?? 400) * .85;
+    const delta = { ArrowDown: 60, ArrowUp: -60, PageDown: page, PageUp: -page, End: 1e5, Home: -1e5 }[event.key];
+    if (delta === undefined) return;
+    event.preventDefault();
+    body.current?.scrollBy({ top: delta, behavior: Math.abs(delta) > 1e4 ? 'instant' : 'smooth' });
+  };
+  const listing = STAY.pool;
+  return createPortal(<dialog ref={dialog} className="listing-details" aria-labelledby="listing-details-title" onKeyDown={keys} onClose={onClose} onClick={event => { if (event.target === dialog.current) dialog.current?.close(); }}>
+    <div className="details-sheet">
+      <header className="details-header"><div><small>About this apartment</small><h2 id="listing-details-title">{listing.property}</h2></div><button type="button" className="gallery-close details-close" aria-label="Close description" onClick={() => dialog.current?.close()}><Close/></button></header>
+      <div className="details-body" ref={body}>
+        <p className="details-summary">{listing.summary}</p>
+        {listing.sections.map(section => <section key={section.title}><h3>{section.title}</h3>{section.paragraphs.map(text => <p key={text.slice(0, 24)}>{text}</p>)}</section>)}
+        <section><h3>House rules</h3><ul>{listing.rules.map(rule => <li key={rule}>{rule}</li>)}</ul></section>
+      </div>
+    </div>
   </dialog>, document.body);
 }
 
 // The property's checkout responds to the visitor's clicks, never to scroll progress.
 function CheckoutSummary() {
   const [index, setIndex] = useState(0);
-  const [described, setDescribed] = useState(false);
-  const [gallery, setGallery] = useState(false);
+  const [panel, setPanel] = useState<'description' | 'amenities' | null>(null);
+  const [gallery, setGallery] = useState(false), [details, setDetails] = useState(false);
+  const readMore = useRef<HTMLButtonElement>(null);
+  const toggle = (name: 'description' | 'amenities') => setPanel(panel === name ? null : name);
+  const listing = STAY.pool;
   const next = useRef<HTMLButtonElement>(null), previous = useRef<HTMLButtonElement>(null), opener = useRef<HTMLButtonElement>(null);
   const photos = STAY.pool.photos, last = photos.length - 1;
   const show = (target: number) => {
@@ -178,22 +236,27 @@ function CheckoutSummary() {
   return <div className="checkout-summary">
     <div className="checkout-carousel">
       <button type="button" ref={opener} className="carousel-open" aria-label={`Open photo ${index + 1} of ${photos.length} full size`} onClick={() => setGallery(true)}>
-        <img src={photos[index].src} alt={photos[index].alt} width="1080" height="721" loading="lazy"/>
+        <img src={photos[index].src} alt={photos[index].alt} width={photos[index].width} height={photos[index].height} style={{ objectPosition: photos[index].focus }} loading="lazy"/>
         <span className="carousel-count" aria-hidden="true"><Expand/>{index + 1} / {photos.length}</span>
       </button>
       {index > 0 && <button type="button" ref={previous} className="carousel-button carousel-previous" aria-label="Previous photo" onClick={() => show(index - 1)}><Chevron back/></button>}
       <button type="button" ref={next} className="carousel-button carousel-next" aria-label="Next photo" disabled={index === last} onClick={() => show(index + 1)}><Chevron/></button>
     </div>
     {gallery && <PhotoGallery photos={photos} start={index} title={STAY.pool.property} onClose={shownLast => { setIndex(shownLast); setGallery(false); requestAnimationFrame(() => opener.current?.focus()); }}/>}
-    <button type="button" className="description-toggle" aria-expanded={described} aria-controls="checkout-description" onClick={() => setDescribed(!described)}>{described ? 'Hide description' : 'Show description'}<Chevron/></button>
-    <div className="checkout-description" id="checkout-description" data-open={described}><div><p>{STAY.pool.description}</p></div></div>
-    <h3>{STAY.pool.property}</h3><p>{STAY.dates} · {STAY.guests} · {STAY.nights}</p><div className="checkout-total"><span>Final total</span><strong>{STAY.pool.total}</strong></div>
+    <div className="checkout-toggles">
+      <button type="button" className="description-toggle" aria-expanded={panel === 'description'} aria-controls="checkout-description" onClick={() => toggle('description')}>{panel === 'description' ? 'Hide description' : 'Show description'}<Chevron/></button>
+      <button type="button" className="description-toggle amenities-toggle" aria-expanded={panel === 'amenities'} aria-controls="checkout-amenities" onClick={() => toggle('amenities')}>{panel === 'amenities' ? 'Hide amenities' : 'Show amenities'}<Chevron/></button>
+    </div>
+    <div className="checkout-description" id="checkout-description" data-open={panel === 'description'}><div><p>{listing.summary}</p><button type="button" ref={readMore} className="read-more" onClick={() => setDetails(true)}>Read the full description <Arrow/></button></div></div>
+    <div className="checkout-description checkout-amenities" id="checkout-amenities" data-open={panel === 'amenities'}><div><ul aria-label="Amenities">{listing.amenities.map(([icon, label]) => <li key={icon} className={listing.highlights.includes(icon) ? 'is-highlight' : ''}><AmenityIcon name={icon}/>{label}</li>)}</ul></div></div>
+    {details && <ListingDetails onClose={() => { setDetails(false); requestAnimationFrame(() => readMore.current?.focus()); }}/>}
+    <h3>{listing.property}</h3><p>{STAY.dates} · {STAY.guests} · {STAY.nights}</p><div className="checkout-total"><span>Final total</span><strong>{listing.total}</strong></div>
   </div>;
 }
 
 function OptionCard({ property, total, photo, eager = false, className = '', beat = 'answer-beat', children }: { property: string; total: string; photo: ListingPhoto; eager?: boolean; className?: string; beat?: string; children?: React.ReactNode }) {
   return <article className={`option-card ${beat} ${className}`} data-animated>
-    <div className="option-photo" data-animated><img src={photo.src} alt={photo.alt} width="1080" height="721" loading={eager ? 'eager' : 'lazy'} fetchPriority={eager ? 'high' : 'auto'}/></div>
+    <div className="option-photo" data-animated><img src={photo.src} alt={photo.alt} width={photo.width} height={photo.height} style={{ objectPosition: photo.focus }} loading={eager ? 'eager' : 'lazy'} fetchPriority={eager ? 'high' : 'auto'}/></div>
     <div className="option-body">
       <h3 className={beat} data-animated>{property}</h3>
       <p className={`option-meta ${beat}`} data-animated>{STAY.shortDates} · {STAY.guests} · {STAY.nights}</p>

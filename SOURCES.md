@@ -23,6 +23,8 @@ Base URL: `https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7c
 | `public/seanrent/interior.jpg` | `0a4a68e0-a247-11f1-b874-d3aafb3446ec.jpg` |
 | `public/seanrent/bedroom.jpg` | `09e6f530-a247-11f1-a6d6-87280edddbc2.jpg` |
 
+Coastal Panorama Apartment by Sea N' Rent (the pool result in the V7 conversation): listing name, description, house rules, amenities and four photos (`public/seanrent/coastal-panorama/`, 1200 x 800) were supplied by Ben from Sea N' Rent's listing on 2026-09-25. "Near the beach" and "Swimming pool" are added to the amenities from the listing description. The dates and total shown with it are illustrative.
+
 The real property logo, used only inside its website reconstruction, was read from the listing's rendered image:
 `https://web-api.maveriks.com/image/company/450f309f-921e-4843-9333-7cad41177958/website/cd996ee8-21d7-4fc2-a895-80d26ef1a86d/eb7ff140-a240-11f1-96cf-1174f1956ddb.svg?template=original`
 
