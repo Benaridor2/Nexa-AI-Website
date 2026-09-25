@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { STAY } from './stay';
 import { FALLBACK_REPLY, FIRST_ANSWER, LISTINGS, OPTIONS, POOL_ANSWER, completion, highlightsFor, matchRequest, suggest, type AmenityIcon, type Listing, type ListingPhoto, type Option, type Request } from './listings';
 import { between, clamp, phase, styles, useScene, visible } from './motion';
+import { CHAPTERS, STORY_SECONDS, useStoryPlayer, type PlayerControls, type PlayerStatus } from './storyPlayer';
 
 export function Arrow({ diagonal = false }: { diagonal?: boolean }) {
   return <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d={diagonal ? 'M5 19 19 5M5 5h14v14' : 'M4 12h16m-6-6 6 6-6 6'} stroke="currentColor" strokeWidth="1.5" /></svg>;
@@ -119,7 +120,6 @@ const chatRenderer = (root: HTMLElement) => {
     typeAnswer((p - .79) / .06);
     lines.forEach((el,i)=>{const t=phase(p,.84+i*.01,.87+i*.01);visible(el,t);styles(el,{transform:`translateY(${12*(1-t)}px)`});});
     photos.forEach((el,i)=>styles(el,{'clip-path':`inset(${(1-phase(p,.845+i*.045,.885+i*.045))*100}% 0 0 0 round 9px)`}));
-    styles(q('.story-progress-fill'),{transform:`scaleX(${progress})`});
   };
 };
 
@@ -416,6 +416,44 @@ function EditMessage({ field, original, onCancel, input }: { field: Field; origi
   </form>;
 }
 
+function PlayerIcon({ status }: { status: PlayerStatus }) {
+  const path = status === 'playing' ? 'M8 6h3v12H8zM13 6h3v12h-3z' : status === 'ended' ? 'M5 12a7 7 0 1 0 2.05-4.95M5 5v4h4' : 'M8 5.5v13l10-6.5-10-6.5Z';
+  return <svg viewBox="0 0 24 24" aria-hidden="true"><path d={path} fill={status === 'ended' ? 'none' : 'currentColor'} stroke="currentColor" strokeWidth={status === 'ended' ? 1.8 : 0} strokeLinecap="round" strokeLinejoin="round"/></svg>;
+}
+
+// The film's controls: play or pause, a chapter timeline to scrub, and the chapters by name.
+function StoryPlayer({ status, controls }: { status: PlayerStatus; controls: React.RefObject<PlayerControls> }) {
+  const scrubbing = useRef(false);
+  const at = (event: React.PointerEvent<HTMLDivElement>) => {
+    const box = event.currentTarget.getBoundingClientRect();
+    controls.current.seek(Math.min(1, Math.max(0, (event.clientX - box.left) / box.width)) * STORY_SECONDS);
+  };
+  const keys = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    const now = Number(event.currentTarget.dataset.seconds) || 0;
+    const chapter = CHAPTERS.reduce((found, item, i) => now >= item.start - .01 ? i : found, 0);
+    const to = event.key === 'ArrowRight' || event.key === 'ArrowUp' ? now + 1 : event.key === 'ArrowLeft' || event.key === 'ArrowDown' ? now - 1
+      : event.key === 'PageDown' ? CHAPTERS[Math.min(CHAPTERS.length - 1, chapter + 1)].start : event.key === 'PageUp' ? CHAPTERS[Math.max(0, chapter - 1)].start
+      : event.key === 'Home' ? 0 : event.key === 'End' ? STORY_SECONDS : undefined;
+    if (event.key === ' ' || event.key === 'Enter') { event.preventDefault(); controls.current.toggle(); return; }
+    if (to === undefined) return;
+    event.preventDefault();
+    controls.current.seek(to);
+  };
+  const label = status === 'playing' ? 'Pause the conversation' : status === 'ended' ? 'Replay the conversation' : 'Play the conversation';
+  return <div className={`story-player is-${status}`}>
+    <button type="button" className="player-toggle" aria-label={label} onClick={() => controls.current.toggle()}><PlayerIcon status={status}/></button>
+    <div className="player-timeline">
+      <div className="player-track" role="slider" tabIndex={0} aria-label="Conversation timeline, in seconds" aria-valuemin={0} aria-valuemax={Math.round(STORY_SECONDS)} aria-valuenow={0}
+        onPointerDown={event => { scrubbing.current = true; event.currentTarget.setPointerCapture(event.pointerId); at(event); }}
+        onPointerMove={event => { if (scrubbing.current) at(event); }}
+        onPointerUp={() => { scrubbing.current = false; }} onPointerCancel={() => { scrubbing.current = false; }} onKeyDown={keys}>
+        {CHAPTERS.map(chapter => <span key={chapter.label} className="player-chapter" data-animated style={{ flexGrow: chapter.end - chapter.start }}><i/></span>)}
+      </div>
+      <ol className="player-labels">{CHAPTERS.map(chapter => <li key={chapter.label} style={{ flexGrow: chapter.end - chapter.start }}><button type="button" onClick={() => controls.current.seek(chapter.start)} aria-label={`Go to: ${chapter.title}`}>{chapter.label}</button></li>)}</ol>
+    </div>
+  </div>;
+}
+
 // A live answer streams in word by word; what it shows follows once it is written.
 function ThreadAnswer({ text, children }: { text: string; children: React.ReactNode }) {
   const words = text.match(/\S+\s*/g)?.length ?? 1;
@@ -436,7 +474,13 @@ export function Conversation({ motion }: { motion: boolean }) {
   const [settling, setSettling] = useState(false);
   const busy = Boolean(turn && !turn.ready);
   const timers = useRef<number[]>([]);
-  useScene(ref, motion, chatRenderer);
+  const player = useStoryPlayer(ref, motion, chatRenderer);
+  // "Watch a booking happen" plays the conversation from the start.
+  useEffect(() => {
+    const replay = (event: MouseEvent) => { if ((event.target as Element | null)?.closest?.('a[href$="#watch-a-booking"]')) ref.current?.dispatchEvent(new Event('story-replay')); };
+    document.addEventListener('click', replay);
+    return () => document.removeEventListener('click', replay);
+  }, []);
   // The halo sits behind the window (which clips its own content) and copies its box.
   useLayoutEffect(() => {
     const root = ref.current, frame = root?.querySelector<HTMLElement>('.chat-window');
@@ -548,58 +592,9 @@ export function Conversation({ motion }: { motion: boolean }) {
         <Composer field={{ value: draft, busy, onChange: text => { stopTyping(); setDraft(text); }, onPick: option => typeInto(option.userMessage, setDraft, composer), onSubmit: () => { stopTyping(); ask(draft.trim()); } }} editing={Boolean(turn)} onEdit={() => { if (!editing) openEdit(); else editInput.current?.focus({ preventScroll: true }); }} input={composer}/>
         <div ref={checkoutRef} className={`chat-checkout${settling ? ' is-switching' : ''}`} data-animated><div className="checkout-browser">The property's own website <span>Illustrative checkout</span></div><div className="checkout-brand"><img src="/seanrent/logo.svg" alt="Sea N’ Rent" width="140" height="30"/><button type="button" className="checkout-back" onClick={backToChat}><Chevron back/><span>Back to chat</span><small>Keep searching</small></button></div><div className="checkout-grid"><CheckoutSummary key={listing.key} listing={listing} highlights={highlightsFor(listing, request)}/><div className="checkout-payment"><small>ONE LAST STEP</small><h3>Make it your stay.</h3><p>Your apartment and stay details are ready.<br/>Add your card to complete the booking.</p><div className="sample-card" aria-label="Illustrative payment fields, not editable"><span>Cardholder name</span><div>Name on card</div><span>Card number</span><div>1234 &nbsp; 1234 &nbsp; 1234 &nbsp; 1234</div><div className="sample-card-row"><div>MM / YY</div><div>CVC</div></div></div><button disabled className="sample-pay">Pay {listing.total} <Arrow/></button><p className="checkout-takeaway" data-animated>Your booking. Your website.</p><small className="checkout-note">Demo only. No card details collected or payment made.</small></div></div></div>
       </div>
-      <div className="story-progress" aria-hidden="true"><i className="story-progress-fill" data-animated/></div><p className="scene-caption">Illustrative ChatGPT conversation. Dates, availability and checkout are examples.</p>
+      {motion && <StoryPlayer status={player.status} controls={player.controls}/>}<p className="scene-caption">Illustrative ChatGPT conversation. Dates, availability and checkout are examples.</p>
     </div>
   </section>;
-}
-
-const compareRenderer = (root: HTMLElement) => {
-  const q=(selector:string)=>root.querySelector<HTMLElement>(selector);
-  const rows=[...root.querySelectorAll<HTMLElement>('.comparison-row')];
-  const story=[...root.querySelectorAll<HTMLElement>('.compare-story>p')];
-  return (p:number)=>{
-    const detour=between(p,.23,.28,.395,.43), connect=between(p,.44,.48,.53,.56);
-    visible(q('.comparison-data'),1-between(p,.20,.23,.54,.57));
-    visible(q('.ota-detour'),detour);styles(q('.ota-detour'),{transform:`translateY(${24*(1-detour)}px)`});
-    visible(q('.nexa-intervention'),connect);styles(q('.nexa-intervention'),{transform:`scale(${.92+.08*connect})`});
-    styles(q('.ota-route-line'),{transform:`scaleX(${phase(p,.28,.33)})`});
-    // The line reaches the OTA: the chip lights up, and the guest's booking goes there.
-    styles(q('.ota-chip'),{'--arrive':phase(p,.325,.345),'--pulse':between(p,.33,.34,.35,.375)});
-    styles(q('.ota-detour>p'),{'--books':phase(p,.335,.365)});
-    // Each row takes the spotlight in turn: what is missing, then what NEXA makes ready.
-    const spotMissing=rows.map((_,i)=>between(p,.02+i*.055,.04+i*.055,.07+i*.055,.09+i*.055));
-    const spotReady=rows.map((_,i)=>between(p,.575+i*.105,.60+i*.105,.655+i*.105,.675+i*.105));
-    const focus=rows.map((_,i)=>Math.max(spotMissing[i],spotReady[i]));
-    rows.forEach((row,i)=>{
-      const t=phase(p,.57+i*.105,.64+i*.105);
-      const others=Math.max(0,...focus.filter((_,j)=>j!==i)), dim=others*(1-focus[i]);
-      styles(row,{'--row-ready':t,'--spot-missing':spotMissing[i],'--spot-ready':spotReady[i],'--spot-dim':dim,transform:`translateX(${-8*Math.sin(t*Math.PI)}px) scale(${1+.03*focus[i]})`});
-      const missing=row.querySelector<HTMLElement>('.row-missing'),ready=row.querySelector<HTMLElement>('.row-ready');
-      visible(missing,1-phase(t,0,.45));visible(ready,phase(t,.50,1));
-      styles(ready,{transform:`translateY(${8*(1-t)}px)`});
-    });
-    visible(q('.unpriced-word'),1-phase(p,.865,.89));
-    visible(q('.priced-word'),phase(p,.90,.93));
-    const amounts=[1-phase(p,.20,.23),between(p,.25,.28,.40,.43),between(p,.45,.48,.88,.91),phase(p,.93,.96)];
-    story.forEach((el,i)=>{visible(el,amounts[i]);styles(el,{transform:`translateY(${8*(1-amounts[i])}px)`});});
-    styles(q('.comparison-card'),{'--resolution':phase(p,.88,.96)});
-  };
-};
-
-export function Comparison({ motion }: { motion: boolean }) {
-  const ref=useRef<HTMLElement>(null);useScene(ref,motion,compareRenderer);
-  return <><section className="comparison scene-section" id="priced" ref={ref} aria-labelledby="priced-title"><div className="scene-stage wrap">
-    <Label>[01] THE TWO WORDS / PRICED OR UNPRICED</Label>
-    <div className="comparison-copy"><h2 id="priced-title">Being mentioned by the AI is nice. <br/><em>Being bookable through the AI is where the money is.</em></h2><p className="comparison-lead">Two words decide who gets the booking:</p><div className="price-word-wrap"><span className="unpriced-word" data-animated>UNPRICED</span><span className="priced-word" data-animated>PRICED<span>↗</span></span></div><div className="compare-story"><p data-animated>The AI knows you exist.<br/><strong>But it cannot reliably answer for you.</strong></p><p data-animated>Without verified details, it shouldn't guess.<br/><strong>A bookable answer can send the guest to an OTA.</strong></p><p data-animated>With NEXA, the AI sees the details it needs.<br/><strong>Now your property can be recommended, priced and booked direct.</strong></p><p className="compare-closing" data-animated>You're not losing to better hotels.<br/><strong>You're losing to the OTAs.</strong></p></div></div>
-    <div className="comparison-card" data-animated><div className="comparison-data" data-animated><div className="comparison-property"><span className="property-symbol" aria-hidden="true">N</span><div><small>SAME GUEST. SAME QUESTION.</small><h3>Your property. Two possible answers.</h3></div></div><div className="comparison-table">{[
-      ['Live availability','Not available to the AI',`${STAY.dates} · ${STAY.guests}`],
-      ['Final price','No verified total',`${STAY.total} · ${STAY.nights}`],
-      ['Direct booking','No trusted booking route',"The property's own website"],
-    ].map(([label,missing,ready],i)=><div className="comparison-row" key={label} data-animated><span className="row-index">0{i+1}</span><div><h4>{label}</h4><div className="comparison-values"><p className="row-missing" data-animated><span>−</span>{missing}</p><p className="row-ready" data-animated><span>✓</span>{ready}</p></div></div></div>)}</div><p className="comparison-note">Being listed is not the same as being bookable. Illustrative booking data.</p></div>
-      <div className="ota-detour" data-animated><small>THE BOOKING TAKES ANOTHER ROUTE</small><div className="ota-route" aria-hidden="true"><span>Your property</span><i className="ota-route-line" data-animated/><span className="ota-chip" data-animated>OTA ↗</span></div><h3>The guest still needs<br/>a bookable answer.</h3><p data-animated>With nothing verified from your property, the AI will not guess. It sends the guest to the OTA it trusts, the safest place it knows—<span className="ota-books">and the OTA becomes the place the guest books.</span></p><div className="ota-answer"><span>ONLINE TRAVEL AGENCY</span><strong>A stay. A price. A booking route.</strong><small>The demand was there. The direct route wasn't.</small></div></div>
-      <div className="nexa-intervention" data-animated><small>NOW, THE SAME PROPERTY WITH</small><img src="/nexa-white.png" alt="Nexa" width="170" height="38"/><h3>Give the answer<br/>what it's missing.</h3><p>One connection. Three essential details.</p></div>
-    </div>
-  </div></section><div className="comparison-explanation"><details className="wrap"><summary>Our whole company starts with one small sentence: <span>“ChatGPT can make mistakes.”</span><b aria-hidden="true">+</b></summary><div><p>A property mention is not a verified rate or an available room. That familiar disclaimer captures the trust problem: an AI answer should not invent the details a guest needs to book.</p><p>NEXA makes live availability, final prices, and a trusted direct booking route available to the assistant. The assistant can recommend the property; the guest completes booking and payment on the property's own website.</p></div></details></div></>;
 }
 
 const journeyRenderer = (root: HTMLElement) => {

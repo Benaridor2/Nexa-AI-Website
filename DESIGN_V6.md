@@ -126,3 +126,41 @@ The booking answer is now a flex layout with an explicit photo slot between its 
     - A stop just short of the checkout's end completes it, and a stop well inside it is left alone.
     - Scrolling up just past the start returns to it.
     - Arrow keys and a touch swipe that stop just short of the end complete it.
+
+## Homepage redesign: the conversation plays like a film; one idea per screen
+
+Feedback from Lior:
+- The conversation took many scrolls and could not be skipped quickly (he suggested a video).
+- The rest of the page was hard to understand: small, crowded text, and animations that made it disappear.
+- PRICED and UNPRICED should sit side by side.
+
+References: Stripe, Linear and Vercel. Their common approach is real product visuals, large clear type, and motion that shows the product at work rather than moving the words.
+
+- **The conversation** (`storyPlayer.ts`) is one screen instead of 700svh.
+  - Scrolling into it opens the ChatGPT window. Once it is in view, the story plays by itself in about 27 seconds. The typing and streaming are quick, and the reading holds are longer (`TIMELINE`).
+  - A player sits under the window:
+    - play, pause and replay;
+    - a chapter timeline (Ask, Dates, Answer, Pool, Book direct, Checkout) that can be dragged;
+    - chapter buttons;
+    - arrow keys, Page Up/Down between chapters, and Home/End.
+  - It pauses when the viewer uses the chat or scrolls away, and resumes when they come back.
+  - Scrolling back above it closes the window, and it plays from the start next time. "Watch a booking happen" plays it from the start.
+  - Anyone in a hurry scrolls straight past. Anyone curious can pause, scrub or step through it.
+  - The live composer, Edit, checkout, gallery and details work as before.
+- **[01] Priced or unpriced** (`Sections.tsx`): two cards side by side in the dark band, using the plan's copy, then the closing line and a link to the About story.
+  - Each card shows the AI's answer about the property.
+  - Unpriced: unknown values shimmer while a scan passes over them, and a dashed route carries the guest to an OTA.
+  - Priced: verified values pulse in turn, and a solid route leads to "Direct, with you".
+- **[02] How it works**: four large, readable steps, each with a small live visual:
+  - the question with a typing indicator;
+  - AI-to-AI wires;
+  - the recommendation with Book direct;
+  - the PMS booking received.
+
+  A booking dot travels along a rail and lights each step in turn. The detailed scroll version remains on `/how-it-works`.
+- **[03] The product**: NEXA Direct and NEXA Agent (the message and the guest's words in each) flow along animated paths into one connection, then on to your website. Nothing is pinned any more.
+- **Readability**:
+  - Removed every scroll-scrubbed text effect: the hero fade-out, the reveal scrubs, the proof strip, ledger and closing scrubs, and the connector timeline.
+  - Blocks fade in once, gently, and stay.
+  - Larger body text: 16–18px on desktop, with larger FAQ, section labels and headings.
+- **Page length**: the homepage is about 10 screens on desktop (it was over 24), with no pinned scenes. Reduced motion stops every ambient loop.

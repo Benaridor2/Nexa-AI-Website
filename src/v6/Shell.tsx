@@ -41,16 +41,16 @@ export function PricedButton({ className = 'button button-dark', children = 'Get
 }
 
 // Blocks marked data-rise fade up as they reach the viewport (not with reduced motion).
-function useRise() {
+export function useRise(enabled = true) {
   useEffect(() => {
     const blocks = [...document.querySelectorAll<HTMLElement>('[data-rise]')];
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) { blocks.forEach(el => el.classList.add('is-in')); return; }
+    if (!enabled || matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) { blocks.forEach(el => el.classList.add('is-in')); return; }
     const observer = new IntersectionObserver(entries => entries.forEach(entry => {
       if (entry.isIntersecting) { entry.target.classList.add('is-in'); observer.unobserve(entry.target); }
     }), { rootMargin: '0px 0px -8% 0px', threshold: .12 });
     blocks.forEach(el => observer.observe(el));
     return () => observer.disconnect();
-  }, []);
+  }, [enabled]);
 }
 
 export function PageShell({ page, title, children }: { page: Page; title: string; children: React.ReactNode }) {

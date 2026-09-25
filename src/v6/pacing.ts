@@ -13,13 +13,7 @@ export type Pacing = {
   readonly windows: readonly (readonly [start: number, end: number])[];
 };
 
-// Scroll positions below come from lengths in viewport heights over the
-// conversation's 6.75 viewport heights of travel (700svh, starting at 75%).
 export const PACING: Record<string, Pacing> = {
-  'guest-story': {
-    knots: [[0, 0], [.455, .455], [.54, .529], [.57, .5809], [.60, .6164], [.655, .6831], [.76, .735], [.826, .7972], [.877, .889], [.892, .9039], [.921, .9409], [1, 1]],
-    windows: [[.135, .18], [.2825, .295], [.325, .335], [.36, .47], [.563, .585], [.585, .655], [.826, .877]],
-  },
   // The OTA beat gets more of PRICED's 3.4 viewport heights; the rest is a little tighter.
   priced: {
     knots: [[0, 0], [.28, .25], [.33, .3147], [.395, .4324], [1, 1]],
