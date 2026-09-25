@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { STAY } from './stay';
 import { FALLBACK_REPLY, FIRST_ANSWER, LISTINGS, OPTIONS, POOL_ANSWER, completion, highlightsFor, matchRequest, suggest, type AmenityIcon, type Listing, type ListingPhoto, type Option, type Request } from './listings';
 import { between, clamp, phase, styles, useScene, visible } from './motion';
-import { CHAPTERS, STORY_SECONDS, useStoryPlayer, type PlayerControls, type PlayerStatus } from './storyPlayer';
+import { CHAPTERS, STORY_SECONDS, useFilmPlayer, useStoryPlayer, type FilmControls, type PlayerControls, type PlayerStatus } from './storyPlayer';
 
 export function Arrow({ diagonal = false }: { diagonal?: boolean }) {
   return <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d={diagonal ? 'M5 19 19 5M5 5h14v14' : 'M4 12h16m-6-6 6 6-6 6'} stroke="currentColor" strokeWidth="1.5" /></svg>;
@@ -466,7 +466,18 @@ function ThreadAnswer({ text, children }: { text: string; children: React.ReactN
 type Turn = { id: number; text: string; request: Request | null; ready: boolean; edits: number };
 type Checkout = { mode: 'auto' | 'open' | 'closed'; request: Request };
 
-export function Conversation({ motion }: { motion: boolean }) {
+// The film's controls: pause or play, and replay from the start.
+function FilmControls({ status, controls }: { status: PlayerStatus; controls: React.RefObject<FilmControls> }) {
+  const label = status === 'playing' ? 'Pause' : status === 'ended' ? 'Watch it again' : 'Play';
+  return <div className="film-controls">
+    <button type="button" className="film-toggle" aria-label={label} title={label} onClick={() => { if (status === 'ended') controls.current.replay(); else controls.current.toggle(); }}><PlayerIcon status={status}/></button>
+    {status !== 'ended' && <button type="button" className="film-replay" onClick={() => controls.current.replay()}>Replay</button>}
+    {status === 'ended' && <span className="film-ended">Illustrative booking · the conversation is yours now</span>}
+  </div>;
+}
+
+export function Conversation({ motion, mode = 'scroll' }: { motion: boolean; mode?: 'scroll' | 'film' }) {
+  const film = mode === 'film';
   const ref = useRef<HTMLElement>(null), composer = useRef<HTMLInputElement>(null), editInput = useRef<HTMLInputElement>(null), checkoutRef = useRef<HTMLDivElement>(null), editButton = useRef<HTMLButtonElement>(null);
   const [turn, setTurn] = useState<Turn | null>(null);
   const [draft, setDraft] = useState('');
@@ -476,7 +487,8 @@ export function Conversation({ motion }: { motion: boolean }) {
   const [settling, setSettling] = useState(false);
   const busy = Boolean(turn && !turn.ready);
   const timers = useRef<number[]>([]);
-  const player = useStoryPlayer(ref, motion, chatRenderer);
+  const player = useStoryPlayer(ref, motion && !film, chatRenderer);
+  const reel = useFilmPlayer(ref, motion && film, chatRenderer);
   // The halo sits behind the window (which clips its own content) and copies its box.
   useLayoutEffect(() => {
     const root = ref.current, frame = root?.querySelector<HTMLElement>('.chat-window');
@@ -552,12 +564,12 @@ export function Conversation({ motion }: { motion: boolean }) {
   const listing = LISTINGS[request.listing];
 
   return <section id="guest-story" className="conversation scene-section" ref={ref} aria-labelledby="guest-title" data-checkout={checkout.mode} data-cursor={turn || checkout.mode !== 'auto' ? 'off' : 'on'}>
-    {motion && <button type="button" className="scene-skip" onClick={() => { player.controls.current.skip(); const next = ref.current?.nextElementSibling; if (next instanceof HTMLElement) { next.tabIndex = -1; next.focus({ preventScroll: true }); } }}>Skip the conversation</button>}
+    {motion && !film && <button type="button" className="scene-skip" onClick={() => { player.controls.current.skip(); const next = ref.current?.nextElementSibling; if (next instanceof HTMLElement) { next.tabIndex = -1; next.focus({ preventScroll: true }); } }}>Skip the conversation</button>}
     {/* "Watch a booking happen" lands here: the window is open, the question about to be typed. */}
     <span id="watch-a-booking" className="scene-anchor" aria-hidden="true"/>
     <div className="scene-stage wrap" data-animated>
-      <div className="depth-frame" data-animated aria-hidden="true"/><div className="depth-frame" data-animated aria-hidden="true"/><div className="depth-frame" data-animated aria-hidden="true"/><div className="portal-clip" aria-hidden="true"><div className="portal-shutter shutter-left" data-animated><span>ASK.</span></div><div className="portal-shutter shutter-right" data-animated><span>ANSWER.</span></div></div><h2 className="sr-only" id="guest-title">A question becomes a bookable answer</h2><div className="scene-orbit" aria-hidden="true"/>
-      <div className="chat-halo" data-animated aria-hidden="true"/>
+      {!film && <><div className="depth-frame" data-animated aria-hidden="true"/><div className="depth-frame" data-animated aria-hidden="true"/><div className="depth-frame" data-animated aria-hidden="true"/><div className="portal-clip" aria-hidden="true"><div className="portal-shutter shutter-left" data-animated><span>ASK.</span></div><div className="portal-shutter shutter-right" data-animated><span>ANSWER.</span></div></div><h2 className="sr-only" id="guest-title">A question becomes a bookable answer</h2><div className="scene-orbit" aria-hidden="true"/></>}
+      {!film && <div className="chat-halo" data-animated aria-hidden="true"/>}
       <div className="chat-window" data-animated>
         <div className="chat-rail" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="16" rx="3" stroke="currentColor" strokeWidth="1.5"/><path d="M9 4v16" stroke="currentColor" strokeWidth="1.5"/></svg><svg viewBox="0 0 24 24" fill="none"><path d="M15 4H5v15h15V9M10 14 20 4l2 2-10 10-3 1 1-3Z" stroke="currentColor" strokeWidth="1.5"/></svg><svg viewBox="0 0 24 24" fill="none"><circle cx="10" cy="10" r="6" stroke="currentColor" strokeWidth="1.5"/><path d="m15 15 5 5" stroke="currentColor" strokeWidth="1.5"/></svg></div>
         <div className="chat-app-header"><span>ChatGPT <span className="chevron">⌄</span></span><span className="chat-header-actions" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 15V3m-4 4 4-4 4 4M5 12v8h14v-8" stroke="currentColor" strokeWidth="1.5"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg></span></div>
@@ -589,7 +601,7 @@ export function Conversation({ motion }: { motion: boolean }) {
         <Composer field={{ value: draft, busy, onChange: text => { stopTyping(); setDraft(text); }, onPick: option => typeInto(option.userMessage, setDraft, composer), onSubmit: () => { stopTyping(); ask(draft.trim()); } }} editing={Boolean(turn)} onEdit={() => { if (!editing) openEdit(); else editInput.current?.focus({ preventScroll: true }); }} input={composer}/>
         <div ref={checkoutRef} className={`chat-checkout${settling ? ' is-switching' : ''}`} data-animated><div className="checkout-browser">The property's own website <span>Illustrative checkout</span></div><div className="checkout-brand"><img src="/seanrent/logo.svg" alt="Sea N’ Rent" width="140" height="30"/><button type="button" className="checkout-back" onClick={backToChat}><Chevron back/><span>Back to chat</span><small>Keep searching</small></button></div><div className="checkout-grid"><CheckoutSummary key={listing.key} listing={listing} highlights={highlightsFor(listing, request)}/><div className="checkout-payment"><small>ONE LAST STEP</small><h3>Make it your stay.</h3><p>Your apartment and stay details are ready.<br/>Add your card to complete the booking.</p><div className="sample-card" aria-label="Illustrative payment fields, not editable"><span>Cardholder name</span><div>Name on card</div><span>Card number</span><div>1234 &nbsp; 1234 &nbsp; 1234 &nbsp; 1234</div><div className="sample-card-row"><div>MM / YY</div><div>CVC</div></div></div><button disabled className="sample-pay">Pay {listing.total} <Arrow/></button><p className="checkout-takeaway" data-animated>Your booking. Your website.</p><small className="checkout-note">Demo only. No card details collected or payment made.</small></div></div></div>
       </div>
-      {motion && <StoryPlayer status={player.status} controls={player.controls}/>}<p className="scene-caption">Illustrative ChatGPT conversation. Dates, availability and checkout are examples.</p>
+      {motion && !film && <StoryPlayer status={player.status} controls={player.controls}/>}{motion && film && <FilmControls status={reel.status} controls={reel.controls}/>}<p className="scene-caption">Illustrative ChatGPT conversation. Dates, availability and checkout are examples.</p>
     </div>
   </section>;
 }

@@ -159,3 +159,73 @@ export function useStoryPlayer(ref: RefObject<HTMLElement | null>, enabled: bool
   }, [ref, enabled, setup]);
   return { status, controls };
 }
+
+// The film: the same story, played by time instead of by scroll. It starts
+// when half of the window is on screen, pauses off screen, and ends on the
+// property's checkout. Replay restarts it; reduced motion shows the answer.
+export const ANSWER_SHOWN = 13.3; // seconds: both priced cards on screen
+export type FilmControls = { toggle: () => void; replay: () => void; seek: (seconds: number) => void };
+const FILM_SPEED = 1.15; // a little brisker than the scroll pacing
+
+export function useFilmPlayer(ref: RefObject<HTMLElement | null>, enabled: boolean, setup: Renderer) {
+  const [status, setStatus] = useState<PlayerStatus>('idle');
+  const controls = useRef<FilmControls>({ toggle: () => undefined, replay: () => undefined, seek: () => undefined });
+  useLayoutEffect(() => {
+    const root = ref.current;
+    if (!root || !enabled) return;
+    const originalAttributes = new Map([...root.querySelectorAll<HTMLElement>('[data-animated]')].map(el => [el, { style: el.getAttribute('style'), hidden: el.getAttribute('aria-hidden'), inert: el.hasAttribute('inert') }]));
+    const draw = setup(root);
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let seconds = 0, playing = false, ended = false, frame = 0, last = 0, seen = false, shown: PlayerStatus = 'idle';
+    const set = (next: PlayerStatus) => { if (next !== shown) { shown = next; setStatus(next); } };
+    const render = () => { const story = storyAt(seconds); draw(story); root.dataset.story = story.toFixed(5); root.dataset.seconds = seconds.toFixed(2); };
+    const stop = () => { playing = false; cancelAnimationFrame(frame); set(ended ? 'ended' : 'idle'); };
+    const tick = (now: number) => {
+      if (!playing) return;
+      seconds = Math.min(STORY_SECONDS, seconds + (now - last) / 1000 * FILM_SPEED); last = now;
+      render();
+      if (seconds >= STORY_SECONDS) { ended = true; stop(); return; }
+      frame = requestAnimationFrame(tick);
+    };
+    const play = () => { if (playing) return; if (ended) { ended = false; seconds = 0; } playing = true; set('playing'); last = performance.now(); frame = requestAnimationFrame(tick); };
+    const seek = (to: number) => { seconds = Math.max(0, Math.min(STORY_SECONDS, to)); ended = seconds >= STORY_SECONDS; render(); if (!playing) set(ended ? 'ended' : 'idle'); };
+    const replay = () => { stop(); delete root.dataset.paused; ended = false; seconds = 0; render(); play(); };
+    controls.current = { toggle: () => { if (playing) { root.dataset.paused = 'true'; stop(); } else { delete root.dataset.paused; play(); } }, replay, seek };
+    // Reduced motion: the finished answer, no film.
+    if (reduced) { seek(ANSWER_SHOWN); ended = false; set('idle'); }
+    else {
+      render();
+      const io = new IntersectionObserver(([entry]) => {
+        if (entry.intersectionRatio >= .5) { if (!seen) { seen = true; play(); } else if (!ended && !playing && root.dataset.paused !== 'true') play(); }
+        else if (playing) { stop(); }
+      }, { threshold: [0, .5] });
+      io.observe(root);
+      const stopIo = () => io.disconnect();
+      root.addEventListener('film-dispose', stopIo, { once: true });
+    }
+    // A click inside the window pauses the film, so the reader can use it.
+    const onPointer = (event: Event) => { if (playing && root.querySelector('.chat-window')?.contains(event.target as Node) && !(event.target as Element).closest('.film-controls')) { root.dataset.paused = 'true'; stop(); } };
+    root.addEventListener('pointerdown', onPointer);
+    const redraw = () => render();
+    const seekTo = (event: Event) => { const detail = (event as CustomEvent<{ story?: number; seconds?: number }>).detail ?? {}; const to = detail.seconds ?? timeOf(detail.story ?? OPEN); root.dataset.paused = 'true'; stop(); seek(to); };
+    const onReplay = () => replay();
+    root.addEventListener('scene-redraw', redraw);
+    root.addEventListener('story-seek', seekTo);
+    root.addEventListener('film-replay', onReplay);
+    return () => {
+      playing = false; cancelAnimationFrame(frame);
+      root.dispatchEvent(new Event('film-dispose'));
+      root.removeEventListener('film-replay', onReplay);
+      root.removeEventListener('pointerdown', onPointer);
+      root.removeEventListener('scene-redraw', redraw);
+      root.removeEventListener('story-seek', seekTo);
+      originalAttributes.forEach((original, el) => {
+        if (original.style === null) el.removeAttribute('style'); else el.setAttribute('style', original.style);
+        if (original.hidden === null) el.removeAttribute('aria-hidden'); else el.setAttribute('aria-hidden', original.hidden);
+        el.inert = original.inert;
+      });
+      delete root.dataset.story; delete root.dataset.seconds; delete root.dataset.paused;
+    };
+  }, [ref, enabled, setup]);
+  return { status, controls };
+}
