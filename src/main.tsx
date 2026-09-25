@@ -9,7 +9,11 @@ const isV2 = window.location.pathname.startsWith('/v2');
 const isV3 = window.location.pathname.startsWith('/v3');
 const isV4 = window.location.pathname.startsWith('/v4');
 const isV5 = window.location.pathname.startsWith('/v5');
-const page = isV1
+// Experimental homepage concept, isolated at /lab: its own code, styles and fonts.
+const isLab = /^\/lab(\/|$)/.test(window.location.pathname);
+const page = isLab
+  ? Promise.all([import('./lab/App'), import('./lab/lab.css')])
+  : isV1
   ? Promise.all([import('./v1/App'), import('./v1/style.css')])
   : isV2
     ? Promise.all([import('./cinematic/CinematicApp'), import('./cinematic/cinematic.css')])
