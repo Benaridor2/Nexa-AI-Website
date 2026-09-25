@@ -12,7 +12,7 @@ export function Photo({ name = 'balcony', className = '', eager = false }: { nam
 export function Label({ children }: { children: React.ReactNode }) {
   if (typeof children === 'string' && children.includes(' / ')) {
     const [left, ...right] = children.split(' / ');
-    return <p className="eyebrow section-label"><span>{left}</span><span>{right.join(' / ')}</span></p>;
+    return <p className="eyebrow section-label"><span>{left}</span><span>/ {right.join(' / ')}</span></p>;
   }
   return <p className="eyebrow">{children}</p>;
 }
@@ -30,7 +30,15 @@ const chatRenderer = (root: HTMLElement) => {
   const narrow = matchMedia('(max-width: 699px)');
   const stage = q('.scene-stage'), shutters = [...root.querySelectorAll<HTMLElement>('.portal-shutter')];
   const depth = [...root.querySelectorAll<HTMLElement>('.depth-frame')];
-  return (p: number) => {
+  return (progress: number) => {
+    const p = Math.min(1, progress / .68);
+    const checkout = phase(progress,.82,.89);
+    visible(q(".chat-checkout"),checkout);
+    styles(q(".chat-checkout"),{transform:`translateX(${50*(1-checkout)}px) scale(${.96+.04*checkout})`});
+    visible(q(".demo-cursor"),between(progress,.73,.75,.815,.83),false);
+    styles(q(".demo-cursor"),{transform:`translate(${75*(1-phase(progress,.75,.80))}px,${-65*(1-phase(progress,.75,.80))}px) scale(${1-.18*between(progress,.80,.805,.81,.815)})`});
+    styles(q(".chat-response .source-link"),{boxShadow:`0 0 0 ${8*between(progress,.80,.805,.815,.825)}px #863db329`});
+    styles(q(".checkout-takeaway"),{'--takeaway':phase(progress,.91,.95)});
     const open = phase(p, .025, .17), send = phase(p, .29, .36), focus = 0;
     styles(stage, { '--portal-open': open });
     visible(frame, phase(p, .045, .13));
@@ -52,7 +60,7 @@ const chatRenderer = (root: HTMLElement) => {
     visible(response,phase(p,.79,.815));
     lines.forEach((el,i)=>{const t=phase(p,.79+i*.012,.823+i*.012);visible(el,t);styles(el,{transform:`translateY(${12*(1-t)}px)`});});
     styles(photo,{'clip-path':`inset(${(1-phase(p,.825,.875))*100}% 0 0 0 round 10px)`});
-    styles(q('.story-progress-fill'),{transform:`scaleX(${p})`});
+    styles(q('.story-progress-fill'),{transform:`scaleX(${progress})`});
   };
 };
 
@@ -61,7 +69,7 @@ export function Conversation({ motion }: { motion: boolean }) {
   useScene(ref, motion, chatRenderer);
   return <section id="guest-story" className="conversation scene-section" ref={ref} aria-labelledby="guest-title">
     <div className="scene-stage wrap" data-animated>
-      <div className="depth-frame" data-animated aria-hidden="true"/><div className="depth-frame" data-animated aria-hidden="true"/><div className="depth-frame" data-animated aria-hidden="true"/><div className="portal-shutter shutter-left" data-animated aria-hidden="true"><span>ASK.</span></div><div className="portal-shutter shutter-right" data-animated aria-hidden="true"><span>ANSWER.</span></div><h2 className="sr-only" id="guest-title">A question becomes a bookable answer</h2><div className="scene-orbit" aria-hidden="true"/><div className="story-cue"><span>THE GUEST'S EXISTING AI ASSISTANT</span><span>SCROLL TO FOLLOW THE CONVERSATION</span></div>
+      <div className="depth-frame" data-animated aria-hidden="true"/><div className="depth-frame" data-animated aria-hidden="true"/><div className="depth-frame" data-animated aria-hidden="true"/><div className="portal-shutter shutter-left" data-animated aria-hidden="true"><span>ASK.</span></div><div className="portal-shutter shutter-right" data-animated aria-hidden="true"><span>ANSWER.</span></div><h2 className="sr-only" id="guest-title">A question becomes a bookable answer</h2><div className="scene-orbit" aria-hidden="true"/>
       <div className="chat-window" data-animated>
         <div className="chat-rail" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="16" rx="3" stroke="currentColor" strokeWidth="1.5"/><path d="M9 4v16" stroke="currentColor" strokeWidth="1.5"/></svg><svg viewBox="0 0 24 24" fill="none"><path d="M15 4H5v15h15V9M10 14 20 4l2 2-10 10-3 1 1-3Z" stroke="currentColor" strokeWidth="1.5"/></svg><svg viewBox="0 0 24 24" fill="none"><circle cx="10" cy="10" r="6" stroke="currentColor" strokeWidth="1.5"/><path d="m15 15 5 5" stroke="currentColor" strokeWidth="1.5"/></svg></div>
         <div className="chat-app-header"><span>ChatGPT <span className="chevron">⌄</span></span><span className="chat-header-actions" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 15V3m-4 4 4-4 4 4M5 12v8h14v-8" stroke="currentColor" strokeWidth="1.5"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg></span></div>
@@ -74,11 +82,12 @@ export function Conversation({ motion }: { motion: boolean }) {
           <p className="answer-beat answer-description" data-animated>One bedroom, a private balcony and a sea view.</p>
           <div className="answer-beat answer-photo" data-animated><Photo eager /></div>
           <div className="answer-beat connected-badge" data-animated>Connected to NEXA AI</div><div className="answer-beat answer-facts" data-animated><span>{STAY.shortDates} · {STAY.guests} · {STAY.nights}</span><strong>{STAY.total} <span>final total</span></strong></div>
-          <a className="answer-beat source-link" data-animated href="#how-it-works">Book direct <Arrow diagonal /></a>
+          <a className="answer-beat source-link" data-animated href="#how-it-works">Book direct <Arrow diagonal /><svg className="demo-cursor" data-animated aria-hidden="true" viewBox="0 0 28 36"><path d="M3 2v27l7-7 6 12 5-3-6-11h10Z" fill="#202123" stroke="white" strokeWidth="2"/></svg></a>
         </div>
         </div></div><div className="chat-dock" data-animated aria-hidden="true"><span>Ask ChatGPT</span><ComposerTools /></div>
+        <div className="chat-checkout" data-animated><div className="checkout-browser">The property's own website <span>Illustrative checkout</span></div><div className="checkout-brand"><img src="/seanrent/logo.svg" alt="Sea N’ Rent" width="140" height="30"/><span>Complete your stay</span></div><div className="checkout-grid"><div className="checkout-summary"><Photo/><h3>{STAY.property}</h3><p>{STAY.dates} · {STAY.guests} · {STAY.nights}</p><div className="checkout-total"><span>Final total</span><strong>{STAY.total}</strong></div></div><div className="checkout-payment"><small>ONE LAST STEP</small><h3>Make it your stay.</h3><p>Your apartment and stay details are ready.<br/>Add your card to complete the booking.</p><div className="sample-card" aria-label="Illustrative payment fields, not editable"><span>Cardholder name</span><div>Name on card</div><span>Card number</span><div>1234 &nbsp; 1234 &nbsp; 1234 &nbsp; 1234</div><div className="sample-card-row"><div>MM / YY</div><div>CVC</div></div></div><button disabled className="sample-pay">Pay {STAY.total} <Arrow/></button><p className="checkout-takeaway" data-animated>Your booking. Your website.</p><small className="checkout-note">Demo only. No card details collected or payment made.</small></div></div></div>
       </div>
-      <div className="story-progress" aria-hidden="true"><i className="story-progress-fill" data-animated/></div><p className="scene-caption">Illustrative ChatGPT conversation. Dates, availability and final price are examples.</p>
+      <div className="story-progress" aria-hidden="true"><i className="story-progress-fill" data-animated/></div><p className="scene-caption">Illustrative ChatGPT conversation. Dates, availability and checkout are examples.</p>
     </div>
   </section>;
 }
@@ -88,6 +97,7 @@ const compareRenderer = (root: HTMLElement) => {
   const card = root.querySelector<HTMLElement>('.comparison-card');
   const state = root.querySelector<HTMLElement>('.priced-word'), old = root.querySelector<HTMLElement>('.unpriced-word');
   return (p: number) => {
+    styles(root.querySelector(".comparison-takeaway"),{'--takeaway':phase(p,.86,.94)});
     styles(card,{transform:`perspective(1400px) rotateY(${-8*(1-phase(p,0,.3))}deg) translateY(${28*(1-phase(p,0,.3))}px)`});
     rows.forEach((row, i) => {
       const t = phase(p, .20 + i * .19, .31 + i * .19);
@@ -101,7 +111,7 @@ const compareRenderer = (root: HTMLElement) => {
       ready?.setAttribute('aria-hidden', String(t <= .5));
     });
     visible(old, 1 - phase(p, .76, .81));
-    styles(state, { 'clip-path': `inset(${100 * (1 - phase(p, .76, .81))}% 0 0 0)` });
+    styles(state, { 'clip-path': `inset(${100 * (1 - phase(p, .82, .87))}% 0 0 0)` });
     state?.setAttribute('aria-hidden', String(p < .85));
   };
 };
@@ -109,7 +119,7 @@ const compareRenderer = (root: HTMLElement) => {
 export function Comparison({ motion }: { motion: boolean }) {
   const ref = useRef<HTMLElement>(null); useScene(ref, motion, compareRenderer);
   return <section className="comparison scene-section" id="priced" ref={ref} aria-labelledby="priced-title"><div className="scene-stage wrap">
-    <Label>[01] THE TWO WORDS / PRICED OR UNPRICED</Label><div className="comparison-copy"><h2 id="priced-title">Being mentioned is nice. <br/><em>Being bookable is where the money is.</em></h2><p>Two words decide who gets the booking. The AI needs live availability, a final price, and a trusted way to book direct.</p><div className="price-word-wrap"><span className="unpriced-word" data-animated>UNPRICED</span><span className="priced-word" data-animated>PRICED<span>↗</span></span></div></div>
+    <Label>[01] THE TWO WORDS / PRICED OR UNPRICED</Label><div className="comparison-copy"><h2 id="priced-title">Being mentioned is nice. <br/><em>Being bookable is where the money is.</em></h2><p className="comparison-takeaway" data-animated>Two words decide who gets the booking. The AI needs live availability, a final price, and a trusted way to book direct.</p><div className="price-word-wrap"><span className="unpriced-word" data-animated>UNPRICED</span><span className="priced-word" data-animated>PRICED<span>↗</span></span></div></div>
     <div className="comparison-card" data-animated><div className="comparison-property"><span className="property-symbol" aria-hidden="true">N</span><div><small>SAME GUEST. SAME QUESTION.</small><h3>Your property. Two possible answers.</h3></div></div>
       <div className="comparison-table">{[
         ['Availability', 'Not available in this example', `${STAY.dates} · ${STAY.guests}`],
@@ -129,7 +139,8 @@ const journeyRenderer = (root: HTMLElement) => {
     const travel = phase(p, .30, .58), confirmation = phase(p, .79, .84), received = phase(p, .89, .94);
     const explode = between(p,.06,.22,.29,.43);
     styles(q('.system-flow'),{transform:`perspective(1200px) rotateY(${-12*explode}deg) translateX(${-18*explode}px)`});
-    styles(q('.journey-answer'),{transform:`perspective(1200px) rotateY(${8*explode}deg) translateY(${-8*explode}px)`});
+    styles(q('.journey-answer'),{transform:'none'});
+    styles(q('.journey-lines'),{'--takeaway':phase(p,.92,.96)});
     styles(q('.site-ui'),{transform:`perspective(1600px) rotateY(${(1-travel)*22}deg) scale(${.88+.12*travel})`});
     visible(q('.system-flow'), 1 - phase(p, .3, .43));
     visible(q('.journey-answer'), 1 - phase(p, .38, .46));
@@ -137,14 +148,11 @@ const journeyRenderer = (root: HTMLElement) => {
     styles(q('.site-ui'), { 'clip-path': 'inset(0 round 12px)' });
     visible(q('.site-booking'), phase(p, .59, .65));
     const m = narrow.matches;
-    styles(q('.handoff-photo'), {
-      left: `${m ? 6 - 6 * travel : 53 - 50 * travel}%`,
-      top: `${m ? 48 - 30 * travel : 31 - 5 * travel}%`,
-      width: `${m ? 88 + 12 * travel : 42 + 10 * travel}%`,
-      height: `${m ? 21 + 5 * travel : 39 + 12 * travel}%`,
-      'border-radius': `${10 * (1 - travel)}px`,
-      transform: `perspective(1200px) rotateY(${-5 * (1-travel)}deg)`,
-    });
+    const canvas=q('.journey-canvas')!, card=q('.journey-answer')!, slot=q('.journey-photo-slot')!;
+    const initial={left:card.offsetLeft+slot.offsetLeft,top:card.offsetTop+slot.offsetTop,width:slot.offsetWidth,height:slot.offsetHeight};
+    const final={left:canvas.clientWidth*(m?0:.03),top:canvas.clientHeight*(m?.18:.26),width:canvas.clientWidth*(m?1:.52),height:canvas.clientHeight*(m?.26:.51)};
+    const geometry=Object.fromEntries(Object.keys(initial).map(key=>{const k=key as keyof typeof initial;return [key,`${initial[k]+(final[k]-initial[k])*travel}px`];}));
+    styles(q('.handoff-photo'), {...geometry,'border-radius':`${10*(1-travel)}px`,transform:'none'});
     styles(q('.flow-facts'), { '--data-progress': phase(p, .06, .27) });
     visible(q('.booking-before'), 1 - phase(p,.75,.78));
     visible(q('.booking-confirmed'), confirmation);
@@ -160,12 +168,12 @@ export function BookingJourney({ motion }: { motion: boolean }) {
     <Label>[02] HOW IT WORKS / THE FIX</Label><header className="scene-heading centered"><h2 id="works-title">From "find me a place"<br/><em>to a booking on your site.</em></h2></header>
     <div className="journey-canvas">
       <div className="system-flow" data-animated><div className="pms-source"><span className="system-icon" aria-hidden="true">▤</span><span>Your existing PMS<small>The source of your booking data</small></span></div><div className="flow-thread" aria-hidden="true"/><div className="nexa-source"><img src="/nexa-white.png" alt="Nexa" width="110" height="24"/><small>AI CONNECTOR</small></div><div className="flow-facts" data-animated><span>Availability</span><span>Final price</span><span>Direct booking</span></div><p>One connection.<br/>The details an answer needs.</p></div>
-      <div className="journey-answer" data-animated><small>IN THE GUEST'S AI ASSISTANT</small><h3>{STAY.property}</h3><div className="journey-answer-bottom"><span>{STAY.dates} · {STAY.guests}</span><strong>{STAY.total}<small>final total</small></strong><span className="visual-link">Book direct <Arrow diagonal/></span></div></div>
+      <div className="journey-answer" data-animated><small>IN THE GUEST'S AI ASSISTANT</small><h3>{STAY.property}</h3><div className="journey-photo-slot" aria-hidden="true"/><div className="journey-answer-bottom"><span>{STAY.dates} · {STAY.guests}</span><strong>{STAY.total}<small>final total</small></strong><span className="visual-link">Book direct <Arrow diagonal/></span></div></div>
       <div className="handoff-photo" data-animated><Photo /></div>
       <div className="site-ui" data-animated><div className="site-browser"><span aria-hidden="true">⌑</span> The property's own website <span>Illustrative website view</span></div><div className="site-brand"><img src="/seanrent/logo.svg" width="150" height="30" alt="Sea N' Rent"/><span>Home &nbsp; Search &nbsp; About us</span></div><h3 className="site-property-title">{STAY.property}</h3><div className="site-booking" data-animated><div className="booking-status"><div className="booking-before" data-animated><small>YOUR DIRECT BOOKING</small><h4>A sea view.<br/> A stay to look forward to.</h4></div><div className="booking-confirmed" data-animated><small>ILLUSTRATIVE CONFIRMATION</small><h4>Your stay is confirmed.</h4></div></div><dl><div><dt>Check-in</dt><dd>{STAY.arrival}</dd></div><div><dt>Check-out</dt><dd>{STAY.departure}</dd></div><div><dt>Guests</dt><dd>{STAY.guests}</dd></div><div><dt>Stay</dt><dd>{STAY.nights}</dd></div></dl><div className="site-total"><span>Sample final total</span><strong>{STAY.total}</strong></div><p>Booking and payment complete<br/>on the property's own website.</p></div></div>
       <div className="pms-receipt" data-animated><span className="receipt-icon" aria-hidden="true">↙</span><div><small>YOUR PMS</small><strong>Direct website booking received</strong><span>{STAY.dates} · {STAY.guests} · {STAY.total}</span></div></div>
     </div>
-    <div className="journey-lines"><p className="journey-line-1" data-animated>Your PMS supplies the details.</p><p className="journey-line-2" data-animated>The guest books on your site.</p><p className="journey-line-3" data-animated>The reservation reaches your PMS.</p></div>
+    <div className="journey-lines" data-animated><p className="journey-line-1" data-animated>Your PMS supplies the details.</p><p className="journey-line-2" data-animated>The guest books on your site.</p><p className="journey-line-3" data-animated>The reservation reaches your PMS.</p></div>
     <p className="scene-caption">Illustrative journey. No reservation or payment is made. </p>
   </div></section>;
 }

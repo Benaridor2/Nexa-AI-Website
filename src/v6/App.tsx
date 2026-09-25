@@ -49,9 +49,14 @@ export default function App() {
   useLayoutEffect(() => {
     if (flow || !page.current) return;
     const context = gsap.context(() => {
+      gsap.utils.toArray<HTMLElement>('.section-label').forEach(el => {
+        gsap.fromTo(el, { '--chapter-light': 0 }, { '--chapter-light': 1, ease: 'none', scrollTrigger: { trigger: el.closest('section'), start: 'top 85%', end: 'top 15%', scrub: true } });
+      });
       gsap.utils.toArray<HTMLElement>('[data-reveal]').forEach(el => {
         gsap.fromTo(el, { y: 32, opacity: .4 }, { y: 0, opacity: 1, ease: 'none', scrollTrigger: { trigger: el, start: 'top 92%', end: 'top 65%', scrub: true } });
       });
+      gsap.fromTo('.proof-strip', { '--proof-light': 0 }, { '--proof-light': 1, ease: 'none', scrollTrigger: { trigger: '.proof-strip', start: 'top 88%', end: 'top 45%', scrub: true } });
+      gsap.fromTo('.proof-strip strong', { y: 18, scale: .92 }, { y: 0, scale: 1, stagger: .15, ease: 'power2.out', scrollTrigger: { trigger: '.proof-strip', start: 'top 88%', end: 'top 45%', scrub: true } });
       const hero = gsap.timeline({ scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
       hero.to('.hero-content', { y: -90, opacity: 0, scale: .93, ease: 'none' }, 0)
         .to('.hero-grid', { y: 130, scale: 1.2, ease: 'none' }, 0);
@@ -61,7 +66,7 @@ export default function App() {
         .fromTo('.merge-lines path', { strokeDasharray: 400, strokeDashoffset: 400 }, { strokeDashoffset: 0, duration: 1 }, .45)
         .fromTo('.connector-node', { rotateY: -80, scale: .75 }, { rotateY: 0, scale: 1, duration: .8 }, 1)
         .fromTo('.destination-line', { scaleX: 0 }, { scaleX: 1, duration: .5 }, 1.5)
-        .fromTo('.connector-destination', { y: 45, rotateY: -25, opacity: 0 }, { y: 0, rotateY: 0, opacity: 1, duration: .8 }, 1.7).to({}, { duration: 1.2 });
+        .fromTo('.connector-destination', { y: 45, rotateY: -25, opacity: 0 }, { y: 0, rotateY: 0, opacity: 1, duration: .8 }, 1.7).to('.connector-destination', { boxShadow: '0 0 45px #863db34d', duration: .4 }, 2.6).to({}, { duration: 1.2 });
       gsap.utils.toArray<HTMLElement>('.economics-ledger>div').forEach((el,i) => {
         gsap.fromTo(el, { x: 70, opacity: .15 }, { x: 0, opacity: 1, ease: 'none', scrollTrigger: { trigger: '.economics-ledger', start: `top ${85-i*12}%`, end: `top ${65-i*12}%`, scrub: true } });
       });
@@ -117,8 +122,7 @@ export default function App() {
     <header className="main-header wrap"><a href="#" aria-label="Nexa home"><img src="/nexa-white.png" width="128" height="28" alt="Nexa"/></a><nav aria-label="Main navigation"><a href="#how-it-works">How it works</a><a href="#connector">The connector</a><a href="#faq">FAQ</a></nav>{action('button button-outline')}</header>
     <main id="main">
       <section className="hero wrap" aria-labelledby="hero-title">
-        <div className="hero-grid" aria-hidden="true"/><div className="hero-content"><Label>THE AI CONNECTOR FOR HOTELS & VACATION RENTALS</Label><h1 id="hero-title">Your next guest is asking an AI.<br/><em>Be the answer.</em></h1><p>Right now, as you read this, a traveler is asking ChatGPT where to stay. If your property is not part of that conversation, your competitor's is. NEXA AI makes sure your property is priced, bookable, direct.</p><div className="hero-actions">{action('button button-dark')}<a className="text-link" href="#how-it-works">Watch a booking happen <Arrow/></a></div></div>
-        <div className="hero-baseline"><span>The AI connector for hotels & vacation rentals</span><span>Built to Power Your Business, Never Compete With It</span></div>
+        <div className="hero-grid" aria-hidden="true"/><div className="hero-content"><Label>THE AI CONNECTOR FOR HOTELS & VACATION RENTALS</Label><h1 id="hero-title">Your next guest is asking an AI.<br/><em>Be the answer.</em></h1><p>Right now, as you read this, a traveler is asking ChatGPT where to stay. If your property is not part of that conversation, your competitor's is. NEXA AI makes sure your property is priced, listed, bookable direct.</p><div className="hero-actions">{action('button button-dark')}<a className="text-link" href="#how-it-works">Watch a booking happen <Arrow/></a></div><p className="hero-promise">Built to Power Your Business, Never Compete With It</p></div>
       </section>
       <Conversation motion={!flow}/>
       <section className="connection-strip wrap" aria-labelledby="connection-title"><Label>HOW IT CONNECTS</Label><h2 id="connection-title">Your PMS. <span className="connection-line" aria-hidden="true"/> One connection. <span className="connection-line" aria-hidden="true"/> Your website.</h2><p>Exactly like connecting Airbnb or Booking.com, through the PMS you already run. No developer. No code. Live in days.</p><p className="legal-line">The guest books on your website, under your terms and your payment. Your website. Not the OTA's. Guest data belongs to YOU.</p><ul className="pms-names" aria-label="PMS integrations">{PMS.map(name => <li key={name}>{name}</li>)}</ul></section>
