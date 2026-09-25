@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import { STAY } from './stay';
 import { between, phase, styles, useScene, visible } from './motion';
 
@@ -22,29 +22,49 @@ function ComposerTools() {
 
 const chatRenderer = (root: HTMLElement) => {
   const q = (s: string) => root.querySelector<HTMLElement>(s);
-  const frame = q('.chat-window'), query = q('.query-morph'), welcome = q('.chat-welcome'), tools = q('.query-tools'), dock = q('.chat-dock'), search = q('.chat-search'), response = q('.chat-response');
+  const frame = q('.chat-window'), halo = q('.chat-halo'), query = q('.query-morph'), welcome = q('.chat-welcome'), tools = q('.query-tools'), dock = q('.chat-dock'), search = q('.chat-search'), response = q('.chat-response');
   const chunks = [...root.querySelectorAll<HTMLElement>('.query-chunk')];
   const lines = [...root.querySelectorAll<HTMLElement>('.answer-beat')];
-  const photo = q('.answer-photo'), clarification=q('.chat-clarification'), reply=q('.chat-details');
+  const photos = [...root.querySelectorAll<HTMLElement>('.answer-options .option-photo')], clarification=q('.chat-clarification'), reply=q('.chat-details');
   const replyChunks=[...root.querySelectorAll<HTMLElement>('.reply-chunk')];
+  const viewport = q('.conversation-viewport'), track = q('.conversation-track'), followUp = q('.chat-followup'), poolIntro = q('.pool-intro'), poolCard = q('.pool-card'), poolPhoto = q('.pool-card .option-photo');
+  const poolBeats = [...root.querySelectorAll<HTMLElement>('.pool-beat')];
   const narrow = matchMedia('(max-width: 699px)');
   const stage = q('.scene-stage'), shutters = [...root.querySelectorAll<HTMLElement>('.portal-shutter')];
   const depth = [...root.querySelectorAll<HTMLElement>('.depth-frame')];
   return (progress: number) => {
-    const p = Math.min(1, progress / .68);
-    const checkout = phase(progress,.82,.89);
+    // The first half keeps the original pacing from the question to the two options.
+    const p = Math.min(1, progress / .5);
+    // When the transcript outgrows the window (phones), earlier messages scroll up.
+    let lift = 0;
+    if (progress > .5 && viewport && response) {
+      const room = viewport.clientHeight - 12;
+      const overflow = (el: HTMLElement | null) => el ? Math.max(0, response.offsetTop + el.offsetTop + el.offsetHeight - room) : 0;
+      const first = overflow(followUp), last = overflow(poolCard);
+      lift = first * phase(progress, .54, .57) + (last - first) * phase(progress, .60, .63);
+    }
+    styles(track, { transform: `translateY(${-lift}px)` });
+    const request = phase(progress, .54, .57), offer = phase(progress, .60, .62);
+    visible(followUp, request); styles(followUp, { transform: `translateY(${12*(1-request)}px)` });
+    visible(poolIntro, offer); styles(poolIntro, { transform: `translateY(${12*(1-offer)}px)` });
+    poolBeats.forEach((el,i)=>{const t=phase(progress,.61+i*.007,.625+i*.007);visible(el,t);styles(el,{transform:`translateY(${12*(1-t)}px)`});});
+    styles(poolPhoto, { 'clip-path': `inset(${(1-phase(progress,.618,.655))*100}% 0 0 0 round 9px)` });
+    const checkout = phase(progress,.826,.877);
     visible(q(".chat-checkout"),checkout);
     styles(q(".chat-checkout"),{transform:`translateX(${50*(1-checkout)}px) scale(${.96+.04*checkout})`});
-    visible(q(".demo-cursor"),between(progress,.73,.75,.815,.83),false);
-    styles(q(".demo-cursor"),{transform:`translate(${75*(1-phase(progress,.75,.80))}px,${-65*(1-phase(progress,.75,.80))}px) scale(${1-.18*between(progress,.80,.805,.81,.815)})`});
-    styles(q(".chat-response .source-link"),{boxShadow:`0 0 0 ${8*between(progress,.80,.805,.815,.825)}px #863db329`});
-    styles(q(".checkout-takeaway"),{'--takeaway':phase(progress,.91,.95)});
+    visible(q(".demo-cursor"),between(progress,.76,.775,.822,.833),false);
+    styles(q(".demo-cursor"),{transform:`translate(${75*(1-phase(progress,.775,.812))}px,${-65*(1-phase(progress,.775,.812))}px) scale(${1-.18*between(progress,.812,.815,.819,.822)})`});
+    styles(q(".pool-card .source-link"),{boxShadow:`0 0 0 ${8*between(progress,.812,.815,.822,.83)}px #863db329`});
+    styles(q(".checkout-takeaway"),{'--takeaway':phase(progress,.892,.921)});
     const open = phase(p, .025, .17), send = phase(p, .29, .36), focus = 0;
     styles(stage, { '--portal-open': open });
     visible(frame, phase(p, .045, .13));
+    visible(halo, phase(p, .045, .13), false);
     shutters.forEach((el,i) => styles(el, { transform: `translateX(${(i ? 1 : -1)*open*110}%) rotateY(${(i ? 1 : -1)*open*35}deg)`, opacity: 1-phase(p,.11,.19) }));
     depth.forEach((el,i) => styles(el,{ transform: `perspective(1600px) translateZ(${(i+1)*-45}px) rotateX(${(1-open)*36}deg) rotateZ(${(i-1)*3*(1-open)}deg) scale(${.78+open*.22+i*.035})`, opacity: (1-open)*.5 }));
-    styles(frame, { transform: `perspective(1600px) translateY(${(1-open)*-90-7*focus}px) rotateX(${(1-open)*48}deg) rotateY(${(1-open)*-12}deg) rotateZ(${(1-open)*-5}deg) scale(${.70+.30*open+.012*focus})` });
+    const portal = `perspective(1600px) translateY(${(1-open)*-90-7*focus}px) rotateX(${(1-open)*48}deg) rotateY(${(1-open)*-12}deg) rotateZ(${(1-open)*-5}deg) scale(${.70+.30*open+.012*focus})`;
+    styles(frame, { transform: portal });
+    styles(halo, { transform: portal });
     const surface = Math.round(255 - 14 * send);
     styles(query, { '--send': send, width: `${narrow.matches ? 90 : 76 - 8 * send}%`, transform: `translateY(${(1-send)*130}px)`, 'border-radius': `${26-6*send}px`, 'font-size': narrow.matches ? '' : `${17-2*send}px`, background: `rgb(${surface},${surface},${surface})`, 'border-color': `rgba(150,150,150,${.3*(1-send)})` });
     visible(welcome,1-phase(p,.27,.32));
@@ -59,17 +79,70 @@ const chatRenderer = (root: HTMLElement) => {
     visible(search,between(p,.65,.67,.72,.745));
     visible(response,phase(p,.79,.815));
     lines.forEach((el,i)=>{const t=phase(p,.79+i*.012,.823+i*.012);visible(el,t);styles(el,{transform:`translateY(${12*(1-t)}px)`});});
-    styles(photo,{'clip-path':`inset(${(1-phase(p,.825,.875))*100}% 0 0 0 round 10px)`});
+    photos.forEach((el,i)=>styles(el,{'clip-path':`inset(${(1-phase(p,.81+i*.05,.86+i*.05))*100}% 0 0 0 round 9px)`}));
     styles(q('.story-progress-fill'),{transform:`scaleX(${progress})`});
   };
 };
 
+function Chevron({ back = false }: { back?: boolean }) {
+  return <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d={back ? 'm14.5 6-6 6 6 6' : 'm9.5 6 6 6-6 6'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+}
+
+// The property's checkout responds to the visitor's clicks, never to scroll progress.
+function CheckoutSummary() {
+  const [index, setIndex] = useState(0);
+  const [described, setDescribed] = useState(false);
+  const next = useRef<HTMLButtonElement>(null), previous = useRef<HTMLButtonElement>(null);
+  const photos = STAY.pool.photos, last = photos.length - 1;
+  const show = (target: number) => {
+    setIndex(target);
+    // Keep keyboard focus on a usable control when an edge button leaves or is disabled.
+    if (target === 0) requestAnimationFrame(() => next.current?.focus());
+    if (target === last) requestAnimationFrame(() => previous.current?.focus());
+  };
+  return <div className="checkout-summary">
+    <div className="checkout-carousel">
+      <Photo name={photos[index]}/>
+      {index > 0 && <button type="button" ref={previous} className="carousel-button carousel-previous" aria-label="Previous photo" onClick={() => show(index - 1)}><Chevron back/></button>}
+      <button type="button" ref={next} className="carousel-button carousel-next" aria-label="Next photo" disabled={index === last} onClick={() => show(index + 1)}><Chevron/></button>
+    </div>
+    <button type="button" className="description-toggle" aria-expanded={described} aria-controls="checkout-description" onClick={() => setDescribed(!described)}>{described ? 'Hide description' : 'Show description'}<Chevron/></button>
+    <div className="checkout-description" id="checkout-description" data-open={described}><div><p>{STAY.pool.description}</p></div></div>
+    <h3>{STAY.pool.property}</h3><p>{STAY.dates} · {STAY.guests} · {STAY.nights}</p><div className="checkout-total"><span>Final total</span><strong>{STAY.pool.total}</strong></div>
+  </div>;
+}
+
+function OptionCard({ property, total, photo, eager = false, className = '', beat = 'answer-beat', children }: { property: string; total: string; photo: string; eager?: boolean; className?: string; beat?: string; children?: React.ReactNode }) {
+  return <article className={`option-card ${beat} ${className}`} data-animated>
+    <div className="option-photo" data-animated><Photo name={photo} eager={eager}/></div>
+    <div className="option-body">
+      <h3 className={beat} data-animated>{property}</h3>
+      <p className={`option-meta ${beat}`} data-animated>{STAY.shortDates} · {STAY.guests} · {STAY.nights}</p>
+      <div className={`option-total ${beat}`} data-animated><strong>{total} <span>final total</span></strong><span className="connected-badge">Connected to NEXA AI</span></div>
+    </div>
+    {children}
+  </article>;
+}
+
 export function Conversation({ motion }: { motion: boolean }) {
   const ref = useRef<HTMLElement>(null);
   useScene(ref, motion, chatRenderer);
+  // The halo sits behind the window (which clips its own content) and copies its box.
+  useLayoutEffect(() => {
+    const root = ref.current, frame = root?.querySelector<HTMLElement>('.chat-window');
+    if (!root || !frame) return;
+    const place = () => styles(root, { '--halo-left': `${frame.offsetLeft}px`, '--halo-top': `${frame.offsetTop}px`, '--halo-width': `${frame.offsetWidth}px`, '--halo-height': `${frame.offsetHeight}px` });
+    place();
+    const observer = new ResizeObserver(place);
+    observer.observe(frame);
+    if (frame.parentElement) observer.observe(frame.parentElement);
+    void document.fonts.ready.then(place);
+    return () => observer.disconnect();
+  }, [motion]);
   return <section id="guest-story" className="conversation scene-section" ref={ref} aria-labelledby="guest-title">
     <div className="scene-stage wrap" data-animated>
-      <div className="depth-frame" data-animated aria-hidden="true"/><div className="depth-frame" data-animated aria-hidden="true"/><div className="depth-frame" data-animated aria-hidden="true"/><div className="portal-shutter shutter-left" data-animated aria-hidden="true"><span>ASK.</span></div><div className="portal-shutter shutter-right" data-animated aria-hidden="true"><span>ANSWER.</span></div><h2 className="sr-only" id="guest-title">A question becomes a bookable answer</h2><div className="scene-orbit" aria-hidden="true"/>
+      <div className="depth-frame" data-animated aria-hidden="true"/><div className="depth-frame" data-animated aria-hidden="true"/><div className="depth-frame" data-animated aria-hidden="true"/><div className="portal-clip" aria-hidden="true"><div className="portal-shutter shutter-left" data-animated><span>ASK.</span></div><div className="portal-shutter shutter-right" data-animated><span>ANSWER.</span></div></div><h2 className="sr-only" id="guest-title">A question becomes a bookable answer</h2><div className="scene-orbit" aria-hidden="true"/>
+      <div className="chat-halo" data-animated aria-hidden="true"/>
       <div className="chat-window" data-animated>
         <div className="chat-rail" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="16" rx="3" stroke="currentColor" strokeWidth="1.5"/><path d="M9 4v16" stroke="currentColor" strokeWidth="1.5"/></svg><svg viewBox="0 0 24 24" fill="none"><path d="M15 4H5v15h15V9M10 14 20 4l2 2-10 10-3 1 1-3Z" stroke="currentColor" strokeWidth="1.5"/></svg><svg viewBox="0 0 24 24" fill="none"><circle cx="10" cy="10" r="6" stroke="currentColor" strokeWidth="1.5"/><path d="m15 15 5 5" stroke="currentColor" strokeWidth="1.5"/></svg></div>
         <div className="chat-app-header"><span>ChatGPT <span className="chevron">⌄</span></span><span className="chat-header-actions" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 15V3m-4 4 4-4 4 4M5 12v8h14v-8" stroke="currentColor" strokeWidth="1.5"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg></span></div>
@@ -77,15 +150,19 @@ export function Conversation({ motion }: { motion: boolean }) {
         <div className="conversation-viewport"><div className="conversation-track" data-animated><div className="query-morph" data-animated><p>{STAY.queryChunks.map((text, i) => <span className="query-chunk" data-animated key={i}>{text}</span>)}</p><div className="query-tools" data-animated><ComposerTools /></div></div>
         <p className="chat-clarification" data-animated>{STAY.clarification}</p><div className="chat-details" data-animated>{STAY.replyChunks.map((text,i)=><span className="reply-chunk" data-animated key={i}>{text}</span>)}</div><div className="chat-search" data-animated><span aria-hidden="true">◎</span><div>Searching the web<small>Apartments near the sea in Tel Aviv</small></div></div>
         <div className="chat-response" data-animated>
-          <p className="answer-beat" data-animated>Here's a Sea N' Rent apartment that fits:</p>
-          <h3 className="answer-beat" data-animated>{STAY.property}</h3>
-          <p className="answer-beat answer-description" data-animated>One bedroom, a private balcony and a sea view.</p>
-          <div className="answer-beat answer-photo" data-animated><Photo eager /></div>
-          <div className="answer-beat connected-badge" data-animated>Connected to NEXA AI</div><div className="answer-beat answer-facts" data-animated><span>{STAY.shortDates} · {STAY.guests} · {STAY.nights}</span><strong>{STAY.total} <span>final total</span></strong></div>
-          <a className="answer-beat source-link" data-animated href="#how-it-works">Book direct <Arrow diagonal /><svg className="demo-cursor" data-animated aria-hidden="true" viewBox="0 0 28 36"><path d="M3 2v27l7-7 6 12 5-3-6-11h10Z" fill="#202123" stroke="white" strokeWidth="2"/></svg></a>
+          <p className="answer-beat" data-animated>{STAY.optionsIntro}</p>
+          <div className="answer-options">
+            <OptionCard property={STAY.property} total={STAY.total} photo={STAY.photo} eager/>
+            <OptionCard property={STAY.second.property} total={STAY.second.total} photo={STAY.second.photo}/>
+          </div>
+          <div className="chat-followup" data-animated>{STAY.followUp}</div>
+          <p className="pool-intro" data-animated>{STAY.poolIntro}</p>
+          <OptionCard property={STAY.pool.property} total={STAY.pool.total} photo={STAY.pool.photo} beat="pool-beat" className="pool-card">
+            <a className="pool-beat source-link" data-animated href="#how-it-works">Book direct <Arrow diagonal /><svg className="demo-cursor" data-animated aria-hidden="true" viewBox="0 0 28 36"><path d="M3 2v27l7-7 6 12 5-3-6-11h10Z" fill="#202123" stroke="white" strokeWidth="2"/></svg></a>
+          </OptionCard>
         </div>
         </div></div><div className="chat-dock" data-animated aria-hidden="true"><span>Ask ChatGPT</span><ComposerTools /></div>
-        <div className="chat-checkout" data-animated><div className="checkout-browser">The property's own website <span>Illustrative checkout</span></div><div className="checkout-brand"><img src="/seanrent/logo.svg" alt="Sea N’ Rent" width="140" height="30"/><span>Complete your stay</span></div><div className="checkout-grid"><div className="checkout-summary"><Photo/><h3>{STAY.property}</h3><p>{STAY.dates} · {STAY.guests} · {STAY.nights}</p><div className="checkout-total"><span>Final total</span><strong>{STAY.total}</strong></div></div><div className="checkout-payment"><small>ONE LAST STEP</small><h3>Make it your stay.</h3><p>Your apartment and stay details are ready.<br/>Add your card to complete the booking.</p><div className="sample-card" aria-label="Illustrative payment fields, not editable"><span>Cardholder name</span><div>Name on card</div><span>Card number</span><div>1234 &nbsp; 1234 &nbsp; 1234 &nbsp; 1234</div><div className="sample-card-row"><div>MM / YY</div><div>CVC</div></div></div><button disabled className="sample-pay">Pay {STAY.total} <Arrow/></button><p className="checkout-takeaway" data-animated>Your booking. Your website.</p><small className="checkout-note">Demo only. No card details collected or payment made.</small></div></div></div>
+        <div className="chat-checkout" data-animated><div className="checkout-browser">The property's own website <span>Illustrative checkout</span></div><div className="checkout-brand"><img src="/seanrent/logo.svg" alt="Sea N’ Rent" width="140" height="30"/><span>Complete your stay</span></div><div className="checkout-grid"><CheckoutSummary/><div className="checkout-payment"><small>ONE LAST STEP</small><h3>Make it your stay.</h3><p>Your apartment and stay details are ready.<br/>Add your card to complete the booking.</p><div className="sample-card" aria-label="Illustrative payment fields, not editable"><span>Cardholder name</span><div>Name on card</div><span>Card number</span><div>1234 &nbsp; 1234 &nbsp; 1234 &nbsp; 1234</div><div className="sample-card-row"><div>MM / YY</div><div>CVC</div></div></div><button disabled className="sample-pay">Pay {STAY.pool.total} <Arrow/></button><p className="checkout-takeaway" data-animated>Your booking. Your website.</p><small className="checkout-note">Demo only. No card details collected or payment made.</small></div></div></div>
       </div>
       <div className="story-progress" aria-hidden="true"><i className="story-progress-fill" data-animated/></div><p className="scene-caption">Illustrative ChatGPT conversation. Dates, availability and checkout are examples.</p>
     </div>
