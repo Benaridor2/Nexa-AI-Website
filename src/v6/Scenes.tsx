@@ -93,64 +93,90 @@ export function Conversation({ motion }: { motion: boolean }) {
 }
 
 const compareRenderer = (root: HTMLElement) => {
-  const rows = [...root.querySelectorAll<HTMLElement>('.comparison-row')];
-  const card = root.querySelector<HTMLElement>('.comparison-card');
-  const state = root.querySelector<HTMLElement>('.priced-word'), old = root.querySelector<HTMLElement>('.unpriced-word');
-  return (p: number) => {
-    styles(root.querySelector(".comparison-takeaway"),{'--takeaway':phase(p,.86,.94)});
-    styles(card,{transform:`perspective(1400px) rotateY(${-8*(1-phase(p,0,.3))}deg) translateY(${28*(1-phase(p,0,.3))}px)`});
-    rows.forEach((row, i) => {
-      const t = phase(p, .20 + i * .19, .31 + i * .19);
-      const focus = between(p, .15 + i * .19, .20 + i * .19, .31 + i * .19, .37 + i * .19);
-      styles(row, { transform: `translateX(${-14 * focus}px) rotateX(${-16*Math.sin(t*Math.PI)}deg) scale(${1 + .015 * focus})`, '--row-ready': t });
-      const missing = row.querySelector<HTMLElement>('.row-missing');
-      const ready = row.querySelector<HTMLElement>('.row-ready');
-      styles(missing, { opacity: 1-phase(t,0,.42), transform: `translateY(${-6*phase(t,0,.42)}px)` });
-      styles(ready, { opacity: phase(t,.55,1), transform: `translateY(${6*(1-phase(t,.55,1))}px)` });
-      missing?.setAttribute('aria-hidden', String(t > .5));
-      ready?.setAttribute('aria-hidden', String(t <= .5));
+  const q=(selector:string)=>root.querySelector<HTMLElement>(selector);
+  const rows=[...root.querySelectorAll<HTMLElement>('.comparison-row')];
+  const story=[...root.querySelectorAll<HTMLElement>('.compare-story>p')];
+  return (p:number)=>{
+    const detour=between(p,.23,.28,.39,.43), connect=between(p,.44,.48,.53,.56);
+    visible(q('.comparison-data'),1-between(p,.20,.23,.54,.57));
+    visible(q('.ota-detour'),detour);styles(q('.ota-detour'),{transform:`translateY(${24*(1-detour)}px)`});
+    visible(q('.nexa-intervention'),connect);styles(q('.nexa-intervention'),{transform:`scale(${.92+.08*connect})`});
+    styles(q('.ota-route-line'),{transform:`scaleX(${phase(p,.28,.34)})`});
+    rows.forEach((row,i)=>{
+      const t=phase(p,.57+i*.105,.64+i*.105);
+      styles(row,{'--row-ready':t,transform:`translateX(${-8*Math.sin(t*Math.PI)}px)`});
+      const missing=row.querySelector<HTMLElement>('.row-missing'),ready=row.querySelector<HTMLElement>('.row-ready');
+      visible(missing,1-phase(t,0,.45));visible(ready,phase(t,.50,1));
+      styles(ready,{transform:`translateY(${8*(1-t)}px)`});
     });
-    visible(old, 1 - phase(p, .76, .81));
-    styles(state, { 'clip-path': `inset(${100 * (1 - phase(p, .82, .87))}% 0 0 0)` });
-    state?.setAttribute('aria-hidden', String(p < .85));
+    visible(q('.unpriced-word'),1-phase(p,.865,.89));
+    visible(q('.priced-word'),phase(p,.90,.93));
+    const amounts=[1-phase(p,.20,.23),between(p,.25,.28,.40,.43),between(p,.45,.48,.88,.91),phase(p,.93,.96)];
+    story.forEach((el,i)=>{visible(el,amounts[i]);styles(el,{transform:`translateY(${8*(1-amounts[i])}px)`});});
+    styles(q('.comparison-card'),{'--resolution':phase(p,.88,.96)});
   };
 };
 
 export function Comparison({ motion }: { motion: boolean }) {
-  const ref = useRef<HTMLElement>(null); useScene(ref, motion, compareRenderer);
-  return <section className="comparison scene-section" id="priced" ref={ref} aria-labelledby="priced-title"><div className="scene-stage wrap">
-    <Label>[01] THE TWO WORDS / PRICED OR UNPRICED</Label><div className="comparison-copy"><h2 id="priced-title">Being mentioned is nice. <br/><em>Being bookable is where the money is.</em></h2><p className="comparison-takeaway" data-animated>Two words decide who gets the booking. The AI needs live availability, a final price, and a trusted way to book direct.</p><div className="price-word-wrap"><span className="unpriced-word" data-animated>UNPRICED</span><span className="priced-word" data-animated>PRICED<span>↗</span></span></div></div>
-    <div className="comparison-card" data-animated><div className="comparison-property"><span className="property-symbol" aria-hidden="true">N</span><div><small>SAME GUEST. SAME QUESTION.</small><h3>Your property. Two possible answers.</h3></div></div>
-      <div className="comparison-table">{[
-        ['Availability', 'Not available in this example', `${STAY.dates} · ${STAY.guests}`],
-        ['Final price', 'Unknown', `${STAY.total} · ${STAY.nights}`],
-        ['Direct booking', 'Link unavailable', "The property's own website"],
-      ].map(([label, missing, ready], i) => <div className="comparison-row" key={label} data-animated><span className="row-index">0{i+1}</span><div><h4>{label}</h4><div className="comparison-values"><p className="row-missing" data-animated><span>−</span>{missing}</p><p className="row-ready" data-animated><span>✓</span>{ready}</p></div></div></div>)}</div>
-      <p className="comparison-note">The AI knows you exist. With NEXA, it has the information to answer for you. Illustrative comparison.</p>
+  const ref=useRef<HTMLElement>(null);useScene(ref,motion,compareRenderer);
+  return <><section className="comparison scene-section" id="priced" ref={ref} aria-labelledby="priced-title"><div className="scene-stage wrap">
+    <Label>[01] THE TWO WORDS / PRICED OR UNPRICED</Label>
+    <div className="comparison-copy"><h2 id="priced-title">Being mentioned by the AI is nice. <br/><em>Being bookable through the AI is where the money is.</em></h2><p className="comparison-lead">Two words decide who gets the booking:</p><div className="price-word-wrap"><span className="unpriced-word" data-animated>UNPRICED</span><span className="priced-word" data-animated>PRICED<span>↗</span></span></div><div className="compare-story"><p data-animated>The AI knows you exist.<br/><strong>But it cannot reliably answer for you.</strong></p><p data-animated>Without verified details, it shouldn't guess.<br/><strong>A bookable answer can send the guest to an OTA.</strong></p><p data-animated>With NEXA, the AI sees the details it needs.<br/><strong>Now your property can be recommended, priced and booked direct.</strong></p><p className="compare-closing" data-animated>You're not losing to better hotels.<br/><strong>You're losing to the OTAs.</strong></p></div></div>
+    <div className="comparison-card" data-animated><div className="comparison-data" data-animated><div className="comparison-property"><span className="property-symbol" aria-hidden="true">N</span><div><small>SAME GUEST. SAME QUESTION.</small><h3>Your property. Two possible answers.</h3></div></div><div className="comparison-table">{[
+      ['Live availability','Not available to the AI',`${STAY.dates} · ${STAY.guests}`],
+      ['Final price','No verified total',`${STAY.total} · ${STAY.nights}`],
+      ['Direct booking','No trusted booking route',"The property's own website"],
+    ].map(([label,missing,ready],i)=><div className="comparison-row" key={label} data-animated><span className="row-index">0{i+1}</span><div><h4>{label}</h4><div className="comparison-values"><p className="row-missing" data-animated><span>−</span>{missing}</p><p className="row-ready" data-animated><span>✓</span>{ready}</p></div></div></div>)}</div><p className="comparison-note">Being listed is not the same as being bookable. Illustrative booking data.</p></div>
+      <div className="ota-detour" data-animated><small>THE BOOKING TAKES ANOTHER ROUTE</small><div className="ota-route" aria-hidden="true"><span>Your property</span><i className="ota-route-line" data-animated/><span>OTA ↗</span></div><h3>The guest still needs<br/>a bookable answer.</h3><p>An OTA can supply the missing price and availability—and become the place the guest books.</p><div className="ota-answer"><span>ONLINE TRAVEL AGENCY</span><strong>A stay. A price. A booking route.</strong><small>The demand was there. The direct route wasn't.</small></div></div>
+      <div className="nexa-intervention" data-animated><small>NOW, THE SAME PROPERTY WITH</small><img src="/nexa-white.png" alt="Nexa" width="170" height="38"/><h3>Give the answer<br/>what it's missing.</h3><p>One connection. Three essential details.</p></div>
     </div>
-  </div></section>;
+  </div></section><div className="comparison-explanation"><details className="wrap"><summary>Our whole company starts with one small sentence: <span>“ChatGPT can make mistakes.”</span><b aria-hidden="true">+</b></summary><div><p>A property mention is not a verified rate or an available room. That familiar disclaimer captures the trust problem: an AI answer should not invent the details a guest needs to book.</p><p>NEXA makes live availability, final prices, and a trusted direct booking route available to the assistant. The assistant can recommend the property; the guest completes booking and payment on the property's own website.</p></div></details></div></>;
 }
 
 const journeyRenderer = (root: HTMLElement) => {
   const nodes = new Map<string, HTMLElement | null>();
   const q = (s: string) => { if (!nodes.has(s)) nodes.set(s, root.querySelector<HTMLElement>(s)); return nodes.get(s)!; };
   const narrow = matchMedia('(max-width: 699px)');
-  return (p: number) => {
+  return (rawProgress: number) => {
+    const progress=Math.max(0,(rawProgress-.13)/.87);
+    const opening=phase(rawProgress,.13,.20);
+    visible(q('.guest-question-opening'),1-phase(rawProgress,.13,.18));
+    styles(q('.guest-question-opening'),{transform:`translate(${-18*opening}%,${8*opening}%) scale(${1-.36*opening})`});
+    visible(q('.exchange-heading'),opening);
+    visible(q('.exchange-network'),opening);
+    const p=Math.max(0,Math.min(1,(progress-.40)/.60)), reveal=phase(progress,.40,.46);
+    visible(q('.ai-exchange'),1-phase(progress,.38,.44));
+    styles(q('.ai-exchange'),{'--request':phase(progress,.08,.19),'--response':phase(progress,.24,.35)});
+    visible(q('.exchange-question'),phase(progress,.02,.07));
+    visible(q('.exchange-ready'),phase(progress,.20,.22));
+    root.querySelectorAll<HTMLElement>('.exchange-ready>span').forEach((el,i)=>{
+      const t=phase(progress,.22+i*.035,.255+i*.035);
+      visible(el,t);styles(el,{transform:`translateY(${24*(1-t)}px) scale(${.94+.06*t})`});
+    });
+    styles(q('.exchange-core-rings'),{transform:`rotate(${phase(progress,.10,.30)*90}deg) scale(${.85+.15*phase(progress,.10,.24)})`});
+    root.querySelectorAll<HTMLElement>('.journey-chapters>span').forEach((el,i)=>{
+      const bounds=[0,.21,.44,.65];
+      styles(el,{'--active':i===0?1-phase(progress,.185,.21):i===3?phase(progress,.65,.68):between(progress,bounds[i],bounds[i]+.025,bounds[i+1]-.025,bounds[i+1])});
+    });
+    visible(q('.journey-line-request'),1-phase(progress,.20,.23));
+    visible(q('.journey-line-response'),between(progress,.25,.28,.39,.42));
+    styles(q('.website-ai'),{boxShadow:`0 0 ${55*phase(progress,.16,.24)}px #863db359`});
+    visible(q('.handoff-photo'),reveal);
+
     const travel = phase(p, .30, .58), confirmation = phase(p, .79, .84), received = phase(p, .89, .94);
-    const explode = between(p,.06,.22,.29,.43);
-    styles(q('.system-flow'),{transform:`perspective(1200px) rotateY(${-12*explode}deg) translateX(${-18*explode}px)`});
+    styles(q('.system-flow'),{transform:'none'});
     styles(q('.journey-answer'),{transform:'none'});
     styles(q('.journey-lines'),{'--takeaway':phase(p,.92,.96)});
     styles(q('.site-ui'),{transform:`perspective(1600px) rotateY(${(1-travel)*22}deg) scale(${.88+.12*travel})`});
-    visible(q('.system-flow'), 1 - phase(p, .3, .43));
-    visible(q('.journey-answer'), 1 - phase(p, .38, .46));
+    visible(q('.system-flow'), reveal*(1 - phase(p, .3, .43)));
+    visible(q('.journey-answer'), reveal*(1 - phase(p, .38, .46)));
     visible(q('.site-ui'), phase(p, .43, .49));
     styles(q('.site-ui'), { 'clip-path': 'inset(0 round 12px)' });
     visible(q('.site-booking'), phase(p, .59, .65));
     const m = narrow.matches;
     const canvas=q('.journey-canvas')!, card=q('.journey-answer')!, slot=q('.journey-photo-slot')!;
     const initial={left:card.offsetLeft+slot.offsetLeft,top:card.offsetTop+slot.offsetTop,width:slot.offsetWidth,height:slot.offsetHeight};
-    const final={left:canvas.clientWidth*(m?0:.03),top:canvas.clientHeight*(m?.18:.26),width:canvas.clientWidth*(m?1:.52),height:canvas.clientHeight*(m?.26:.51)};
+    const final={left:canvas.clientWidth*(m?0:.03),top:m?canvas.clientHeight*.23:Math.max(116,canvas.clientHeight*.26),width:canvas.clientWidth*(m?1:.52),height:m?canvas.clientHeight*.20:Math.min(canvas.clientHeight*.51,canvas.clientHeight-Math.max(116,canvas.clientHeight*.26)-95)};
     const geometry=Object.fromEntries(Object.keys(initial).map(key=>{const k=key as keyof typeof initial;return [key,`${initial[k]+(final[k]-initial[k])*travel}px`];}));
     styles(q('.handoff-photo'), {...geometry,'border-radius':`${10*(1-travel)}px`,transform:'none'});
     styles(q('.flow-facts'), { '--data-progress': phase(p, .06, .27) });
@@ -158,22 +184,23 @@ const journeyRenderer = (root: HTMLElement) => {
     visible(q('.booking-confirmed'), confirmation);
     visible(q('.pms-receipt'), received);
     styles(q('.pms-receipt'), { transform: `translateY(${20 * (1 - received)}px)` });
-    ['.journey-line-1', '.journey-line-2', '.journey-line-3'].forEach((s, i) => visible(q(s), i === 0 ? 1-phase(p,.30,.34) : i === 1 ? between(p,.36,.40,.81,.85) : phase(p,.87,.91)));
+    ['.journey-line-1', '.journey-line-2', '.journey-line-3'].forEach((s, i) => visible(q(s), i === 0 ? between(progress,.45,.48,.58,.60) : i === 1 ? between(p,.36,.40,.81,.85) : phase(p,.87,.91)));
   };
 };
 
 export function BookingJourney({ motion }: { motion: boolean }) {
   const ref = useRef<HTMLElement>(null); useScene(ref, motion, journeyRenderer);
   return <section className="booking-journey scene-section" id="how-it-works" ref={ref} aria-labelledby="works-title"><div className="scene-stage wrap">
-    <Label>[02] HOW IT WORKS / THE FIX</Label><header className="scene-heading centered"><h2 id="works-title">From "find me a place"<br/><em>to a booking on your site.</em></h2></header>
-    <div className="journey-canvas">
-      <div className="system-flow" data-animated><div className="pms-source"><span className="system-icon" aria-hidden="true">▤</span><span>Your existing PMS<small>The source of your booking data</small></span></div><div className="flow-thread" aria-hidden="true"/><div className="nexa-source"><img src="/nexa-white.png" alt="Nexa" width="110" height="24"/><small>AI CONNECTOR</small></div><div className="flow-facts" data-animated><span>Availability</span><span>Final price</span><span>Direct booking</span></div><p>One connection.<br/>The details an answer needs.</p></div>
-      <div className="journey-answer" data-animated><small>IN THE GUEST'S AI ASSISTANT</small><h3>{STAY.property}</h3><div className="journey-photo-slot" aria-hidden="true"/><div className="journey-answer-bottom"><span>{STAY.dates} · {STAY.guests}</span><strong>{STAY.total}<small>final total</small></strong><span className="visual-link">Book direct <Arrow diagonal/></span></div></div>
+    <Label>[02] HOW IT WORKS / THE FIX</Label><header className="scene-heading centered"><h2 id="works-title">NEXA AI makes your property PRICED.<br/><em>Here is how.</em></h2><p>From "find me a place" to a booking on your site. One conversation.</p></header>
+    <div className="journey-chapters" aria-label="The four steps">{["The guest asks","NEXA answers","You are recommended","Booked direct"].map((text,i)=><span key={text} data-animated><b>0{i+1}</b>{text}<i/></span>)}</div><div className="journey-canvas">
+      <div className="ai-exchange" data-animated><div className="guest-question-opening" data-animated><small>01 / THE GUEST ASKS</small><div className="opening-chat"><span>ChatGPT <b>⌄</b></span><p>Find me an apartment<br/><em>near the sea in Tel Aviv.</em></p><i aria-hidden="true">↑</i></div><p>The AI they already use.<br/><strong>Nothing to install. Just ask.</strong></p></div><div className="exchange-heading" data-animated><small>THE QUESTION REACHES YOUR WEBSITE</small><h3>One question.<br/><em>An AI-to-AI answer.</em></h3></div><div className="exchange-network" data-animated><div className="guest-ai"><span className="ai-orb">AI</span><h4>The guest's AI</h4><small>The assistant they already use</small><div className="exchange-question" data-animated>“Find me an apartment<br/>near the sea in Tel Aviv.”</div></div><div className="exchange-channel" aria-hidden="true"><span>REQUEST</span><div className="request-wire"><i/></div><div className="response-wire"><i/></div><span>VERIFIED DETAILS</span></div><div className="website-ai" data-animated><div className="exchange-core-rings" data-animated aria-hidden="true"><i/><i/></div><small>YOUR WEBSITE</small><img src="/nexa-white.png" alt="Nexa" width="150" height="34"/><h4>AI Connector</h4><span>Backed by your PMS data</span></div></div><div className="exchange-ready" data-animated><span data-animated><small>01 / LIVE AVAILABILITY</small><strong>{STAY.shortDates}</strong><em>{STAY.guests} · Available</em></span><span data-animated><small>02 / FINAL PRICE</small><strong>{STAY.total}</strong><em>{STAY.nights} · Final total</em></span><span data-animated><small>03 / DIRECT BOOKING</small><strong>Your website ↗</strong><em>Your booking. Your guest.</em></span><p>NEXA answers instantly. AI-to-AI.</p></div></div>
+      <div className="system-flow" data-animated><div className="pms-source"><span className="system-icon" aria-hidden="true">▤</span><span>Your website<small>Backed by the NEXA AI Connector</small></span></div><div className="flow-thread" aria-hidden="true"/><div className="nexa-source"><img src="/nexa-white.png" alt="Nexa" width="110" height="24"/><small>AI CONNECTOR</small></div><div className="flow-facts" data-animated><span>Availability</span><span>Final price</span><span>Direct booking</span></div><p>AI-to-AI communication.<br/>The answer, ready instantly.</p></div>
+      <div className="journey-answer" data-animated><small>IN THE GUEST'S AI ASSISTANT</small><h3>{STAY.property}</h3><div className="journey-photo-slot" aria-hidden="true"/><div className="journey-answer-bottom"><span>{STAY.dates} · {STAY.guests}</span><strong>{STAY.total}<small>final total</small></strong><small className="guarantee-note">Your best-price guarantee</small><span className="visual-link">Book direct <Arrow diagonal/></span></div></div>
       <div className="handoff-photo" data-animated><Photo /></div>
       <div className="site-ui" data-animated><div className="site-browser"><span aria-hidden="true">⌑</span> The property's own website <span>Illustrative website view</span></div><div className="site-brand"><img src="/seanrent/logo.svg" width="150" height="30" alt="Sea N' Rent"/><span>Home &nbsp; Search &nbsp; About us</span></div><h3 className="site-property-title">{STAY.property}</h3><div className="site-booking" data-animated><div className="booking-status"><div className="booking-before" data-animated><small>YOUR DIRECT BOOKING</small><h4>A sea view.<br/> A stay to look forward to.</h4></div><div className="booking-confirmed" data-animated><small>ILLUSTRATIVE CONFIRMATION</small><h4>Your stay is confirmed.</h4></div></div><dl><div><dt>Check-in</dt><dd>{STAY.arrival}</dd></div><div><dt>Check-out</dt><dd>{STAY.departure}</dd></div><div><dt>Guests</dt><dd>{STAY.guests}</dd></div><div><dt>Stay</dt><dd>{STAY.nights}</dd></div></dl><div className="site-total"><span>Sample final total</span><strong>{STAY.total}</strong></div><p>Booking and payment complete<br/>on the property's own website.</p></div></div>
       <div className="pms-receipt" data-animated><span className="receipt-icon" aria-hidden="true">↙</span><div><small>YOUR PMS</small><strong>Direct website booking received</strong><span>{STAY.dates} · {STAY.guests} · {STAY.total}</span></div></div>
     </div>
-    <div className="journey-lines" data-animated><p className="journey-line-1" data-animated>Your PMS supplies the details.</p><p className="journey-line-2" data-animated>The guest books on your site.</p><p className="journey-line-3" data-animated>The reservation reaches your PMS.</p></div>
+    <div className="journey-lines" data-animated><p className="journey-line-request" data-animated>The guest asks. Their AI turns to your website.</p><p className="journey-line-response" data-animated>NEXA answers instantly. AI-to-AI.</p><p className="journey-line-1" data-animated>The AI recommends your property, by name.</p><p className="journey-line-2" data-animated>The guest books on your site.</p><p className="journey-line-3" data-animated>The reservation reaches your PMS.</p></div>
     <p className="scene-caption">Illustrative journey. No reservation or payment is made. </p>
   </div></section>;
 }

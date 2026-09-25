@@ -15,6 +15,8 @@ const page = isV1
     : isV3 ? Promise.all([import('./v3/App'), import('./v3/style.css')])
     : isV4 ? Promise.all([import('./v4/App'), import('./v4/style.css')])
     : isV5 ? Promise.all([import('./v5/App'), import('./v5/style.css')])
+    : window.location.pathname.replace(/\/$/, '') === '/nexa-ai-connector' ? Promise.all([import('./v6/Connector'), import('./v6/style.css')])
+    : window.location.pathname.replace(/\/$/, '') === '/how-it-works' ? Promise.all([import('./v6/HowItWorks'), import('./v6/style.css')])
     : Promise.all([import('./v6/App'), import('./v6/style.css')]);
 
 void page.then(([{ default: App }]) => {

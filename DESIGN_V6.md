@@ -25,3 +25,14 @@ Proof points use a dark, warm background, stronger gold typography, and a scroll
 Numbered chapter labels use opposite-edge text, a slash prefix on the right, a thin baseline, and a purple line reveal as the chapter enters. The user's Conduit screenshot informed this treatment.
 
 The booking answer is now a flex layout with an explicit photo slot between its title and stay details. The moving photo's initial geometry derives from that slot, preventing overlap across responsive sizes. Desktop 1440x900 and 1280x712, phone 390x844 and 358x694, and 390x600 static fallback were inspected. Checkout content fits the tested animated viewports without nested scrolling. Short-phone comparison spacing was adjusted to preserve separation between the label, heading, and card. No browser errors or broken images were observed.
+
+## Narrative refinement - September 25
+
+- How It Works opens with the guest question alone in a large ChatGPT-style card. It recedes into the guest AI, then shows the request to the property website and the AI-to-AI response. Availability, USD final price and the direct booking route appear individually. The recommendation hands the same apartment image into the property website, ending with a direct booking receipt in the PMS.
+- Four chapter indicators follow the active step. A dedicated /how-it-works route expands the journey.
+- PRICED/UNPRICED now stages missing data, the OTA detour, the NEXA connection, three sequential data checks and the closing statement. The disclaimer explanation is expandable below the scene.
+- Product starts with large Direct/Agent explanations, then transfers focus to the shared connection and website. Both audience CTAs route to /nexa-ai-connector, as specified in the website plan.
+- Illustrative apartment totals use dollars throughout V6. No exchange-rate conversion is claimed.
+- Wheel navigation advances a single narrative beat with cubic easing inside the four pinned chapters. Direction reversal interrupts travel; repeated momentum during one gesture is absorbed. Portal entry/inter-section movement, touch and keyboard remain continuous. Reduced-motion and static views bypass this behavior.
+- Browser reviewed at desktop 1440x900 and 1280x712, and mobile 390x844 and 358x694. Fixed recommendation photo/title and compact checkout receipt collisions. Build passes; the pre-existing archived V2 spatial chunk warning remains.
+- Final pacing correction: beat travel is 0.45-0.72 seconds with a 90ms settling interval; continued scrolling can proceed without waiting for an idle gesture. Direction reversal remains immediate. The website/PMS diagram stays aligned without perspective tilt, and the final desktop booking panel reserves space for its payment note.
