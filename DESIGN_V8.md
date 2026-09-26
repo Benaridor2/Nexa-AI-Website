@@ -1,12 +1,12 @@
-# V8 homepage: the conversation as it was, the sections underneath
+# V8 homepage: the conversation as it was, the plan's sections underneath
 
 V8 is the homepage that ships from `/`. It keeps the part of the site that was
 liked, the V6 hero and the ChatGPT conversation that follows the scroll, and
-puts the V7 sections under it (see DESIGN_V7.md for the research those come
-from). The film version of the conversation stays reachable at `/v7`, the
-previous homepage at `/v6`.
+puts under it the sections of the website plan (Content V3), in the language
+of the plan's reference site, Conduit (conduit.app). The film version of the
+conversation stays reachable at `/v7`, the previous homepage at `/v6`.
 
-## What changed from V6
+## The conversation (unchanged from the liked version)
 
 1. **No player bar.** The chapter bar with Play, the progress track and the
    chapter labels is gone. The conversation moves with the scroll and with
@@ -20,27 +20,77 @@ previous homepage at `/v6`.
    after it are swallowed for 400 ms, so the page does not carry past the
    sections; a scroll back up cancels the glide at once. On phones the hint is
    hidden and the pill does the skipping; the keyboard skip button remains.
-3. **"Watch a booking happen"** (hero link and the button in How it works)
-   glides to the opening of the conversation and leaves the reader to scroll.
-   There is no autoplay any more.
-4. **Scope.** The `.v7` class sits on a wrapper around the sections, not on the
-   page root, so V7's type and colour rules cannot reach the V6 hero and
-   window. V7's rules for `.hero-actions`, `.hero-pms` and `.closing-line`,
-   names V6 also uses, are scoped to `.v7`. A computed-style diff of the hero
-   and the conversation against `/v6` (29,920 properties at 1440 and 390, at
-   four story points) finds no difference beyond 1 px of rounding where the
-   pill row replaces the bar.
-5. **Section headings** in the sections take the hero's serif (Crimson Pro),
-   so the page reads as one voice from top to bottom.
+3. **"Watch a booking happen"** glides to the opening of the conversation and
+   leaves the reader to scroll. There is no autoplay any more.
+4. **Nothing reaches it.** The sections are scoped to `.s8`; a computed-style
+   diff of the hero and the conversation against `/v6` finds no difference
+   beyond 1 px of rounding where the pill row replaces the bar.
+
+## The sections: the plan, in the reference's language
+
+The plan's structure principle, "the home page tells the whole story, section
+by section, in order; every section with more depth links to its expansion
+page", and its section labels, "a small numbered eyebrow above every title,
+like the reference", are followed literally. Under the conversation:
+
+- **How it connects** (the connection; the legal side; "How it works legally"
+  to the Connector page) and the **proof strip** (65%+ of the vote, the HVC
+  win in Zurich 2026, 37 countries, 6 PMS integrations).
+- **[01] The two words / Priced or unpriced.** The plan's title, "Two words
+  decide who gets the booking", the PRICED and UNPRICED cards, each with the
+  AI's actual answer, the closing line, the "ChatGPT can make mistakes"
+  sentence and "Read the story" to About.
+- **[02] How it works / The fix.** The dark section: the plan's title and
+  subtitle, the four steps as numbered cards, the "installs nothing" line,
+  "Watch now" to the How It Works page, "Watch a booking happen, step by step"
+  back to the conversation.
+- **[03] The product / NEXA AI Connector.** "One connection. Two kinds of
+  guests. Both book direct." NEXA Direct (branded) and NEXA Agent
+  (non-branded) with the plan's text, "Show me" to the Connector page.
+- **[04] Pricing / The money.** The plan's title and stay; the numbers stay on
+  the Pricing page, as instructed, with "Pricing" and "Run your own numbers".
+- **[05] Who it is for / Hotels and vacation rentals.** The two cards, both to
+  the Connector page.
+- **[06] FAQ / Straight answers.** The plan's eight questions and answers; the
+  cost answer points to the Pricing page instead of quoting numbers.
+- **Get priced.** The closing panel: the plan's title, "Two short steps.
+  Cancel anytime.", Get Priced, and the Contact line.
+- The customers section is omitted, as the plan says to do until real quotes
+  are approved.
+
+From Conduit: a 1200 px column with 140 px between sections; the label row
+"[01] LEFT" / "/ RIGHT" in 12 px uppercase mono over a hairline; a large light
+display heading (Crimson Pro 400, 52 px, tight leading) beside its lead and
+one small button; grey rounded cards (10 px, #f6f5f8) holding the product
+visuals; one dark section with numbered cards; small 36 px buttons with the
+arrow before the label; a full-width closing panel. Colour stays NEXA's: ink,
+white, purple as the single accent.
+
+## The reading pass (the scroll effect over the text)
+
+Every section heading, the closing line of section 1 and the closing panel's
+title arrive in a quiet lavender grey. As a heading travels from 90% of the
+viewport up to 45%, a soft highlight runs over its words in reading order and
+every word it passes turns to ink; the key phrase (marked with `<em>`) turns
+purple. The label above each section draws its purple baseline the same way.
+The pass follows the scroll in both directions.
+
+It is one scroll listener measuring a dozen elements (src/v8/pass.ts) and
+CSS: each word is a span with its index, the heading carries `--p` and `--n`,
+and `color-mix()` does the rest (src/v8/style.css, "The reading pass"). Text
+is never hidden: the unread grey still reads. Under reduced motion, and
+where `color-mix` is unsupported, the words are ink and the key phrase purple
+from the start.
 
 ## Verified
 
 - `v8test`: window closed on load, no bar, no overflow; pill hidden until
   pinned; a slow wheel and a steady wheel read on; a flick skips and does not
   carry past; the pill skips; Watch a booking happen glides to the opening and
-  waits; every section present; FAQ; Get Priced dialog; reduced motion; the
-  old routes load without the V8 page. 71 checks at 1440×900, 1280×712,
-  390×844 and 358×694.
+  waits; every section present; the reading pass unread below the fold and
+  read in the zone, key phrase purple, label line drawn; FAQ; Get Priced
+  dialog; reduced motion; the old routes load without the V8 page. At
+  1440×900, 1280×712, 390×844 and 358×694.
 - Chat interactivity (`chat3`, `interact`), header, links, pages and the
   calculator unchanged. On phones the checkout card scrolls inside itself when
   its description is expanded, exactly as on V6 live.
