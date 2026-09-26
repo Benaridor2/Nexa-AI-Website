@@ -30,7 +30,7 @@ const FAQ: [string, string][] = [
 ];
 
 // [01] THE TWO WORDS / PRICED OR UNPRICED, with the baseline that draws itself as the label arrives.
-function SectionLabel({ n, left, right }: { n?: string; left: string; right?: string }) {
+export function SectionLabel({ n, left, right }: { n?: string; left: string; right?: string }) {
   return <p className="s8-label" data-line><span>{n ? `[${n}] ` : ''}{left}</span>{right && <span>/ {right}</span>}</p>;
 }
 
@@ -146,7 +146,7 @@ export function Sections({ open, watch }: { open: () => void; watch: () => void 
       <SectionLabel n="04" left="Pricing" right="The money"/>
       <div className="s8-head">
         <h2 id="pricing-title" data-pass>Same guest. Same room. <em>Very different commission.</em></h2>
-        <div><p className="s8-lead">The same 4-night stay, booked through an OTA, through NEXA Direct, through NEXA Agent. Watch where the money goes.</p><div className="s8-actions"><a className="s8-button" href="/pricing"><Arrow diagonal/>Pricing</a><a className="s8-link" href="/pricing#calculator">Run your own numbers <Arrow/></a></div></div>
+        <div><p className="s8-lead">The same 4-night stay, booked through an OTA, through NEXA Direct, through NEXA Agent. Watch where the money goes.</p><div className="s8-actions"><a className="s8-button" href="/pricing"><Arrow diagonal/>Pricing</a><a className="s8-link" href="/pricing#find-your-rate">Run your own numbers <Arrow/></a></div></div>
       </div>
       <div className="s8-tile s8-money">
         <div className="s8-receipt" aria-label="The same stay, three ways to book it">

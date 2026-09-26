@@ -140,7 +140,7 @@ export function Below({ open, watch }: { open: () => void; watch: () => void }) 
       <section className="feature wrap pricing-teaser" id="economics" aria-labelledby="pricing-title" data-reveal>
         <header className="feature-head is-split">
           <div><p className="v7-kicker">Pricing</p><h2 id="pricing-title">One commission on the bookings the AI brings you. No monthly fees.</h2></div>
-          <div><p className="feature-lead">Bring AI-originated demand to the booking experience you already own. The commission depends on whether the guest asked for you by name; the numbers are on the Pricing page.</p><div className="feature-links"><a className="v7-button" href="/pricing">See pricing <Arrow/></a><a className="v7-link" href="/pricing#calculator">Calculate what you keep <Arrow/></a></div></div>
+          <div><p className="feature-lead">Bring AI-originated demand to the booking experience you already own. The commission depends on whether the guest asked for you by name; the numbers are on the Pricing page.</p><div className="feature-links"><a className="v7-button" href="/pricing">See pricing <Arrow/></a><a className="v7-link" href="/pricing#find-your-rate">Calculate what you keep <Arrow/></a></div></div>
         </header>
       </section>
 

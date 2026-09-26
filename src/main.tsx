@@ -22,7 +22,8 @@ const page = isV1
     : isV7 ? Promise.all([import('./v7/App'), import('./v6/style.css'), import('./v7/style.css')])
     : window.location.pathname.replace(/\/$/, '') === '/nexa-ai-connector' ? Promise.all([import('./v6/Connector'), import('./v6/style.css')])
     : window.location.pathname.replace(/\/$/, '') === '/how-it-works' ? Promise.all([import('./v6/HowItWorks'), import('./v6/style.css')])
-    : ['/solutions', '/pricing', '/about', '/contact'].includes(window.location.pathname.replace(/\/$/, '')) ? Promise.all([import('./v6/Pages'), import('./v6/style.css')])
+    : window.location.pathname.replace(/\/$/, '') === '/pricing' ? Promise.all([import('./v8/Pricing'), import('./v6/style.css'), import('./v8/style.css'), import('./v8/pricing.css')])
+    : ['/solutions', '/about', '/contact'].includes(window.location.pathname.replace(/\/$/, '')) ? Promise.all([import('./v6/Pages'), import('./v6/style.css')])
     : Promise.all([import('./v8/App'), import('./v6/style.css'), import('./v8/style.css')]);
 
 void page.then(([{ default: App }]) => {

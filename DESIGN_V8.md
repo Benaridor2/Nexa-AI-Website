@@ -130,3 +130,19 @@ from the start.
 - Chat interactivity (`chat3`, `interact`), header, links, pages and the
   calculator unchanged. On phones the checkout card scrolls inside itself when
   its description is expanded, exactly as on V6 live.
+
+## The Pricing page (src/v8/Pricing.tsx)
+
+Built section by section from the pricing content spec, in the homepage's
+language: what operators pay today (the five channels, AI agents "not
+connected"), why the AI sends guests to the OTAs (today, and with NEXA), the
+comparison in cents, how the price works (8.0% when the AI found the guest,
+4.0% when the guest asked; a tenth of a point off for each of 15 unit steps
+and 15 commitment steps; the 300-room, 24-month example at 6.3% and 2.3%),
+the two sliders, sign up (a preview form: nothing is created yet), every rate
+in one 16 by 16 table with the selection marked, the questions hotels ask,
+the fine print and sources. Percent everywhere except the cents comparison;
+regular hyphens, straight quotes, no exclamation marks. The homepage links
+to it and shows no numbers. `pricing8` checks the defaults, both edges, a
+mid case, the table corners, the copy rules, the preview form, overflow and
+console errors at 1440 and 390.

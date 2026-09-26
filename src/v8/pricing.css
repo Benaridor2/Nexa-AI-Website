@@ -1,0 +1,163 @@
+/* The Pricing page, in the language of the homepage sections (.s8). Loaded
+   after v6/style.css and v8/style.css. */
+.pricing8 { padding-bottom: 96px; }
+.pricing8 .s8-section:first-child { margin-top: 56px; }
+.pricing8 h1 { font-family: 'Crimson Pro Variable', Georgia, serif; font-size: 64px; font-weight: 400; line-height: 1.02; letter-spacing: -.02em; max-width: 18ch; margin: 18px 0 0; }
+.pricing8 h1 em { font-style: italic; }
+.pricing-hero .s8-lead { margin-top: 22px; max-width: 620px; }
+.pricing8 .s8-head { margin-top: 80px; }
+
+/* 1. The channels. */
+.channels { margin-top: 48px; border-top: 1px solid var(--line); }
+.channels-row { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr) minmax(0, 2fr); gap: 24px; padding: 18px 0; border-bottom: 1px solid var(--line); font-size: 16px; line-height: 1.5; color: var(--ink-2); }
+.channels-row.is-head { padding: 10px 0; font-family: var(--mono); font-size: 11.5px; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-3); }
+.channels-row b { font-weight: 560; color: var(--ink); }
+.channels-row i { font-style: normal; }
+.channels-row em { display: inline-flex; align-items: center; gap: 8px; font-style: normal; font-family: var(--mono); font-size: 12px; color: var(--ink-2); white-space: nowrap; }
+.channels-row em::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #2e9a5b; }
+.channels-row.is-off b { color: var(--violet); }
+.channels-row.is-off em { color: var(--clay); }
+.channels-row.is-off em::before { background: var(--clay); }
+
+/* 2. Today, and with NEXA. */
+.journeys { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; margin-top: 56px; }
+.journey { padding: 26px 28px 30px; border-radius: 10px; background: var(--card); }
+.journey.is-nexa { background: #f1e8f8; }
+.journey ol { display: flex; flex-direction: column; gap: 18px; margin-top: 18px; }
+.journey li { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 14px; }
+.journey-n { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background: var(--ink); color: #fff; font-family: var(--mono); font-size: 12px; }
+.journey.is-nexa .journey-n { background: var(--violet); }
+.journey li b { display: block; font-size: 18px; font-weight: 560; letter-spacing: -.01em; }
+.journey li p { margin-top: 4px; font-size: 15.5px; line-height: 1.5; color: var(--ink-2); }
+
+/* 3. Cents. */
+.cents .s8-card { padding: 28px; }
+.s8-card > p.cents-big { font-family: 'Crimson Pro Variable', Georgia, serif; font-size: 52px; line-height: 1; letter-spacing: -.02em; }
+.cents-big small { font-family: 'Geist Variable', Arial, sans-serif; font-size: 15px; letter-spacing: 0; color: var(--ink-2); }
+.s8-card > p.cents-keep { font-size: 20px; font-weight: 500; color: var(--ink); }
+.cents ul { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; padding-top: 16px; border-top: 1px solid var(--line); }
+.cents li { position: relative; padding-left: 18px; font-size: 15.5px; line-height: 1.5; color: var(--ink-2); }
+.cents li::before { content: ''; position: absolute; left: 0; top: 9px; width: 8px; height: 8px; border-radius: 50%; background: var(--clay); }
+.cents .is-nexa { background: #f1e8f8; }
+.cents .is-nexa li::before { background: var(--violet); }
+.cents .is-nexa > p.cents-big { color: var(--violet); }
+
+/* 4. How the price works. */
+.how-n { margin-top: 56px; }
+.starts { margin-top: 16px; }
+.s8-card > p.start-rate { font-family: 'Crimson Pro Variable', Georgia, serif; font-size: 48px; line-height: 1; letter-spacing: -.02em; }
+.start-rate small { font-family: 'Geist Variable', Arial, sans-serif; font-size: 14px; letter-spacing: 0; color: var(--ink-2); }
+.worked { margin-top: 28px; padding: 26px; }
+.worked-card { padding: 26px 28px; border-radius: 10px; background: #fff; box-shadow: 0 24px 40px -28px #0d0d1755; }
+.worked-sum { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; margin-top: 18px; }
+.worked-sum span { display: flex; flex-direction: column; gap: 2px; }
+.worked-sum b { font-family: 'Crimson Pro Variable', Georgia, serif; font-size: 40px; font-weight: 400; line-height: 1; letter-spacing: -.02em; }
+.worked-sum small { font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+.worked-sum i { font-family: 'Crimson Pro Variable', Georgia, serif; font-size: 32px; font-style: normal; color: var(--ink-3); }
+.worked-sum .is-result b { color: var(--violet); }
+.worked-line { margin-top: 16px; font-size: 16px; color: var(--ink-2); }
+.worked-line b { color: var(--ink); }
+.promises { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; margin-top: 28px; }
+.promises li { display: flex; flex-direction: column; gap: 6px; padding: 18px 0 0; border-top: 1px solid var(--ink); }
+.promises b { font-size: 17px; font-weight: 560; }
+.promises span { font-size: 15px; line-height: 1.5; color: var(--ink-2); }
+
+/* 5. The finder. */
+.finder { margin-top: 48px; padding: 26px; }
+.finder-card { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); gap: 40px; padding: 30px 32px; border-radius: 10px; background: #fff; box-shadow: 0 24px 40px -28px #0d0d1755; }
+.finder-inputs { display: flex; flex-direction: column; gap: 30px; }
+.rate-slider-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.rate-slider-head label { font-size: 15px; font-weight: 500; }
+.rate-slider-head b { font-size: 17px; font-weight: 560; letter-spacing: -.01em; white-space: nowrap; }
+.rate-slider input { width: 100%; height: 28px; margin: 10px 0 4px; accent-color: var(--violet); cursor: pointer; }
+.rate-slider-foot { display: flex; justify-content: space-between; gap: 12px; font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); }
+.finder-result { display: flex; flex-direction: column; gap: 14px; padding-left: 40px; border-left: 1px solid var(--line); }
+.finder-rates { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.finder-rates b { display: block; font-family: 'Crimson Pro Variable', Georgia, serif; font-size: 56px; font-weight: 400; line-height: 1; letter-spacing: -.02em; }
+.finder-rates div:last-child b { color: var(--violet); }
+.finder-rates span { display: block; margin-top: 6px; font-size: 14px; line-height: 1.35; color: var(--ink-2); }
+.finder-steps { font-family: var(--mono); font-size: 12px; color: var(--ink-3); }
+.finder-thousand { font-size: 15.5px; line-height: 1.5; color: var(--ink-2); }
+.finder-thousand b { color: var(--ink); }
+.finder-result .s8-actions { margin-top: 6px; }
+
+/* 6. Sign up. */
+.signup { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 40px; margin-top: 56px; }
+.signup-side { display: flex; flex-direction: column; gap: 24px; }
+.signup-rate { padding: 24px; border-radius: 10px; background: var(--card); }
+.signup-rate .finder-rates { margin-top: 12px; }
+.signup-rate .finder-rates b { font-size: 44px; }
+.signup-selection { margin-top: 14px; font-size: 15px; color: var(--ink-2); }
+.signup-selection a { margin-left: 8px; color: var(--violet); text-decoration: underline; text-underline-offset: 3px; }
+.signup-steps { display: flex; flex-direction: column; gap: 14px; counter-reset: step; }
+.signup-steps li { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 12px 14px; counter-increment: step; }
+.signup-steps li::before { content: counter(step); display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background: var(--ink); color: #fff; font-family: var(--mono); font-size: 12px; }
+.signup-steps b { display: block; font-size: 17px; font-weight: 560; }
+.signup-steps span { display: block; grid-column: 2; margin-top: -8px; font-size: 15px; line-height: 1.5; color: var(--ink-2); }
+.signup-note { font-family: var(--mono); font-size: 12px; color: var(--ink-3); }
+.signup-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 20px; align-content: start; padding: 28px; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+.signup-form label { display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 500; color: var(--ink-2); }
+.signup-form input, .signup-form select { height: 44px; padding: 0 12px; border: 1px solid #cfcdd6; border-radius: 8px; background: #fff; font: inherit; font-size: 15px; color: var(--ink); }
+.signup-form input:focus, .signup-form select:focus { outline: 2px solid var(--violet); outline-offset: 1px; border-color: var(--violet); }
+.signup-form .s8-button { grid-column: 1 / -1; justify-self: start; height: 44px; padding: 0 18px 0 16px; font-size: 15.5px; }
+.signup-form .form-status { grid-column: 1 / -1; min-height: 1.5em; font-size: 14px; color: var(--violet); }
+.signup-portfolio { grid-column: 1 / -1; font-size: 15px; color: var(--ink-2); }
+.signup-portfolio a { color: var(--ink); font-weight: 500; text-decoration: underline; text-underline-offset: 3px; }
+.signup-terms { grid-column: 1 / -1; font-size: 12.5px; color: var(--ink-3); }
+
+/* 7. Every rate. */
+.rate-table-wrap { margin-top: 48px; overflow: auto; border: 1px solid var(--line); border-radius: 10px; }
+.rate-table { border-collapse: separate; border-spacing: 0; width: 100%; min-width: 1040px; font-size: 12.5px; }
+.rate-table th, .rate-table td { padding: 8px 6px; border-bottom: 1px solid var(--line); border-right: 1px solid var(--line); text-align: center; vertical-align: middle; }
+.rate-table th { position: sticky; top: 0; z-index: 2; background: #fafafb; font-family: var(--mono); font-size: 10.5px; font-weight: 400; letter-spacing: .03em; color: var(--ink-3); }
+.rate-table tbody th { position: sticky; left: 0; z-index: 1; text-align: left; white-space: nowrap; color: var(--ink-2); }
+.rate-table thead th:first-child { left: 0; z-index: 3; text-align: left; }
+.rate-table thead th:first-child span { display: block; }
+.rate-table thead th:first-child span:last-child { color: var(--violet); }
+.rate-table td b { display: block; font-weight: 560; color: var(--ink); }
+.rate-table td span { display: block; color: var(--violet); }
+.rate-table .is-current { background: #f6f2fa; }
+.rate-table td.is-selected { background: var(--violet); }
+.rate-table td.is-selected b, .rate-table td.is-selected span { color: #fff; }
+.rate-table tr:last-child td, .rate-table tr:last-child th { border-bottom: 0; }
+.rate-table th:last-child, .rate-table td:last-child { border-right: 0; }
+.rate-table-note { margin-top: 14px; font-family: var(--mono); font-size: 12px; color: var(--ink-3); }
+
+/* 8. Questions. */
+.questions-actions { margin-top: 24px; }
+
+/* 9. Fine print. */
+.fine-print { margin-top: 96px; padding-top: 32px; border-top: 1px solid var(--line); }
+.fine-print p { max-width: 860px; margin-top: 10px; font-size: 13.5px; line-height: 1.6; color: var(--ink-3); }
+.fine-print p.s8-n { margin-top: 24px; }
+.fine-print p.s8-n:first-child { margin-top: 0; }
+
+@media (max-width: 1000px) {
+  .promises { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .finder-card { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+  .finder-result { padding-left: 0; padding-top: 24px; border-left: 0; border-top: 1px solid var(--line); }
+  .signup { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 699px) {
+  .pricing8 .s8-section:first-child { margin-top: 32px; }
+  .pricing8 h1 { font-size: 40px; }
+  .pricing8 .s8-head { margin-top: 48px; }
+  .channels { margin-top: 32px; }
+  .channels-row { grid-template-columns: minmax(0, 1fr); gap: 6px; padding: 14px 0; font-size: 15px; }
+  .channels-row.is-head { display: none; }
+  .journeys { grid-template-columns: minmax(0, 1fr); gap: 14px; margin-top: 36px; }
+  .journey { padding: 20px; }
+  .s8-card > p.cents-big { font-size: 40px; }
+  .s8-card > p.start-rate { font-size: 38px; }
+  .worked { margin-top: 20px; padding: 14px; }
+  .worked-card { padding: 20px; }
+  .worked-sum b { font-size: 30px; }
+  .promises { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .finder { margin-top: 32px; padding: 14px; }
+  .finder-card { padding: 20px; }
+  .finder-rates b { font-size: 44px; }
+  .signup { margin-top: 36px; gap: 24px; }
+  .signup-form { grid-template-columns: minmax(0, 1fr); padding: 20px; }
+  .rate-table-wrap { margin-top: 32px; }
+  .fine-print { margin-top: 64px; }
+}
