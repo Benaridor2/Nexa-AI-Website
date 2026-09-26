@@ -6,7 +6,6 @@ import { SiteHeader } from '../v6/Header';
 import { SiteFooter, useOnboarding } from '../v6/Shell';
 import { PMS, Sections } from './Sections';
 import { useReadingPass } from './pass';
-import { Rider } from './Rider';
 
 // V8 homepage: the hero and the scroll-driven ChatGPT conversation from V6
 // (the version that was liked), without the player bar; under them, the
@@ -81,10 +80,9 @@ export default function App() {
       </section>
       <Conversation motion={!flow} controls={false}/>
       {/* The sections have their own scope; the hero and the conversation are V6 to the pixel. */}
-      <div className="s8"><Sections open={() => open()} watch={watch}/></div>
+      <div className="s8"><Sections open={() => open()} watch={watch} motion={!flow}/></div>
     </main>
     <SiteFooter home/>
-    {!flow && <Rider/>}
     {onboarding}
   </div>;
 }

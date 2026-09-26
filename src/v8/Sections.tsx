@@ -1,7 +1,8 @@
 import { Arrow } from '../v6/Scenes';
 import { STAY } from '../v6/stay';
 import { LISTINGS } from '../v6/listings';
-import { StayCard } from './Rider';
+import { HowItWorks } from './Scene';
+import { SectionLabel } from './Label';
 
 // Everything under the conversation, in the order and wording of the website
 // plan (Content V3), in the language of the reference site: a numbered label
@@ -11,12 +12,6 @@ import { StayCard } from './Rider';
 
 export const PMS = ['Guesty', 'Hostaway', 'BoomNow', 'Hospitable', 'Rentals United', 'HotelSync'];
 
-const STEPS: [string, string][] = [
-  ['The guest asks.', 'The AI turns to your website, which is backed by the NEXA AI Connector.'],
-  ['NEXA AI answers.', 'Instantly, in AI-to-AI communication.'],
-  ['The AI recommends you.', 'By name, with your final price and your best-price guarantee.'],
-  ['The guest books with you.', 'Straight into your PMS, like any direct booking.'],
-];
 
 const FAQ: [string, string][] = [
   ['Why does the AI recommend my competitor and not me?', 'In most cases, because they are priced and you are not. Check it yourself with the next question.'],
@@ -28,11 +23,6 @@ const FAQ: [string, string][] = [
   ['Do I have to leave my OTAs?', 'No. This sits next to your existing distribution and does not touch it.'],
   ['Who owns the guest data?', 'You do. Guest data belongs to the property, not to NEXA AI.'],
 ];
-
-// [01] THE TWO WORDS / PRICED OR UNPRICED, with the baseline that draws itself as the label arrives.
-export function SectionLabel({ n, left, right }: { n?: string; left: string; right?: string }) {
-  return <p className="s8-label" data-line><span>{n ? `[${n}] ` : ''}{left}</span>{right && <span>/ {right}</span>}</p>;
-}
 
 // A ChatGPT answer as the AI gives it, on a tile: priced through NEXA, or unpriced.
 const ASKED = `${STAY.question} ${STAY.replyChunks.join('')}`;
@@ -50,18 +40,7 @@ function Answer({ priced, question = ASKED, intro }: { priced: boolean; question
   </div><span className="s8-tile-note">Illustrative</span></div>;
 }
 
-// The property's own checkout, where the booking lands. The slot holds the
-// stay card once the travelling card has docked (or always, without motion).
 const COASTAL = LISTINGS.coastal;
-function Site() {
-  return <div className="s8-site" aria-hidden="true">
-    <div className="s8-site-bar"><i/><i/><i/><span>seanrent.com · checkout</span><em>Illustrative</em></div>
-    <div className="s8-site-body">
-      <div className="s8-dock"><StayCard docked/></div>
-      <div><p className="s8-site-total"><span>Final price</span><b>{COASTAL.total}</b></p><span className="s8-site-pay">Pay {COASTAL.total} →</span><small>Booking and payment on the property's website. The reservation reaches your PMS as a direct booking.</small></div>
-    </div>
-  </div>;
-}
 
 // Small glyphs, so the steps read without their words.
 const GLYPH = {
@@ -72,10 +51,9 @@ const GLYPH = {
   plug: <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0V8ZM12 17v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>,
   shield: <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 5 6v5c0 4.5 3 8.4 7 10 4-1.6 7-5.5 7-10V6l-7-3Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/><path d="m9 12 2 2 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>,
 };
-const STEP_GLYPHS = [GLYPH.ask, GLYPH.answer, GLYPH.recommend, GLYPH.book];
 
 // open: the Get Priced dialog. watch: brings the reader back to the conversation.
-export function Sections({ open, watch }: { open: () => void; watch: () => void }) {
+export function Sections({ open, watch, motion }: { open: () => void; watch: () => void; motion: boolean }) {
   return <>
     <section className="s8-connects wrap" aria-label="How it connects">
       <div><span className="s8-glyph">{GLYPH.plug}</span><span className="s8-n">The connection</span><p>Exactly like connecting Airbnb or Booking.com, through the PMS you already run. No developer. No code. Live in hours.</p></div>
@@ -109,25 +87,7 @@ export function Sections({ open, watch }: { open: () => void; watch: () => void 
       </div>
     </section>
 
-    <section className="s8-section s8-dark" id="how-it-works" aria-labelledby="works-title">
-      <div className="wrap">
-        <SectionLabel n="02" left="How it works" right="The fix"/>
-        <div className="s8-head">
-          <h2 id="works-title" data-pass>NEXA AI makes your property <em>PRICED</em>. Here is how.</h2>
-          <div><p className="s8-lead">From “find me a place” to a booking on your site. One conversation.</p><a className="s8-button is-light" href="/how-it-works"><Arrow diagonal/>Watch now</a></div>
-        </div>
-        <div className="s8-works">
-          <ol className="s8-steps" role="list">
-            {STEPS.map(([title, text], i) => <li key={title} role="listitem"><span className="s8-n">[0{i + 1}]</span><span className="s8-glyph">{STEP_GLYPHS[i]}</span><h3>{title}</h3><p>{text}</p></li>)}
-          </ol>
-          <div className="s8-tile s8-works-tile"><Site/></div>
-        </div>
-        <div className="s8-foot">
-          <p className="s8-note">The guest installs nothing. No application needed. No plugin installed in the chat by the guest. The guest just asks, the AI simply answers.</p>
-          <button type="button" className="s8-link" onClick={watch}>Watch a booking happen, step by step <Arrow/></button>
-        </div>
-      </div>
-    </section>
+    <HowItWorks watch={watch} motion={motion}/>
 
     <section className="s8-section wrap" id="connector" aria-labelledby="product-title">
       <SectionLabel n="03" left="The product" right="NEXA AI Connector"/>

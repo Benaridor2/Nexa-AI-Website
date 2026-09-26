@@ -66,39 +66,37 @@ visuals; one dark section with numbered cards; small 36 px buttons with the
 arrow before the label; a full-width closing panel. Colour stays NEXA's: ink,
 white, purple as the single accent.
 
-## The booking travels (the one thing that moves with the reader)
+## How it works: the pinned scene (the one thing that moves with the reader)
 
 Lior's rule: a good site is understood even in Chinese by someone who does
-not read Chinese. So the page carries one picture that tells the product
-without a word. When the conversation ends, the guest has a booking: the
-Coastal Panorama stay, $740, the same one the chat's checkout shows. As the
-conversation scrolls away, that stay card lifts out of the chat window,
-tilts, and rides with the screen over the sections, over text and tiles,
-from the right edge on a desktop and across a phone. When the property's own
-checkout comes up in the dark section it slides over the empty slot and
-docks into it: the booking has landed on your website, "Your stay", and the
-checkout scrolls on with the page. Scrolling back lifts it again.
+not read Chinese. So "How it works" is told as a pinned scene, the way
+Attio, Stripe and Apple tell a product story (references captured in the
+session scratchpad, `refs/`): a stage stays on screen while the four steps
+pass, and the same object runs through it. Step 1: the guest asks, in a
+chat frame. Step 2: NEXA answers: the connection on top lights up
+(Guest's AI, NEXA, Your PMS, with a pulse travelling along it), the reply
+appears with the stay card, "Connected to NEXA AI". Step 3: the AI
+recommends: the reply changes, the card gets a ring and a "Recommended"
+tag. Step 4: the chat frame gives way to the property's own checkout with
+the same stay, "Your stay", Pay $740, and "Reservation received in your
+PMS". Then the stage releases and the page goes on.
 
-It is one fixed element measured against the slot each frame
-(src/v8/Rider.tsx): the card takes the slot's width, so docking swaps the
-fixed card for the one inside the checkout at the same spot with no jump.
-It is not interactive and lets clicks through. Under reduced motion the
-checkout simply shows the stay. The same stay, dates and total run through
-the pricing section too.
-
-The steps and the connection strip carry small glyphs (ask, answer,
-recommend, book; plug, shield), so they read without their words.
+On a desktop the whole panel (heading, the step list with the current step
+lit, the stage) is position: sticky inside a tall section; progress is the
+section's own scroll. On phones the stage sticks at the top and the steps
+pass under it. Under reduced motion nothing pins and the ending shows. An
+earlier version had a card floating over the text; it obscured the page
+and was dropped for this.
 
 ## Tiles, the dark section, the money
 
 As on the reference, every product visual sits on a tile: a soft wash with a
 fine dot grid, the mock on it with a shadow, "Illustrative" in the corner.
 Section 1 shows the AI's priced and unpriced answers; section 3 shows the AI
-answering a branded and a non-branded question; the dark section 2 lays the
-four steps around the property's own checkout, two cards on each side, as the
-reference lays out its dark section; section 4 shows the same stay three ways
-with the commissions masked ("••%"), since the numbers belong to the Pricing
-page. The footer is dark under the closing panel, as the reference ends.
+answering a branded and a non-branded question; section 4 shows the same stay
+three ways with the commissions masked ("••%"), since the numbers belong to
+the Pricing page. The footer is dark under the closing panel, as the
+reference ends.
 
 ## The reading pass (the scroll effect over the text)
 
@@ -133,16 +131,23 @@ from the start.
 
 ## The Pricing page (src/v8/Pricing.tsx)
 
-Built section by section from the pricing content spec, in the homepage's
-language: what operators pay today (the five channels, AI agents "not
-connected"), why the AI sends guests to the OTAs (today, and with NEXA), the
-comparison in cents, how the price works (8.0% when the AI found the guest,
-4.0% when the guest asked; a tenth of a point off for each of 15 unit steps
-and 15 commitment steps; the 300-room, 24-month example at 6.3% and 2.3%),
-the two sliders, sign up (a preview form: nothing is created yet), every rate
-in one 16 by 16 table with the selection marked, the questions hotels ask,
-the fine print and sources. Percent everywhere except the cents comparison;
-regular hyphens, straight quotes, no exclamation marks. The homepage links
-to it and shows no numbers. `pricing8` checks the defaults, both edges, a
+Built section by section from the pricing content spec, and designed from
+the pricing pages of Stripe, Resend, Vercel, Linear, Attio, Mercury and
+Lemon Squeezy (captured in `refs/`): one card style (white, bordered,
+12 px), numbers set large and apart from their notes, diagrams that read
+without words, a tight rhythm, no reading pass (a pricing page is scanned).
+In order: what operators pay today (the five channels as a cost table with
+the percentage set large, AI agents "not connected"); why the AI sends
+guests to the OTAs (two flow diagrams, Guest to AI to OTA and Guest to AI
+to NEXA to Your website, then the three steps each); the comparison in
+cents (two dollar bars, then the two cards); how the price works (8.0% and
+4.0% as large numerals, size and time, the example as a bill: start 8.0,
+minus 0.5, minus 1.2, your rate 6.3, 2.3 when the guest asked); Find your
+rate (two sliders with 16 ticks and end labels, the two rates as cards,
+the steps line, the per-$1,000 line); sign up (the rate carried over; a
+preview form, nothing is created yet); every rate in one 16 by 16 table
+with the selection marked; the questions hotels ask; the fine print and
+sources. Percent everywhere except the cents; regular hyphens, straight
+quotes, no exclamation marks. `pricing8` checks the defaults, both edges, a
 mid case, the table corners, the copy rules, the preview form, overflow and
 console errors at 1440 and 390.

@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Arrow } from '../v6/Scenes';
 import { PageShell } from '../v6/Shell';
-import { SectionLabel, PMS } from './Sections';
-import { useReadingPass } from './pass';
+import { PMS } from './Sections';
+import { SectionLabel } from './Label';
 
 // The Pricing page, section by section from the content spec: what operators
 // pay today, why the AI sends guests to the OTAs, the comparison in cents, how
@@ -21,12 +21,12 @@ export const askedRate = (steps: number) => foundRate(steps) - 4;
 const pct = (rate: number) => `${rate.toFixed(1)}%`;
 const perThousand = (rate: number) => `$${Math.round(1000 * rate / 100)}`;
 
-const CHANNELS: [string, string, boolean][] = [
-  ['Booking.com', '15-25% commission, and more to be seen. Also on cleaning fees, and on cancellations you charged for.', true],
-  ['Expedia', '15-30% commission, and more to be seen. Accelerator: pay more for placement.', true],
-  ['Airbnb', '15.5% host-only fee, for software-connected hosts, 2026.', true],
-  ['Google Hotel Ads', 'Per click, booked or not. Pay per stay retired in 2025.', true],
-  ['AI agents (ChatGPT, Gemini, Claude, Perplexity)', '15-25% paid to an OTA. The AI trusts the OTAs, so it sends your guest to them.', false],
+const CHANNELS: [string, string, string, boolean][] = [
+  ['Booking.com', '15-25%', 'commission, and more to be seen. Also on cleaning fees, and on cancellations you charged for.', true],
+  ['Expedia', '15-30%', 'commission, and more to be seen. Accelerator: pay more for placement.', true],
+  ['Airbnb', '15.5%', 'host-only fee, for software-connected hosts, 2026.', true],
+  ['Google Hotel Ads', 'Per click', 'booked or not. Pay per stay retired in 2025.', true],
+  ['AI agents (ChatGPT, Gemini, Claude, Perplexity)', '15-25%', 'paid to an OTA. The AI trusts the OTAs, so it sends your guest to them.', false],
 ];
 
 const TODAY: [string, string][] = [
@@ -49,11 +49,15 @@ const QUESTIONS: [string, string][] = [
   ['Can I leave before my commitment ends?', 'Yes. The month-to-month rate applies to the months you used.'],
 ];
 
-function Slider({ id, label, helper, value, tiers, onChange, shown }: { id: string; label: string; helper: string; value: number; tiers: string[]; onChange: (v: number) => void; shown: string }) {
-  return <div className="rate-slider">
+function Slider({ id, label, helper, value, tiers, onChange, shown, ends }: { id: string; label: string; helper: string; value: number; tiers: string[]; onChange: (v: number) => void; shown: string; ends: [string, string] }) {
+  const max = tiers.length - 1;
+  return <div className="rate-slider" style={{ '--v': value / max } as React.CSSProperties}>
     <div className="rate-slider-head"><label htmlFor={id}>{label}</label><b>{shown}</b></div>
-    <input id={id} type="range" min={0} max={tiers.length - 1} step={1} value={value} onChange={e => onChange(Number(e.target.value))} aria-valuetext={`${shown}, step ${value} of ${tiers.length - 1}`}/>
-    <div className="rate-slider-foot"><span>Step {value} of {tiers.length - 1}</span><span>{helper}</span></div>
+    <div className="rate-slider-track">
+      <input id={id} type="range" min={0} max={max} step={1} value={value} onChange={e => onChange(Number(e.target.value))} aria-valuetext={`${shown}, step ${value} of ${max}`}/>
+      <div className="rate-ticks" aria-hidden="true">{tiers.map((t, i) => <i key={t} className={i <= value ? 'is-on' : ''}/>)}</div>
+    </div>
+    <div className="rate-slider-foot"><span>{ends[0]}</span><span>Step {value} of {max} · {helper}</span><span>{ends[1]}</span></div>
   </div>;
 }
 
@@ -62,7 +66,6 @@ export default function PricingPage() {
   const [months, setMonths] = useState(12);
   const [created, setCreated] = useState(false);
   const root = useRef<HTMLDivElement>(null);
-  useReadingPass(root, !matchMedia('(prefers-reduced-motion: reduce)').matches);
   const steps = units + months;
   const found = foundRate(steps), asked = askedRate(steps);
   const unitsLabel = `${UNIT_TIERS[units]} units`, monthsLabel = MONTH_TIERS[months];
@@ -75,19 +78,23 @@ export default function PricingPage() {
 
       <section className="s8-section wrap pricing-hero" aria-labelledby="pricing-title">
         <p className="s8-n">Pricing</p>
-        <h1 id="pricing-title" data-pass>You pay <em>15 to 30%</em> to be found.</h1>
+        <h1 id="pricing-title">You pay <em>15 to 30%</em> to be found.</h1>
         <p className="s8-lead">Guests look for a place to stay on Booking.com, Expedia, Airbnb and Google. So you connected to all of them, and each one takes its cut.</p>
         <div className="channels" role="table" aria-label="What each channel costs">
           <div className="channels-row is-head" role="row"><span role="columnheader">Where guests look</span><span role="columnheader">What it costs you</span><span role="columnheader">Your listings</span></div>
-          {CHANNELS.map(([name, cost, connected]) => <div className={`channels-row${connected ? '' : ' is-off'}`} role="row" key={name}><b role="cell">{name}</b><span role="cell">{cost}</span><i role="cell"><em>{connected ? 'Connected' : 'Not connected'}</em></i></div>)}
+          {CHANNELS.map(([name, big, note, connected]) => <div className={`channels-row${connected ? '' : ' is-off'}`} role="row" key={name}><b role="cell">{name}</b><span role="cell" className="channels-cost"><strong>{big}</strong><small>{note}</small></span><i role="cell"><em>{connected ? 'Connected' : 'Not connected'}</em></i></div>)}
         </div>
       </section>
 
       <section className="s8-section wrap" id="why" aria-labelledby="why-title">
         <SectionLabel n="01" left="Today" right="Why the AI sends guests to the OTAs"/>
         <div className="s8-head">
-          <h2 id="why-title" data-pass>Guests now ask AI. <em>The AI sends them to the OTAs.</em></h2>
+          <h2 id="why-title">Guests now ask AI. <em>The AI sends them to the OTAs.</em></h2>
           <div><p className="s8-lead">Not because the OTAs are better. Because the AI trusts them, and it can't see your live rates.</p></div>
+        </div>
+        <div className="flows" aria-hidden="true">
+          <div className="flow"><span className="flow-label">Today</span><span className="fnode">Guest</span><i/><span className="fnode">AI agent</span><i/><span className="fnode is-ota">OTA</span><i className="is-dim"/><span className="fnode is-dim">Your website</span><em>15-25% commission</em></div>
+          <div className="flow is-nexa"><span className="flow-label">With NEXA</span><span className="fnode">Guest</span><i/><span className="fnode">AI agent</span><i/><span className="fnode is-nexa">NEXA</span><i/><span className="fnode is-you">Your website</span><em>No OTA in between</em></div>
         </div>
         <div className="journeys">
           <div className="journey"><p className="s8-n">Today</p><ol>{TODAY.map(([t, d], i) => <li key={t}><span className="journey-n">{i + 1}</span><div><b>{t}</b><p>{d}</p></div></li>)}</ol></div>
@@ -98,37 +105,45 @@ export default function PricingPage() {
       <section className="s8-section wrap" id="cents" aria-labelledby="cents-title">
         <SectionLabel n="02" left="The comparison" right="In cents"/>
         <div className="s8-head">
-          <h2 id="cents-title" data-pass>NEXA takes 1 to 8 cents per booking dollar. <em>An OTA takes 15 to 25.</em></h2>
+          <h2 id="cents-title">NEXA takes 1 to 8 cents per booking dollar. <em>An OTA takes 15 to 25.</em></h2>
+        </div>
+        <div className="dollar" aria-label="Of every booking dollar">
+          <div className="dollar-row"><span className="dollar-name">Through an OTA</span><div className="dollar-bar"><b className="is-ota" style={{ width: '25%' }}>15-25¢ to the OTA</b><span>You keep 75-85¢</span></div></div>
+          <div className="dollar-row"><span className="dollar-name">Through NEXA</span><div className="dollar-bar"><b className="is-nexa" style={{ width: '8%' }}>1-8¢</b><span>You keep 92-99¢</span></div></div>
         </div>
         <div className="s8-cards s8-two cents">
           <article className="s8-card is-ota"><span className="s8-n">Through an OTA</span><p className="cents-big">15-25¢ <small>of every booking dollar</small></p><p className="cents-keep">You keep 75-85¢.</p><ul><li>On the whole bill: cleaning fees, extras, and cancellations you charged for.</li><li>The guest, the email and the next booking are theirs.</li><li>1 in 2 Booking.com reservations cancel (D-Edge).</li></ul></article>
           <article className="s8-card is-nexa"><span className="s8-n">Through NEXA</span><p className="cents-big">1-8¢ <small>of every booking dollar</small></p><p className="cents-keep">You keep 92-99¢.</p><ul><li>Only on the room, only after checkout.</li><li>The guest, the email and the next booking are yours.</li><li>Direct guests come back 4 times as often (Bookboost).</li></ul></article>
         </div>
-        <p className="s8-statement" data-pass>On a $1,000 stay: <em>$10 to $80 with NEXA.</em> $150 to $250 through an OTA.</p>
+        <p className="s8-statement">On a $1,000 stay: <em>$10 to $80 with NEXA.</em> $150 to $250 through an OTA.</p>
       </section>
 
       <section className="s8-section wrap" id="how-our-price-works" aria-labelledby="how-title">
         <SectionLabel n="03" left="How our price works" right="The model"/>
         <div className="s8-head">
-          <h2 id="how-title" data-pass>How our <em>price</em> works.</h2>
+          <h2 id="how-title">How our <em>price</em> works.</h2>
           <div><p className="s8-lead">You pay a percentage of room revenue, only after the guest has stayed. Where you start depends on how the guest found you. Two numbers you choose bring it down.</p></div>
         </div>
         <p className="s8-n how-n">Where you start</p>
         <div className="s8-cards s8-two starts">
-          <article className="s8-card"><span className="s8-n">The AI found you a guest</span><p className="start-rate">8.0% <small>of room revenue</small></p><p>A guest who didn't ask for you. The AI recommended you, and they booked.</p></article>
-          <article className="s8-card"><span className="s8-n">The guest asked for you</span><p className="start-rate">4.0% <small>of room revenue</small></p><p>They named your property or your brand, or came in through your own website. Your name did part of the work, so you pay 4 points less.</p></article>
+          <article className="s8-card"><p className="start-rate">8.0% <small>of room revenue</small></p><h3>The AI found you a guest.</h3><p>A guest who didn't ask for you. The AI recommended you, and they booked.</p></article>
+          <article className="s8-card is-asked"><p className="start-rate">4.0% <small>of room revenue</small></p><h3>The guest asked for you.</h3><p>They named your property or your brand, or came in through your own website. Your name did part of the work, so you pay 4 points less.</p></article>
         </div>
         <p className="s8-n how-n">What brings it down</p>
         <div className="s8-cards s8-two starts">
           <article className="s8-card"><span className="s8-n">Your size</span><h3>Every room and every apartment is one unit.</h3><p>The more units you connect across your portfolio, the lower your rate. 15 steps, from 50 units to 250,000.</p></article>
           <article className="s8-card"><span className="s8-n">Your time</span><h3>Trust takes time.</h3><p>Commit, and we count it from day one. Every 2 months you commit is a step. 15 steps, up to 30 months.</p></article>
         </div>
-        <div className="s8-tile worked">
-          <div className="worked-card">
-            <p className="s8-n">Every step takes a tenth of a point off your rate. The example: a 300-room hotel on a 24-month commitment.</p>
-            <p className="worked-sum"><span><b>8.0%</b><small>start</small></span><i>-</i><span><b>0.5%</b><small>300 rooms: 5 steps</small></span><i>-</i><span><b>1.2%</b><small>24 months: 12 steps</small></span><i>=</i><span className="is-result"><b>6.3%</b><small>the AI found you a guest</small></span></p>
-            <p className="worked-line">And <b>2.3%</b> when the guest asked for you. All 30 steps: <b>5.0%</b> and <b>1.0%</b>.</p>
-          </div>
+        <div className="bill">
+          <p className="bill-kicker">Every step takes a tenth of a point off your rate. The example: a 300-room hotel on a 24-month commitment.</p>
+          <ul>
+            <li><span>Start<small>the AI found you a guest</small></span><b>8.0%</b></li>
+            <li><span>300 rooms<small>5 unit steps</small></span><b>-0.5</b></li>
+            <li><span>24 months<small>12 month steps</small></span><b>-1.2</b></li>
+            <li className="is-total"><span>Your rate<small>the AI found you a guest</small></span><b>6.3%</b></li>
+            <li className="is-asked"><span>When the guest asked for you<small>always 4 points lower</small></span><b>2.3%</b></li>
+          </ul>
+          <p className="bill-foot">All 30 steps: 5.0% and 1.0%.</p>
         </div>
         <ul className="promises">
           <li><b>Only after checkout</b><span>Nothing is billed until the guest has stayed. Invoiced the month after.</span></li>
@@ -141,22 +156,22 @@ export default function PricingPage() {
       <section className="s8-section wrap" id="find-your-rate" aria-labelledby="rate-title">
         <SectionLabel n="04" left="Find your rate" right="Two numbers"/>
         <div className="s8-head">
-          <h2 id="rate-title" data-pass>Find <em>your</em> rate.</h2>
+          <h2 id="rate-title">Find <em>your</em> rate.</h2>
           <div><p className="s8-lead">Move both. Every step takes a tenth of a point off both rates.</p></div>
         </div>
-        <div className="s8-tile finder">
-          <div className="finder-card">
-            <div className="finder-inputs">
-              <Slider id="units" label="Units you connect" helper="Rooms and apartments, across your portfolio." value={units} tiers={UNIT_TIERS} onChange={setUnits} shown={unitsLabel}/>
-              <Slider id="months" label="Months you commit" helper="Counted from your first day." value={months} tiers={MONTH_TIERS} onChange={setMonths} shown={monthsLabel}/>
+        <div className="finder">
+          <div className="finder-inputs">
+            <Slider id="units" label="Units you connect" helper="Rooms and apartments, across your portfolio." value={units} tiers={UNIT_TIERS} onChange={setUnits} shown={unitsLabel} ends={['Under 50', '250,000+']}/>
+            <Slider id="months" label="Months you commit" helper="Counted from your first day." value={months} tiers={MONTH_TIERS} onChange={setMonths} shown={monthsLabel} ends={['Month to month', '30 months']}/>
+          </div>
+          <div className="finder-result" aria-live="polite">
+            <div className="finder-rates">
+              <div className="rate-card"><span>The AI found you a guest</span><b data-rate="found">{pct(found)}</b><small>of room revenue</small></div>
+              <div className="rate-card is-asked"><span>The guest asked for you</span><b data-rate="asked">{pct(asked)}</b><small>of room revenue</small></div>
             </div>
-            <div className="finder-result" aria-live="polite">
-              <p className="s8-n">Your rate, of room revenue</p>
-              <div className="finder-rates"><div><b data-rate="found">{pct(found)}</b><span>when the AI found you a guest</span></div><div><b data-rate="asked">{pct(asked)}</b><span>when the guest asked for you</span></div></div>
-              <p className="finder-steps" data-steps>{stepsLine}</p>
-              <p className="finder-thousand">On every $1,000 of room revenue: <b data-thousand>{perThousand(found)} or {perThousand(asked)}</b>. Through an OTA: $150 to $250.</p>
-              <div className="s8-actions"><a className="s8-button" href="#sign-up" onClick={goTo('sign-up')}><Arrow diagonal/>Sign up at this rate</a><a className="s8-link" href="#every-rate" onClick={goTo('every-rate')}>See every combination <Arrow/></a></div>
-            </div>
+            <p className="finder-steps" data-steps>{stepsLine}</p>
+            <p className="finder-thousand">On every $1,000 of room revenue: <b data-thousand>{perThousand(found)} or {perThousand(asked)}</b>. Through an OTA: $150 to $250.</p>
+            <div className="s8-actions"><a className="s8-button" href="#sign-up" onClick={goTo('sign-up')}><Arrow diagonal/>Sign up at this rate</a><a className="s8-link" href="#every-rate" onClick={goTo('every-rate')}>See every combination <Arrow/></a></div>
           </div>
         </div>
       </section>
@@ -164,14 +179,14 @@ export default function PricingPage() {
       <section className="s8-section wrap" id="sign-up" aria-labelledby="signup-title">
         <SectionLabel n="05" left="Sign up" right="Your rate"/>
         <div className="s8-head">
-          <h2 id="signup-title" data-pass>Let the AI <em>book you directly.</em></h2>
+          <h2 id="signup-title">Let the AI <em>book you directly.</em></h2>
           <div><p className="s8-lead">Your rate is set. Create your account, and connect your listings.</p></div>
         </div>
         <div className="signup">
           <div className="signup-side">
             <div className="signup-rate">
               <p className="s8-n">Your rate</p>
-              <div className="finder-rates"><div><b data-signup="found">{pct(found)}</b><span>the AI found you a guest</span></div><div><b data-signup="asked">{pct(asked)}</b><span>the guest asked for you</span></div></div>
+              <div className="finder-rates is-small"><div className="rate-card"><span>The AI found you a guest</span><b data-signup="found">{pct(found)}</b></div><div className="rate-card is-asked"><span>The guest asked for you</span><b data-signup="asked">{pct(asked)}</b></div></div>
               <p className="signup-selection">{unitsLabel} · {monthsLabel} <a href="#find-your-rate" onClick={goTo('find-your-rate')}>Change</a></p>
             </div>
             <ol className="signup-steps">
@@ -198,7 +213,7 @@ export default function PricingPage() {
       <section className="s8-section wrap" id="every-rate" aria-labelledby="table-title">
         <SectionLabel n="06" left="Every rate" right="One table"/>
         <div className="s8-head">
-          <h2 id="table-title" data-pass>Every rate, <em>in one table.</em></h2>
+          <h2 id="table-title">Every rate, <em>in one table.</em></h2>
           <div><p className="s8-lead">One row down or one column right: a tenth of a point less. In percent of room revenue.</p></div>
         </div>
         <div className="rate-table-wrap">
@@ -214,7 +229,7 @@ export default function PricingPage() {
       <section className="s8-section wrap" id="questions" aria-labelledby="questions-title">
         <SectionLabel n="07" left="Questions" right="Hotels ask"/>
         <div className="s8-faq-grid">
-          <div><h2 id="questions-title" data-pass>Questions <em>hotels ask.</em></h2><div className="s8-actions questions-actions"><a className="s8-button" href="#sign-up" onClick={goTo('sign-up')}><Arrow diagonal/>Sign up at your rate</a><a className="s8-link" href="/contact">Talk to us about a portfolio <Arrow/></a></div></div>
+          <div><h2 id="questions-title">Questions <em>hotels ask.</em></h2><div className="s8-actions questions-actions"><a className="s8-button" href="#sign-up" onClick={goTo('sign-up')}><Arrow diagonal/>Sign up at your rate</a><a className="s8-link" href="/contact">Talk to us about a portfolio <Arrow/></a></div></div>
           <div className="s8-faq">
             {QUESTIONS.map(([q, a], i) => <details key={q} open={i === 0}><summary><span className="s8-n">{String(i + 1).padStart(2, '0')}</span>{q}<i aria-hidden="true"/></summary><p>{a}</p></details>)}
           </div>
