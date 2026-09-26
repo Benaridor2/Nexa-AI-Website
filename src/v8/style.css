@@ -322,13 +322,19 @@
   .hiw-track { display: none; }
   .hiw-grid { display: block; }
   .hiw-story { display: flex; flex-direction: column; gap: 18px; }
-  .hiw-stage { position: sticky; top: 64px; z-index: 2; height: min(42vh, 380px); min-height: 320px; padding: 12px; }
+  .hiw-stage { position: sticky; top: 64px; z-index: 2; height: min(50vh, 420px); min-height: 380px; padding: 12px; }
+  .s8-scene:not([data-step="1"]) .hiw-stage-q { max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 7px 12px; }
+  .hiw-stage-answer .stay { grid-template-columns: 56px minmax(0, 1fr) 22px; gap: 8px; padding: 8px; }
+  .hiw-stage-answer .stay img { width: 56px; height: 56px; }
+  .hiw-stage-answer .stay-body > b { font-size: 12.5px; }
+  .hiw-stage-answer .stay-price { font-size: 15px; }
+  .hiw-stage-reply { gap: 8px; }
   .hiw-steps { margin-top: 4px; }
   .hiw-links { margin-top: 24px; }
   .hiw-stage-chat, .hiw-stage-site { left: 14px; right: 14px; top: 62px; bottom: 14px; }
-  .hiw-stage-body { gap: 10px; padding: 14px; }
-  .hiw-stage-q { font-size: 14px; }
-  .hiw-stage-text { font-size: 14px; }
+  .hiw-stage-body { gap: 10px; padding: 12px 14px; }
+  .hiw-stage-q { font-size: 13.5px; }
+  .hiw-stage-text { font-size: 13.5px; line-height: 1.45; }
   .hiw-head h2 { margin-top: 24px; font-size: 32px; }
   .hiw-steps { gap: 4px; margin-top: 22px; }
   .hiw-steps li { padding: 10px 12px; margin-left: -12px; }
