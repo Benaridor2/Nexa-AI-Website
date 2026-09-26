@@ -1,5 +1,7 @@
 import { Arrow } from '../v6/Scenes';
 import { STAY } from '../v6/stay';
+import { LISTINGS } from '../v6/listings';
+import { StayCard } from './Rider';
 
 // Everything under the conversation, in the order and wording of the website
 // plan (Content V3), in the language of the reference site: a numbered label
@@ -48,23 +50,36 @@ function Answer({ priced, question = ASKED, intro }: { priced: boolean; question
   </div><span className="s8-tile-note">Illustrative</span></div>;
 }
 
-// The property's own checkout, where the booking lands.
+// The property's own checkout, where the booking lands. The slot holds the
+// stay card once the travelling card has docked (or always, without motion).
+const COASTAL = LISTINGS.coastal;
 function Site() {
   return <div className="s8-site" aria-hidden="true">
     <div className="s8-site-bar"><i/><i/><i/><span>seanrent.com · checkout</span><em>Illustrative</em></div>
     <div className="s8-site-body">
-      <img src="/seanrent/tel-aviv/med/2.jpg" alt="" loading="lazy" width="1080" height="720"/>
-      <div><span className="s8-n">Your stay</span><b>Mediterranean Sea Views</b><span className="s8-site-dates">{STAY.dates} · 4 nights · 2 adults</span><p className="s8-site-total"><span>Final price</span><b>$328</b></p><span className="s8-site-pay">Pay $328 →</span><small>Booking and payment on the property's website. The reservation reaches your PMS as a direct booking.</small></div>
+      <div className="s8-dock"><StayCard docked/></div>
+      <div><p className="s8-site-total"><span>Final price</span><b>{COASTAL.total}</b></p><span className="s8-site-pay">Pay {COASTAL.total} →</span><small>Booking and payment on the property's website. The reservation reaches your PMS as a direct booking.</small></div>
     </div>
   </div>;
 }
+
+// Small glyphs, so the steps read without their words.
+const GLYPH = {
+  ask: <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v7a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4A2.5 2.5 0 0 1 4 13.5v-7Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/><path d="M8 9h8M8 12h5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>,
+  answer: <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/></svg>,
+  recommend: <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m12 3 2.7 5.6 6.1.8-4.5 4.3 1.1 6.1L12 16.9l-5.4 2.9 1.1-6.1L3.2 9.4l6.1-.8L12 3Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/></svg>,
+  book: <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/><path d="m9 11 2 2 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>,
+  plug: <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0V8ZM12 17v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>,
+  shield: <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 5 6v5c0 4.5 3 8.4 7 10 4-1.6 7-5.5 7-10V6l-7-3Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/><path d="m9 12 2 2 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>,
+};
+const STEP_GLYPHS = [GLYPH.ask, GLYPH.answer, GLYPH.recommend, GLYPH.book];
 
 // open: the Get Priced dialog. watch: brings the reader back to the conversation.
 export function Sections({ open, watch }: { open: () => void; watch: () => void }) {
   return <>
     <section className="s8-connects wrap" aria-label="How it connects">
-      <div><span className="s8-n">The connection</span><p>Exactly like connecting Airbnb or Booking.com, through the PMS you already run. No developer. No code. Live in hours.</p></div>
-      <div><span className="s8-n">The legal side</span><p>A direct booking, on paper as well. The guest books on your website, under your terms and your payment. Your website, not the OTA's. NEXA AI is never a party to the reservation. Guest data belongs to you.</p><a className="s8-link" href="/nexa-ai-connector">How it works legally <Arrow/></a></div>
+      <div><span className="s8-glyph">{GLYPH.plug}</span><span className="s8-n">The connection</span><p>Exactly like connecting Airbnb or Booking.com, through the PMS you already run. No developer. No code. Live in hours.</p></div>
+      <div><span className="s8-glyph">{GLYPH.shield}</span><span className="s8-n">The legal side</span><p>A direct booking, on paper as well. The guest books on your website, under your terms and your payment. Your website, not the OTA's. NEXA AI is never a party to the reservation. Guest data belongs to you.</p><a className="s8-link" href="/nexa-ai-connector">How it works legally <Arrow/></a></div>
     </section>
 
     <section className="s8-proof wrap" aria-label="Proof">
@@ -103,7 +118,7 @@ export function Sections({ open, watch }: { open: () => void; watch: () => void 
         </div>
         <div className="s8-works">
           <ol className="s8-steps" role="list">
-            {STEPS.map(([title, text], i) => <li key={title} role="listitem"><span className="s8-n">[0{i + 1}]</span><h3>{title}</h3><p>{text}</p></li>)}
+            {STEPS.map(([title, text], i) => <li key={title} role="listitem"><span className="s8-n">[0{i + 1}]</span><span className="s8-glyph">{STEP_GLYPHS[i]}</span><h3>{title}</h3><p>{text}</p></li>)}
           </ol>
           <div className="s8-tile s8-works-tile"><Site/></div>
         </div>
@@ -135,7 +150,7 @@ export function Sections({ open, watch }: { open: () => void; watch: () => void 
       </div>
       <div className="s8-tile s8-money">
         <div className="s8-receipt" aria-label="The same stay, three ways to book it">
-          <div className="s8-receipt-stay"><span className="s8-n">The same stay</span><b>Mediterranean Sea Views · 4 nights · 2 adults</b><span className="s8-receipt-total"><span>Final total</span><b>$328</b></span></div>
+          <div className="s8-receipt-stay"><span className="s8-n">The same stay</span><b>{COASTAL.title} · {STAY.nights} · {STAY.guests}</b><span className="s8-receipt-total"><span>Final total</span><b>{COASTAL.total}</b></span></div>
           <ul>
             <li><span>Booked through an OTA</span><em>commission <b>••%</b></em></li>
             <li><span>NEXA Direct, the guest asked for you by name</span><em>commission <b>••%</b></em></li>

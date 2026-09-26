@@ -66,17 +66,28 @@ visuals; one dark section with numbered cards; small 36 px buttons with the
 arrow before the label; a full-width closing panel. Colour stays NEXA's: ink,
 white, purple as the single accent.
 
-## The ask (the one thing that travels with the reader)
+## The booking travels (the one thing that moves with the reader)
 
-The reference keeps a floating composer at the bottom of the screen ("Talk to
-Sales"). NEXA's version is a guest's question: "A guest is asking, right now",
-with the question typed and retyped at a human pace (the story's question and
-three follow-ups), a live purple dot and a send button. It is fixed at the
-bottom centre and travels with the screen over every section, passing over
-text, tiles and the closing panel. It hides while the conversation is on
-screen (that has its own composer), while a dialog is open, and at the footer.
-Pressing it brings the reader back to the opening of the conversation
-(src/v8/Ask.tsx).
+Lior's rule: a good site is understood even in Chinese by someone who does
+not read Chinese. So the page carries one picture that tells the product
+without a word. When the conversation ends, the guest has a booking: the
+Coastal Panorama stay, $740, the same one the chat's checkout shows. As the
+conversation scrolls away, that stay card lifts out of the chat window,
+tilts, and rides with the screen over the sections, over text and tiles,
+from the right edge on a desktop and across a phone. When the property's own
+checkout comes up in the dark section it slides over the empty slot and
+docks into it: the booking has landed on your website, "Your stay", and the
+checkout scrolls on with the page. Scrolling back lifts it again.
+
+It is one fixed element measured against the slot each frame
+(src/v8/Rider.tsx): the card takes the slot's width, so docking swaps the
+fixed card for the one inside the checkout at the same spot with no jump.
+It is not interactive and lets clicks through. Under reduced motion the
+checkout simply shows the stay. The same stay, dates and total run through
+the pricing section too.
+
+The steps and the connection strip carry small glyphs (ask, answer,
+recommend, book; plug, shield), so they read without their words.
 
 ## Tiles, the dark section, the money
 
@@ -111,11 +122,11 @@ from the start.
   pinned; a slow wheel and a steady wheel read on; a flick skips and does not
   carry past; the pill skips; Watch a booking happen glides to the opening and
   waits; every section present; the reading pass unread below the fold and
-  read in the zone, key phrase purple, label line drawn; the ask hidden over
-  the conversation and with a dialog, fixed and centred over the sections,
-  leading back to the conversation; FAQ; Get Priced dialog; reduced motion;
-  the old routes load without the V8 page. 99 checks at 1440×900, 1280×712,
-  390×844 and 358×694.
+  read in the zone, key phrase purple, label line drawn; the stay card hidden
+  before the conversation ends, riding fixed over the sections, docking into
+  the checkout, lifting again on the way back; FAQ; Get Priced dialog;
+  reduced motion; the old routes load without the V8 page. At 1440×900,
+  1280×712, 390×844 and 358×694.
 - Chat interactivity (`chat3`, `interact`), header, links, pages and the
   calculator unchanged. On phones the checkout card scrolls inside itself when
   its description is expanded, exactly as on V6 live.
