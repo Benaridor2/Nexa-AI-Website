@@ -66,6 +66,29 @@ visuals; one dark section with numbered cards; small 36 px buttons with the
 arrow before the label; a full-width closing panel. Colour stays NEXA's: ink,
 white, purple as the single accent.
 
+## The ask (the one thing that travels with the reader)
+
+The reference keeps a floating composer at the bottom of the screen ("Talk to
+Sales"). NEXA's version is a guest's question: "A guest is asking, right now",
+with the question typed and retyped at a human pace (the story's question and
+three follow-ups), a live purple dot and a send button. It is fixed at the
+bottom centre and travels with the screen over every section, passing over
+text, tiles and the closing panel. It hides while the conversation is on
+screen (that has its own composer), while a dialog is open, and at the footer.
+Pressing it brings the reader back to the opening of the conversation
+(src/v8/Ask.tsx).
+
+## Tiles, the dark section, the money
+
+As on the reference, every product visual sits on a tile: a soft wash with a
+fine dot grid, the mock on it with a shadow, "Illustrative" in the corner.
+Section 1 shows the AI's priced and unpriced answers; section 3 shows the AI
+answering a branded and a non-branded question; the dark section 2 lays the
+four steps around the property's own checkout, two cards on each side, as the
+reference lays out its dark section; section 4 shows the same stay three ways
+with the commissions masked ("••%"), since the numbers belong to the Pricing
+page. The footer is dark under the closing panel, as the reference ends.
+
 ## The reading pass (the scroll effect over the text)
 
 Every section heading, the closing line of section 1 and the closing panel's
@@ -88,9 +111,11 @@ from the start.
   pinned; a slow wheel and a steady wheel read on; a flick skips and does not
   carry past; the pill skips; Watch a booking happen glides to the opening and
   waits; every section present; the reading pass unread below the fold and
-  read in the zone, key phrase purple, label line drawn; FAQ; Get Priced
-  dialog; reduced motion; the old routes load without the V8 page. At
-  1440×900, 1280×712, 390×844 and 358×694.
+  read in the zone, key phrase purple, label line drawn; the ask hidden over
+  the conversation and with a dialog, fixed and centred over the sections,
+  leading back to the conversation; FAQ; Get Priced dialog; reduced motion;
+  the old routes load without the V8 page. 99 checks at 1440×900, 1280×712,
+  390×844 and 358×694.
 - Chat interactivity (`chat3`, `interact`), header, links, pages and the
   calculator unchanged. On phones the checkout card scrolls inside itself when
   its description is expanded, exactly as on V6 live.
