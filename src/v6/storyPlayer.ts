@@ -59,12 +59,16 @@ export function useStoryPlayer(ref: RefObject<HTMLElement | null>, enabled: bool
     let active = true, entry = 0, u = 0, playing = false, shownChapter = -2, shownStatus: PlayerStatus = 'idle';
     const set = (next: PlayerStatus) => { if (next !== shownStatus) { shownStatus = next; setStatus(next); } };
 
+    // Without the player bar, the scene offers a skip pill while pinned, and a
+    // flick of the wheel skips the conversation.
+    const quiet = root.dataset.player === 'none';
     const render = () => {
       if (!active) return;
       const seconds = u * STORY_SECONDS;
       const story = u > 0 ? storyAt(seconds) : OPEN * entry;
       draw(story);
       root.dataset.story = story.toFixed(5);
+      root.classList.toggle('is-pinned', entry >= 1 && u < .965);
       chapters.forEach((el, i) => el.style.setProperty('--fill', String(clamp((seconds - CHAPTERS[i].start) / (CHAPTERS[i].end - CHAPTERS[i].start)))));
       let current = -1;
       if (u > 0 || entry >= 1) CHAPTERS.forEach((chapter, i) => { if (seconds >= chapter.start - .01) current = i; });
@@ -109,7 +113,36 @@ export function useStoryPlayer(ref: RefObject<HTMLElement | null>, enabled: bool
       if (u <= 0 && window.scrollY < yAt(0) - 2) go(yAt(0), { duration: 1.1, onComplete: run }); else run();
     };
     const seek = (seconds: number) => { stop(); go(yAt(clamp(seconds / STORY_SECONDS)), { duration: .9 }); };
-    const skip = () => { stop(); go(root.getBoundingClientRect().bottom + window.scrollY, { duration: 1.1 }); };
+    const past = () => root.getBoundingClientRect().bottom + window.scrollY;
+    const skip = () => { stop(); go(past(), { duration: 1.1 }); };
+    // A flick of the wheel: the conversation runs to its end and the page moves
+    // on. The flick's own momentum is swallowed so it does not carry past the
+    // next section; a scroll back up cancels the glide at once.
+    let burst = 0, burstAt = 0, burstFrom = 0, skipping = false, swallowUntil = 0;
+    const endSkip = () => { skipping = false; root.classList.remove('is-skipping'); };
+    const flickSkip = () => {
+      stop(); skipping = true; root.classList.add('is-skipping');
+      go(past(), { duration: 1.35, onComplete: () => { endSkip(); swallowUntil = performance.now() + 400; } });
+      window.setTimeout(() => { if (skipping) endSkip(); }, 2000);
+    };
+    const onWheel = (event: WheelEvent) => {
+      const now = performance.now();
+      if (skipping || now < swallowUntil) {
+        if (event.deltaY > 0) { event.preventDefault(); event.stopImmediatePropagation(); return; }
+        endSkip(); swallowUntil = 0; smoothScroll.lenis?.scrollTo(smoothScroll.lenis.animatedScroll, { immediate: true, force: true });
+        return;
+      }
+      if (!quiet || entry < 1 || u >= .965 || event.deltaY <= 0) { burst = 0; return; }
+      const delta = event.deltaMode === 1 ? event.deltaY * 16 : event.deltaMode === 2 ? event.deltaY * innerHeight : event.deltaY;
+      // A flick is a lot of travel in little time. A steady turn of the wheel,
+      // however long, is reading.
+      if (now - burstAt > 160 || now - burstFrom > 500) { burst = 0; burstFrom = now; }
+      burst += delta; burstAt = now;
+      // The event that completes the flick is swallowed too: were it to reach
+      // Lenis, its own scroll would take over from the glide that has just begun.
+      if (burst >= 760) { burst = 0; event.preventDefault(); event.stopImmediatePropagation(); flickSkip(); }
+    };
+    window.addEventListener('wheel', onWheel, { capture: true, passive: false });
     controls.current = { toggle: () => { if (playing) stop(); else play(); }, seek, skip };
 
     // Any scroll of the reader's own takes over from Play.
@@ -130,10 +163,14 @@ export function useStoryPlayer(ref: RefObject<HTMLElement | null>, enabled: bool
       if (!(event.target as Element | null)?.closest?.('a[href$="#watch-a-booking"]') || location.pathname !== '/') return;
       event.preventDefault(); event.stopImmediatePropagation();
       stop();
+      if (quiet) { go(yAt(0), { duration: 1.2 }); return; }
       playing = true; set('playing');
       go(yAt(0), { duration: 1.2, onComplete: () => { playing = false; play(); } });
     };
     window.addEventListener('click', watch);
+    // The same, from a button anywhere on the page.
+    const onWatch = () => { stop(); go(yAt(0), { duration: 1.2 }); };
+    root.addEventListener('story-watch', onWatch);
     const redraw = () => render();
     const seekTo = (event: Event) => { const detail = (event as CustomEvent<{ story?: number; seconds?: number }>).detail ?? {}; const seconds = detail.seconds ?? timeOf(detail.story ?? OPEN); stop(); jump(yAt(clamp(seconds / STORY_SECONDS))); };
     root.addEventListener('scene-redraw', redraw);
@@ -147,6 +184,8 @@ export function useStoryPlayer(ref: RefObject<HTMLElement | null>, enabled: bool
       window.removeEventListener('keydown', takeOver);
       root.removeEventListener('pointerdown', onPointer);
       window.removeEventListener('click', watch);
+      window.removeEventListener('wheel', onWheel, { capture: true });
+      root.removeEventListener('story-watch', onWatch);
       root.removeEventListener('scene-redraw', redraw);
       root.removeEventListener('story-seek', seekTo);
       originalAttributes.forEach((original, el) => {
@@ -155,6 +194,7 @@ export function useStoryPlayer(ref: RefObject<HTMLElement | null>, enabled: bool
         el.inert = original.inert;
       });
       root.removeAttribute('data-story');
+      root.classList.remove('is-pinned', 'is-skipping');
     };
   }, [ref, enabled, setup]);
   return { status, controls };

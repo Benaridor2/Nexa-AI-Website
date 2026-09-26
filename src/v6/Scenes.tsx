@@ -476,7 +476,16 @@ function FilmControls({ status, controls }: { status: PlayerStatus; controls: Re
   </div>;
 }
 
-export function Conversation({ motion, mode = 'scroll' }: { motion: boolean; mode?: 'scroll' | 'film' }) {
+// A discreet way past the conversation while it is pinned: a pill, and (with a
+// wheel) a flick.
+function SkipRow({ onSkip }: { onSkip: () => void }) {
+  return <div className="skip-row" aria-hidden="false">
+    <button type="button" className="skip-pill" onClick={onSkip}>Skip the conversation<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14m-6-6 6 6 6-6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg></button>
+    <span className="skip-hint">or flick down</span>
+  </div>;
+}
+
+export function Conversation({ motion, mode = 'scroll', controls = true }: { motion: boolean; mode?: 'scroll' | 'film'; controls?: boolean }) {
   const film = mode === 'film';
   const ref = useRef<HTMLElement>(null), composer = useRef<HTMLInputElement>(null), editInput = useRef<HTMLInputElement>(null), checkoutRef = useRef<HTMLDivElement>(null), editButton = useRef<HTMLButtonElement>(null);
   const [turn, setTurn] = useState<Turn | null>(null);
@@ -563,7 +572,7 @@ export function Conversation({ motion, mode = 'scroll' }: { motion: boolean; mod
   const request = checkout.mode === 'open' ? checkout.request : latest;
   const listing = LISTINGS[request.listing];
 
-  return <section id="guest-story" className="conversation scene-section" ref={ref} aria-labelledby="guest-title" data-checkout={checkout.mode} data-cursor={turn || checkout.mode !== 'auto' ? 'off' : 'on'}>
+  return <section id="guest-story" className="conversation scene-section" ref={ref} aria-labelledby="guest-title" data-checkout={checkout.mode} data-cursor={turn || checkout.mode !== 'auto' ? 'off' : 'on'} data-player={film ? 'film' : controls ? 'bar' : 'none'}>
     {motion && !film && <button type="button" className="scene-skip" onClick={() => { player.controls.current.skip(); const next = ref.current?.nextElementSibling; if (next instanceof HTMLElement) { next.tabIndex = -1; next.focus({ preventScroll: true }); } }}>Skip the conversation</button>}
     {/* "Watch a booking happen" lands here: the window is open, the question about to be typed. */}
     <span id="watch-a-booking" className="scene-anchor" aria-hidden="true"/>
@@ -601,7 +610,7 @@ export function Conversation({ motion, mode = 'scroll' }: { motion: boolean; mod
         <Composer field={{ value: draft, busy, onChange: text => { stopTyping(); setDraft(text); }, onPick: option => typeInto(option.userMessage, setDraft, composer), onSubmit: () => { stopTyping(); ask(draft.trim()); } }} editing={Boolean(turn)} onEdit={() => { if (!editing) openEdit(); else editInput.current?.focus({ preventScroll: true }); }} input={composer}/>
         <div ref={checkoutRef} className={`chat-checkout${settling ? ' is-switching' : ''}`} data-animated><div className="checkout-browser">The property's own website <span>Illustrative checkout</span></div><div className="checkout-brand"><img src="/seanrent/logo.svg" alt="Sea N’ Rent" width="140" height="30"/><button type="button" className="checkout-back" onClick={backToChat}><Chevron back/><span>Back to chat</span><small>Keep searching</small></button></div><div className="checkout-grid"><CheckoutSummary key={listing.key} listing={listing} highlights={highlightsFor(listing, request)}/><div className="checkout-payment"><small>ONE LAST STEP</small><h3>Make it your stay.</h3><p>Your apartment and stay details are ready.<br/>Add your card to complete the booking.</p><div className="sample-card" aria-label="Illustrative payment fields, not editable"><span>Cardholder name</span><div>Name on card</div><span>Card number</span><div>1234 &nbsp; 1234 &nbsp; 1234 &nbsp; 1234</div><div className="sample-card-row"><div>MM / YY</div><div>CVC</div></div></div><button disabled className="sample-pay">Pay {listing.total} <Arrow/></button><p className="checkout-takeaway" data-animated>Your booking. Your website.</p><small className="checkout-note">Demo only. No card details collected or payment made.</small></div></div></div>
       </div>
-      {motion && !film && <StoryPlayer status={player.status} controls={player.controls}/>}{motion && film && <FilmControls status={reel.status} controls={reel.controls}/>}<p className="scene-caption">Illustrative ChatGPT conversation. Dates, availability and checkout are examples.</p>
+      {motion && !film && controls && <StoryPlayer status={player.status} controls={player.controls}/>}{motion && !film && !controls && <SkipRow onSkip={() => player.controls.current.skip()}/>}{motion && film && <FilmControls status={reel.status} controls={reel.controls}/>}<p className="scene-caption">Illustrative ChatGPT conversation. Dates, availability and checkout are examples.</p>
     </div>
   </section>;
 }

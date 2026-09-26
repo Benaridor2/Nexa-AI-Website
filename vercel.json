@@ -11,6 +11,8 @@
     { "source": "/pricing", "destination": "/index.html" },
     { "source": "/about", "destination": "/index.html" },
     { "source": "/contact", "destination": "/index.html" },
+    { "source": "/v7", "destination": "/index.html" },
+    { "source": "/v7/:path*", "destination": "/index.html" },
     { "source": "/v6", "destination": "/index.html" },
     { "source": "/v6/:path*", "destination": "/index.html" },
     { "source": "/v5", "destination": "/index.html" },

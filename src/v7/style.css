@@ -1,12 +1,13 @@
-/* V7 homepage. Loaded after v6/style.css (which the shared header, footer,
-   dialog and the ChatGPT conversation need); every rule here is scoped to .v7. */
+/* V7 sections. Loaded after v6/style.css (which the shared header, footer,
+   dialog and the ChatGPT conversation need); rules are scoped to .v7, and the
+   film-hero page's own rules to .v7-film. */
 
 .v7 { --ink: #0d0d17; --ink-2: #45444d; --ink-3: #6f6e78; --line: #e6e4ea; --paper: #ffffff; --violet: #863db3; --clay: #b0582f; --mono: 'Geist Mono Variable', ui-monospace, monospace; background: var(--paper); color: var(--ink); font-size: 17px; line-height: 1.55; }
 .v7 .wrap { width: min(1200px, calc(100% - 96px)); }
 .v7 :where(h1, h2, h3, p, figure, dl, dd, ul, ol, blockquote) { margin: 0; }
-.v7 h1, .v7 h2, .v7 h3 { font-family: 'Geist Variable', system-ui, sans-serif; font-style: normal; }
-.v7 .hero-actions { order: 0; flex-direction: row; flex-wrap: wrap; justify-content: flex-start; align-items: center; }
-.v7 .hero-actions .v7-button { min-height: 50px; padding: 0 22px; font-size: 15px; }
+.v7-film h1, .v7 h2, .v7 h3 { font-family: 'Geist Variable', system-ui, sans-serif; font-style: normal; }
+.v7-film .hero-actions { order: 0; flex-direction: row; flex-wrap: wrap; justify-content: flex-start; align-items: center; }
+.v7-film .hero-actions .v7-button { min-height: 50px; padding: 0 22px; font-size: 15px; }
 .v7 .v7site-body > div > b { line-height: 1.2; }
 .v7 :where(ul, ol) { padding: 0; list-style: none; }
 .v7 h2 { font-size: clamp(34px, 3.6vw, 52px); font-weight: 560; line-height: 1.06; letter-spacing: -.03em; max-width: 22ch; }
@@ -31,9 +32,9 @@
 .v7-link.is-light { color: #fff; }
 
 /* The shared header, in this page's proportions. */
-.v7 .main-header { height: 72px; }
-.v7 .main-header::before { background: #ffffffe6; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 1px 0 var(--line); }
-.v7 .site-header { position: sticky; top: 0; z-index: 40; }
+.v7-film .main-header { height: 72px; }
+.v7-film .main-header::before { background: #ffffffe6; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 1px 0 var(--line); }
+.v7-film .site-header { position: sticky; top: 0; z-index: 40; }
 
 /* ---------------------------------------------------------------- Hero */
 .v7-hero { display: grid; grid-template-columns: minmax(0, 46fr) minmax(0, 54fr); gap: 56px; align-items: center; padding: 56px 0 40px; }
@@ -41,24 +42,24 @@
 .v7-hero h1 { margin-top: 22px; font-size: clamp(40px, 4.5vw, 64px); font-weight: 580; line-height: 1.04; letter-spacing: -.035em; }
 .v7-hero h1 span { color: var(--violet); }
 .hero-lead { max-width: 500px; margin-top: 24px; font-size: 19px; line-height: 1.55; color: var(--ink-2); }
-.hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
-.hero-pms { margin-top: 28px; font-family: var(--mono); font-size: 12px; line-height: 1.7; color: var(--ink-3); }
-.hero-pms span { color: var(--ink-2); }
+.v7 .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+.v7 .hero-pms { margin-top: 28px; font-family: var(--mono); font-size: 12px; line-height: 1.7; color: var(--ink-3); }
+.v7 .hero-pms span { color: var(--ink-2); }
 
 /* The conversation, as the hero visual: a plain window, no portal, no glow. */
 .hero-demo { position: relative; min-width: 0; }
-.v7 .conversation { height: auto; }
-.v7 .conversation .scene-stage { position: static; display: block; width: 100%; height: auto; padding: 0; }
-.v7 .conversation .scene-anchor { display: none; }
-.v7 .chat-window { width: 100%; height: clamp(480px, calc(100svh - 230px), 620px); max-height: none; margin: 0; border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 30px 60px -40px #0d0d1740, 0 1px 0 #fff inset; transform: none !important; opacity: 1 !important; }
-.v7 .film-controls { display: flex; align-items: center; gap: 12px; margin-top: 14px; }
-.v7 .film-toggle { display: grid; place-items: center; width: 40px; height: 40px; padding: 0; border: 0; border-radius: 50%; background: var(--ink); color: #fff; cursor: pointer; transition: background .15s; }
-.v7 .film-toggle:hover { background: var(--violet); }
-.v7 .film-toggle svg { width: 16px; height: 16px; }
-.v7 .film-replay { padding: 0; border: 0; background: none; font-size: 14px; font-weight: 550; color: var(--ink-2); cursor: pointer; }
-.v7 .film-replay:hover { color: var(--ink); }
-.v7 .film-ended { font-family: var(--mono); font-size: 12px; color: var(--ink-3); }
-.v7 .scene-caption { margin-top: 8px; text-align: left; font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+.v7-film .conversation { height: auto; }
+.v7-film .conversation .scene-stage { position: static; display: block; width: 100%; height: auto; padding: 0; }
+.v7-film .conversation .scene-anchor { display: none; }
+.v7-film .chat-window { width: 100%; height: clamp(480px, calc(100svh - 230px), 620px); max-height: none; margin: 0; border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 30px 60px -40px #0d0d1740, 0 1px 0 #fff inset; transform: none !important; opacity: 1 !important; }
+.v7-film .film-controls { display: flex; align-items: center; gap: 12px; margin-top: 14px; }
+.v7-film .film-toggle { display: grid; place-items: center; width: 40px; height: 40px; padding: 0; border: 0; border-radius: 50%; background: var(--ink); color: #fff; cursor: pointer; transition: background .15s; }
+.v7-film .film-toggle:hover { background: var(--violet); }
+.v7-film .film-toggle svg { width: 16px; height: 16px; }
+.v7-film .film-replay { padding: 0; border: 0; background: none; font-size: 14px; font-weight: 550; color: var(--ink-2); cursor: pointer; }
+.v7-film .film-replay:hover { color: var(--ink); }
+.v7-film .film-ended { font-family: var(--mono); font-size: 12px; color: var(--ink-3); }
+.v7-film .scene-caption { margin-top: 8px; text-align: left; font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
 
 /* ---------------------------------------------------------------- Trust strip */
 .v7-trust { padding: 36px 0 20px; border-top: 1px solid var(--line); }
@@ -179,8 +180,8 @@
 /* Closing */
 .closing7 { margin-top: 110px; padding: 110px 0; background: var(--ink); color: #fff; }
 .closing7 h2 { max-width: 16ch; font-size: clamp(40px, 5vw, 76px); }
-.closing7 .hero-actions { margin-top: 36px; }
-.closing-line { margin-top: 26px; font-size: 15px; color: #aaa4b4; }
+.v7 .closing7 .hero-actions { margin-top: 36px; }
+.v7 .closing-line { margin-top: 26px; font-size: 15px; color: #aaa4b4; }
 .v7 .footer { margin-top: 0; }
 
 /* ---------------------------------------------------------------- Phones and narrow screens */
@@ -197,13 +198,13 @@
 @media (max-width: 699px) {
   .v7 { font-size: 16px; }
   .v7 .wrap { width: calc(100% - 40px); }
-  .v7 .main-header { height: 64px; }
+  .v7-film .main-header { height: 64px; }
   .v7-hero { padding: 28px 0 30px; gap: 28px; }
   .v7-hero h1 { margin-top: 16px; font-size: clamp(34px, 10vw, 42px); }
   .hero-lead { margin-top: 16px; font-size: 16.5px; }
-  .hero-actions { margin-top: 22px; gap: 10px; }
-  .hero-pms { margin-top: 20px; font-size: 11px; }
-  .v7 .chat-window { height: 560px; border-radius: 14px; }
+  .v7 .hero-actions { margin-top: 22px; gap: 10px; }
+  .v7 .hero-pms { margin-top: 20px; font-size: 11px; }
+  .v7-film .chat-window { height: 560px; border-radius: 14px; }
   .v7-trust { padding: 26px 0 8px; }
   .v7-trust ul { gap: 18px; }
   .v7-trust b { font-size: 22px; }
