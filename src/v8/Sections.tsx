@@ -79,11 +79,11 @@ export function Sections({ open, watch, motion }: { open: () => void; watch: () 
         <div className="compare-col is-unpriced">
           <header className="compare-head"><span className="compare-eyebrow"><i/>01 / Unpriced</span><h3>Unpriced.</h3></header>
           <figure className="compare-photo is-dim"><img src="/seanrent/tel-aviv/med/1.jpg" alt="" loading="lazy" width="1080" height="721"/><figcaption><i/>Not connected</figcaption></figure>
-          <p className="compare-say"><span className="answer-who"><i/>ChatGPT</span>“I can't confirm availability or the final price for these dates.”</p>
+          <p className="compare-say"><span className="answer-who"><i/>ChatGPT</span>“I can't confirm availability or the final price for these dates. I recommend checking Airbnb or Booking.com for availability and final prices.”</p>
           <dl className="compare-rows">
             <div><dt>Availability</dt><dd><span className="dash">—</span></dd></div>
             <div><dt>Final price</dt><dd className="is-price"><span className="dash">—</span></dd></div>
-            <div><dt>Where the guest books</dt><dd className="is-otas"><small>Sent to</small>Booking.com · Airbnb · Expedia</dd></div>
+            <div><dt>Where the guest books</dt><dd className="is-otas">Booking.com · Airbnb · Expedia</dd></div>
           </dl>
           <div className="compare-act"><span className="compare-empty" aria-label="Nothing to book here">—</span></div>
           <p className="compare-foot">The AI cannot answer for you. The guest goes to an OTA.</p>
@@ -91,11 +91,11 @@ export function Sections({ open, watch, motion }: { open: () => void; watch: () 
         <div className="compare-col is-priced">
           <header className="compare-head"><span className="compare-eyebrow"><i/>02 / Priced</span><h3>Priced.</h3><span className="seed-home" aria-hidden="true"><img src="/nexa-purple.png" alt="" width="1520" height="333"/></span></header>
           <figure className="compare-photo"><img src="/seanrent/tel-aviv/med/1.jpg" alt="" loading="lazy" width="1080" height="721"/><figcaption><i/>Priced through NEXA</figcaption></figure>
-          <p className="compare-say"><span className="answer-who"><i/>ChatGPT</span>“Available for your dates. Here is the final price and the direct link:”</p>
+          <p className="compare-say"><span className="answer-who"><i/>ChatGPT</span>“With NEXA I found a listing available for your dates. Here is the final price and the link to book on the direct website, for the lowest price:”</p>
           <dl className="compare-rows">
             <div><dt>Availability</dt><dd>{CHECK}Available, {STAY.shortDates}</dd></div>
             <div><dt>Final price</dt><dd className="is-price">$328 <small>final total</small></dd></div>
-            <div><dt>Where the guest books</dt><dd>{CHECK}seanrent.com, direct</dd></div>
+            <div><dt>Where the guest books</dt><dd>{CHECK}Direct website</dd></div>
           </dl>
           <div className="compare-act"><span className="s8-button"><Arrow diagonal/>Book direct on seanrent.com</span></div>
           <p className="compare-foot">The AI can answer for you. The booking is yours.</p>
@@ -114,7 +114,7 @@ export function Sections({ open, watch, motion }: { open: () => void; watch: () 
       <SectionLabel n="03" left="The product" right="NEXA AI Connector"/>
       <div className="s8-head">
         <h2 id="product-title" data-pass>One connection. Two kinds of guests. <em>Both book direct.</em></h2>
-        <div><p className="s8-lead">The NEXA AI Connector plugs your PMS into the AI agents once. Every guest the AI then sends you is one of two kinds, and each kind has its own rate.</p><a className="s8-button" href="/nexa-ai-connector"><Arrow diagonal/>Show me</a></div>
+        <div><p className="s8-lead">Two kinds of guests come through the AI, each with its own rate.</p><a className="s8-button" href="/nexa-ai-connector"><Arrow diagonal/>Show me</a></div>
       </div>
       <div className="kinds">
         <article className="kind is-direct">
