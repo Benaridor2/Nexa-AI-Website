@@ -34,33 +34,42 @@ page", and its section labels, "a small numbered eyebrow above every title,
 like the reference", are followed literally. Under the conversation:
 
 - **How it connects**: one connection panel, readable without its words:
-  the PMS chips on the left (Guesty, Hostaway, BoomNow, Hospitable, Rentals
-  United, HotelSync), NEXA as a breathing purple node in the middle, the AI
-  agents (ChatGPT, Gemini, Claude, Perplexity) on the right, dashed wires
-  running between them. Under it the two claims, "Connects through the PMS
+  the PMS chips on the left in two columns (Guesty, Hostaway, BoomNow,
+  Hospitable, Rentals United, HotelSync), NEXA as a breathing purple node
+  in the middle with a slow dashed ring, the AI agents (ChatGPT, Gemini,
+  Claude, Perplexity) on the right, dashed wires between them with pulses
+  travelling along them. Under it the two claims, "Connects through the PMS
   you already run" and "A direct booking, on paper as well", with "How it
-  works legally" to the Connector page; then the **proof strip** (65%+ of
-  the vote, the HVC win in Zurich 2026, 37 countries, 6 PMS integrations).
-- **[01] The two words / Priced or unpriced.** The plan's title, "Two words
-  decide who gets the booking", then two verdict panels: PRICED in green (a
-  check mark, three green pills: live availability, final price, book direct
-  on your website, the AI's priced answer on a green tile, "The AI can answer
-  for you. The booking is yours.") and UNPRICED in red (a cross, red pills:
-  availability unknown, price unknown, sent to an OTA, the unpriced answer on
-  a red tile, "The booking goes to the OTA."). Then the closing line, the
-  "ChatGPT can make mistakes" sentence and "Read the story" to About.
+  works legally" to the Connector page; then the **proof strip** (the HVC
+  win in Zurich 2026 in gold with a medal, 65%+ of the vote, 37 countries,
+  6 PMS integrations).
+- **[01] The two words / Priced or unpriced.** The plan's title, then one
+  question, the conversation's own, in a bubble above two answers that fit
+  on one screen: PRICED in green (a check mark, three green pills: live
+  availability, final price, book direct on your website, the AI's short
+  answer with the stay card and "Book direct", "The AI can answer for you.
+  The booking is yours.") and UNPRICED in red (a cross, red pills:
+  availability unknown, price unknown, sent to an OTA, the AI's answer
+  sending the guest to check on Booking.com, Airbnb or Expedia, named but
+  not linked, "The AI sends the guest to the OTAs. The commission is
+  theirs."). Then the closing line, the "ChatGPT can make mistakes"
+  sentence and "Read the story" to About.
 - **[02] How it works / The fix.** The dark section: the plan's title, then
   the travelling stage described below, and the landing block "Booked. On
   your website. In your PMS." with the "installs nothing" line, "Watch now"
   to the How It Works page, "Watch a booking happen, step by step" back to
   the conversation.
 - **[03] The product / NEXA AI Connector.** "One connection. Two kinds of
-  guests. Both book direct." NEXA Direct, "The guest asked for you by name",
-  and NEXA Agent, "The AI found you a guest" (the Pricing page's wording),
-  each with the AI's answer: the words that found the property are
-  highlighted in the question, and a short list shows what the AI checked and
-  what it chose (Direct: the official website, priced, over the same room on
-  an OTA; Agent: Sea N' Rent, priced, over two unpriced apartments nearby).
+  guests. Both book direct." No chat screens here: NEXA Direct, "The guest
+  asked for you by name", and NEXA Agent, "The AI found you a guest" (the
+  Pricing page's wording), each explained as a flow: what the guest asked
+  for (the words that found the property highlighted), the AI with NEXA
+  behind it, your website. Direct shows the OTA listing of your own property
+  struck out underneath; Agent shows the AI picking from what is priced (you,
+  priced; others, unpriced). One sentence on what happens today and what
+  NEXA changes, two facts as pills (your name, your booking / a guest you
+  would not have had; the lower / the higher rate), and a bar: both book on
+  your website, only the rate differs, the rates on the Pricing page.
   "Show me" to the Connector page.
 - **[04] Pricing / The money.** The plan's title and the same stay, then
   "where the money goes" as three bars: the whole bar is the guest's
@@ -85,7 +94,22 @@ visuals; one dark section with numbered cards; small 36 px buttons with the
 arrow before the label; a full-width closing panel. Colour stays NEXA's: ink,
 white, purple as the single accent.
 
-## How it works: the pinned scene (the one thing that moves with the reader)
+## The question that travels (the one thing that moves with the reader)
+
+Ben asked for something of ours that stays on screen while the page scrolls,
+passes over the text, and stops where it belongs. It is the guest's question.
+In [01] it sits in a bubble above the two answers. As the reader scrolls on
+it lifts off at reading height (36% of the viewport; 30% on phones), rides
+over the verdicts, the "You're losing to the OTAs" statement and the [02]
+heading, tilting and lifting a little mid-flight, and lands in the chat on
+the How-it-works stage exactly where step 1 asks it, to the pixel: the stage
+then takes over with its own question, and NEXA answers it in step 2. The
+slot it left keeps a dashed outline. The flight is scrubbed by the scroll
+(`Traveler.tsx` measures the slot, the stage and the stage's question every
+frame and interpolates between them with an ease), so it flies back the same
+way. Under reduced motion the question stays put and the stage types its own.
+
+## How it works: the travelling stage
 
 Lior's rule: a good site is understood even in Chinese by someone who does
 not read Chinese. So "How it works" is told on a stage that travels with
@@ -153,10 +177,15 @@ from the start.
   stage in place, step 3 the recommendation, "Book it." and the link, still
   in place, step 4 the checkout paid green and the PMS ticket, step 5
   "Booked" lit, and past the end the stage docked inside its section; the
-  connection panel and both verdict panels present; the money bars grown
-  with the OTA's the widest, the product answers with their picks; FAQ; Get
-  Priced dialog; reduced motion; the old routes load without the V8 page. At
-  1440×900, 1280×712, 390×844 and 358×694.
+  connection panel with its pulses and both verdict panels present; the money
+  bars grown with the OTA's the widest; [03] as two flows with no chat
+  screens; the unpriced answer naming Booking.com, Airbnb and Expedia; the
+  win in gold; the two verdicts fitting on a screen; the question at home
+  before the reader reaches it, flying at reading height halfway with the
+  slot outlined and the stage's own question hidden, landing on the stage's
+  question within a few pixels and handing over to it, and flying back on
+  the way up; FAQ; Get Priced dialog; reduced motion; the old routes load
+  without the V8 page. At 1440×900, 1280×712, 390×844 and 358×694.
 - Chat interactivity (`chat3`, `interact`), header, links, pages and the
   calculator unchanged. On phones the checkout card scrolls inside itself when
   its description is expanded, exactly as on V6 live.

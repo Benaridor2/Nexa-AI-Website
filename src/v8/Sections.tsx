@@ -3,6 +3,7 @@ import { STAY } from '../v6/stay';
 import { LISTINGS } from '../v6/listings';
 import { HowItWorks } from './Scene';
 import { SectionLabel } from './Label';
+import { useTraveler } from './Traveler';
 
 // Everything under the conversation, in the order and wording of the website
 // plan (Content V3), in the language of the reference site: a numbered label
@@ -25,25 +26,8 @@ const FAQ: [string, string][] = [
   ['Who owns the guest data?', 'You do. Guest data belongs to the property, not to NEXA AI.'],
 ];
 
-// A ChatGPT answer as the AI gives it, on a tile: priced through NEXA, or unpriced.
+// The guest's question, as the conversation above asked it. It sits above the two answers in [01] and, with motion, flies to the How-it-works stage.
 const ASKED = `${STAY.question} ${STAY.replyChunks.join('')}`;
-type Pick = { label: string; ok: boolean; note: string };
-// A ChatGPT answer in miniature. `mark` highlights the words in the question that found the property; `picks` shows what the AI checked and what it chose.
-function Answer({ priced, question = ASKED, intro, mark, picks }: { priced: boolean; question?: string; intro?: string; mark?: string; picks?: Pick[] }) {
-  const at = mark ? question.indexOf(mark) : -1;
-  return <div className="s8-tile"><div className={`s8-answer ${priced ? 'is-priced' : 'is-unpriced'}`} aria-label={priced ? 'A priced answer' : 'An unpriced answer'}>
-    <p className="answer-q">“{at < 0 ? question : <>{question.slice(0, at)}<mark className="answer-mark">{mark}</mark>{question.slice(at + mark!.length)}</>}”</p>
-    <div className="answer-a">
-      <span className="answer-who"><i/>ChatGPT</span>
-      {picks && <ul className="answer-picks" aria-label="What the AI checked">{picks.map(k => <li key={k.label} className={k.ok ? 'is-in' : 'is-out'}>{k.label}<span>{k.note}</span></li>)}</ul>}
-      {priced
-        ? <><p>{intro ?? "Mediterranean Sea Views is available for your dates. Here is the final price and a link to book direct on the property's website:"}</p>
-          <div className="answer-card"><img src="/seanrent/tel-aviv/med/1.jpg" alt="" loading="lazy" width="1080" height="721"/><div><b>Mediterranean Sea Views · 1BR</b><span className="answer-meta">{STAY.shortDates} · Available</span><span className="answer-price">$328 <small>final total</small></span><span className="answer-link">Book direct ↗</span></div></div></>
-        : <><p>{intro ?? "I found Mediterranean Sea Views in Tel Aviv, but I can't confirm its availability or final price for your dates."}</p>
-          <div className="answer-card is-dim"><img src="/seanrent/tel-aviv/med/1.jpg" alt="" loading="lazy" width="1080" height="721"/><div><b>Mediterranean Sea Views · 1BR</b><span className="answer-meta">{STAY.shortDates} · Unknown</span><span className="answer-price">— <small>price unknown</small></span><span className="answer-link is-ota">Check a booking site ↗</span></div></div></>}
-    </div>
-  </div><span className="s8-tile-note">Illustrative</span></div>;
-}
 
 const COASTAL = LISTINGS.coastal;
 
@@ -59,13 +43,21 @@ const GLYPH = {
 
 // open: the Get Priced dialog. watch: brings the reader back to the conversation.
 export function Sections({ open, watch, motion }: { open: () => void; watch: () => void; motion: boolean }) {
+  const fly = useTraveler(motion);
   return <>
+    <p className="s8-ask is-flying" ref={fly} aria-hidden="true" data-ask="home">“{ASKED}”</p>
     <section className="s8-connect wrap" aria-label="One connection">
       <div className="connect-panel" aria-hidden="true">
         <div className="connect-col is-pms"><span className="connect-title">Your PMS</span>{PMS.map(name => <span className="connect-chip" key={name}>{name}</span>)}</div>
-        <svg className="connect-wire" viewBox="0 0 100 100" preserveAspectRatio="none">{PMS.map((_, i) => <path key={i} d={`M0,${8 + i * 16.8} C55,${8 + i * 16.8} 45,50 100,50`}/>)}</svg>
+        <svg className="connect-wire" viewBox="0 0 100 100" preserveAspectRatio="none">
+          {[0, 1, 2].map(i => <path key={i} id={`cw-l${i}`} d={`M0,${24 + i * 26} C55,${24 + i * 26} 45,50 100,50`}/>)}
+          {[0, 1, 2].map(i => <circle key={i} r="1.6"><animateMotion dur="2.4s" begin={`${i * .8}s`} repeatCount="indefinite"><mpath href={`#cw-l${i}`}/></animateMotion></circle>)}
+        </svg>
         <div className="connect-node"><b>NEXA</b><span>one connection</span></div>
-        <svg className="connect-wire is-right" viewBox="0 0 100 100" preserveAspectRatio="none">{AI_AGENTS.map((_, i) => <path key={i} d={`M0,50 C55,50 45,${18 + i * 21.3} 100,${18 + i * 21.3}`}/>)}</svg>
+        <svg className="connect-wire is-right" viewBox="0 0 100 100" preserveAspectRatio="none">
+          {[0, 1].map(i => <path key={i} id={`cw-r${i}`} d={`M0,50 C55,50 45,${36 + i * 28} 100,${36 + i * 28}`}/>)}
+          {[0, 1].map(i => <circle key={i} r="1.6"><animateMotion dur="2.4s" begin={`${.5 + i * 1.2}s`} repeatCount="indefinite"><mpath href={`#cw-r${i}`}/></animateMotion></circle>)}
+        </svg>
         <div className="connect-col is-ai"><span className="connect-title">AI agents</span>{AI_AGENTS.map(name => <span className="connect-chip" key={name}>{name}</span>)}</div>
       </div>
       <div className="connect-claims">
@@ -77,7 +69,7 @@ export function Sections({ open, watch, motion }: { open: () => void; watch: () 
     <section className="s8-proof wrap" aria-label="Proof">
       <p>Global hospitality leaders voted. Over 65% chose NEXA AI.</p>
       <ul>
-        <li><b>Winner</b><span>HVC Startup Competition by SHIC, Zurich 2026</span></li>
+        <li className="is-gold"><b><svg className="gold-medal" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="gold-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#f6dd8f"/><stop offset=".45" stopColor="#c9962a"/><stop offset=".7" stopColor="#f0d27a"/><stop offset="1" stopColor="#a6761c"/></linearGradient></defs><path d="M7.5 1.5h3.2l1.3 5.2-3 1.1-1.5-6.3Zm9 0h-3.2L12 6.7l3 1.1 1.5-6.3Z" fill="url(#gold-g)"/><circle cx="12" cy="14.5" r="7.2" fill="url(#gold-g)"/><circle cx="12" cy="14.5" r="5.6" fill="none" stroke="#fff5d6" strokeOpacity=".7" strokeWidth=".8"/><path d="m12 10.2 1.3 2.7 3 .4-2.2 2.1.5 3-2.6-1.4-2.6 1.4.5-3-2.2-2.1 3-.4 1.3-2.7Z" fill="#fff8e1"/></svg>Winner</b><span>HVC Startup Competition by SHIC, Zurich 2026</span></li>
         <li><b>65%+</b><span>of the vote from global hospitality leaders</span></li>
         <li><b>37</b><span>countries, USA &amp; EMEA</span></li>
         <li><b>6</b><span>PMS integrations, live in days</span></li>
@@ -88,22 +80,29 @@ export function Sections({ open, watch, motion }: { open: () => void; watch: () 
       <SectionLabel n="01" left="The two words" right="Priced or unpriced"/>
       <div className="s8-head">
         <h2 id="priced-title" data-pass>Being mentioned by the AI is nice. <em>Being bookable through the AI</em> is where the money is.</h2>
-        <div><p className="s8-lead">Two words decide who gets the booking:</p></div>
+        <div><p className="s8-lead">One guest, one question. Two words decide which answer they get:</p></div>
       </div>
+      <div className="s8-ask-slot" data-ask="home"><p className="s8-ask">“{ASKED}”</p></div>
       <div className="verdicts">
         <article className="verdict is-priced">
           <header className="verdict-head"><span className="verdict-mark"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 5 5 9-10" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"/></svg></span><div><span>The first word</span><h3>Priced.</h3></div></header>
           <ul className="verdict-list"><li>Live availability</li><li>Final price</li><li>Book direct on your website</li></ul>
-          <p>The AI sees your live availability, your final price, and a trusted way to book direct. It can recommend you, and complete the booking.</p>
-          <Answer priced/>
+          <div className="verdict-answer" aria-label="The AI's answer when you are priced">
+            <span className="answer-who"><i/>ChatGPT</span>
+            <p>Mediterranean Sea Views by Sea N' Rent is available for your dates, $328 final total. You can book it direct on the property's website:</p>
+            <div className="answer-card"><img src="/seanrent/tel-aviv/med/1.jpg" alt="" loading="lazy" width="1080" height="721"/><div><b>Mediterranean Sea Views · 1BR</b><span className="answer-meta">{STAY.shortDates} · Available</span><span className="answer-price">$328 <small>final total</small></span><span className="answer-link">Book direct ↗</span></div></div>
+          </div>
           <p className="verdict-foot">The AI can answer for you. The booking is yours.</p>
         </article>
         <article className="verdict is-unpriced">
           <header className="verdict-head"><span className="verdict-mark"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round"/></svg></span><div><span>The second word</span><h3>Unpriced.</h3></div></header>
           <ul className="verdict-list"><li>Availability unknown</li><li>Price unknown</li><li>Sent to an OTA</li></ul>
-          <p>The AI knows you exist, but cannot answer for you. It is not allowed to guess, so the booking goes to whoever is priced. Usually an OTA.</p>
-          <Answer priced={false}/>
-          <p className="verdict-foot">The AI cannot answer for you. The booking goes to the OTA.</p>
+          <div className="verdict-answer" aria-label="The AI's answer when you are unpriced">
+            <span className="answer-who"><i/>ChatGPT</span>
+            <p>I found Mediterranean Sea Views in Tel Aviv, but I can't confirm availability or the final price for your dates. You can check on:</p>
+            <ul className="answer-otas"><li>Booking.com <span>↗</span></li><li>Airbnb <span>↗</span></li><li>Expedia <span>↗</span></li></ul>
+          </div>
+          <p className="verdict-foot">The AI sends the guest to the OTAs. The commission is theirs.</p>
         </article>
       </div>
       <p className="s8-statement" data-pass>You're not losing to better hotels. <em>You're losing to the OTAs.</em></p>
@@ -119,13 +118,39 @@ export function Sections({ open, watch, motion }: { open: () => void; watch: () 
       <SectionLabel n="03" left="The product" right="NEXA AI Connector"/>
       <div className="s8-head">
         <h2 id="product-title" data-pass>One connection. Two kinds of guests. <em>Both book direct.</em></h2>
-        <div><p className="s8-lead">NEXA Direct and NEXA Agent are the two booking types inside one connection, priced by how the guest arrived.</p><a className="s8-button" href="/nexa-ai-connector"><Arrow diagonal/>Show me</a></div>
+        <div><p className="s8-lead">The NEXA AI Connector plugs your PMS into the AI agents once. Every guest the AI then sends you is one of two kinds, and each kind has its own rate.</p><a className="s8-button" href="/nexa-ai-connector"><Arrow diagonal/>Show me</a></div>
       </div>
-      <div className="s8-cards s8-two">
-        <article className="s8-card"><span className="s8-n">NEXA Direct · branded</span><h3>The guest asked for you by name.</h3><p>Today that guest often lands on an OTA listing of your own property, and you pay commission on your own name. Direct brings that booking home.</p><Answer priced question="Find me a room at Sea N' Rent. May 1-5, two adults." mark="Sea N' Rent" picks={[{ label: "seanrent.com, the official website", ok: true, note: 'priced' }, { label: 'The same room on an OTA', ok: false, note: 'commission' }]} intro="Sea N' Rent has Mediterranean Sea Views available for your dates. Here is the final price, and a link to book direct on the property's own website:"/></article>
-        <article className="s8-card"><span className="s8-n">NEXA Agent · non-branded</span><h3>The AI found you a guest.</h3><p>Today that answer belongs to the OTAs. NEXA Agent shares a best-price guarantee, represents the official host, locks availability, and gives the AI a final price it can trust. The guest books with you.</p><Answer priced question="Find me an apartment near the sea in Tel Aviv. May 1-5, two adults." mark="near the sea in Tel Aviv" picks={[{ label: "Mediterranean Sea Views, Sea N' Rent", ok: true, note: 'priced' }, { label: 'Two other apartments nearby', ok: false, note: 'unpriced' }]} intro="Here is an option that is available for your dates, with a final price and a direct way to book on the property's website:"/></article>
+      <div className="kinds">
+        <article className="kind is-direct">
+          <span className="s8-n">NEXA Direct · branded</span>
+          <h3>The guest asked for you by name.</h3>
+          <div className="kind-flow" aria-hidden="true">
+            <span className="kind-ask">“a room at <mark>Sea N' Rent</mark>”</span>
+            <i className="kind-arrow"/>
+            <span className="kind-node is-ai"><b>AI</b><small>+ NEXA</small></span>
+            <i className="kind-arrow"/>
+            <span className="kind-node is-site"><b>Your website</b><small>seanrent.com</small></span>
+            <span className="kind-detour"><s>The OTA listing of your own property</s><em>commission</em></span>
+          </div>
+          <p>Today that guest often ends up on an OTA listing of your own property, and you pay commission on your own name. NEXA Direct takes them straight to your website instead.</p>
+          <ul className="kind-facts"><li>Your name, your booking</li><li>The lower rate</li></ul>
+        </article>
+        <article className="kind is-agent">
+          <span className="s8-n">NEXA Agent · non-branded</span>
+          <h3>The AI found you a guest.</h3>
+          <div className="kind-flow" aria-hidden="true">
+            <span className="kind-ask">“an apartment <mark>near the sea in Tel Aviv</mark>”</span>
+            <i className="kind-arrow"/>
+            <span className="kind-node is-ai"><b>AI</b><small>+ NEXA</small></span>
+            <i className="kind-arrow"/>
+            <span className="kind-node is-site"><b>Your website</b><small>seanrent.com</small></span>
+            <span className="kind-picks"><span>The AI picks from what is priced:</span><b className="is-in">You · priced</b><b className="is-out">Others · unpriced</b></span>
+          </div>
+          <p>Today that answer belongs to the OTAs. NEXA Agent gives the AI your best-price guarantee, your live availability and a final price it can trust, so it can put you in the answer.</p>
+          <ul className="kind-facts"><li>A guest you would not have had</li><li>The higher rate</li></ul>
+        </article>
       </div>
-      <a className="s8-link s8-after" href="/nexa-ai-connector">See how one connection does both <Arrow/></a>
+      <div className="kinds-both"><p>Both book on your website, straight into your PMS. Only the rate differs.</p><a className="s8-link" href="/pricing">The two rates are on the Pricing page <Arrow/></a></div>
     </section>
 
     <section className="s8-section wrap" id="economics" aria-labelledby="pricing-title">
