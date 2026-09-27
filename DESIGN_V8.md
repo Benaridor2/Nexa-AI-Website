@@ -41,7 +41,7 @@ like the reference", are followed literally. Under the conversation:
   white tile with a violet outline and the purple wordmark, "One connection"
   under it. Two dotted hairlines join them, each with one slow violet dot.
   Under it the two claims, "Connects through the PMS you already run" and
-  "A direct booking, on paper as well", with "How it works legally" to the
+  "A direct booking, your website, your policies", with "How it works legally" to the
   Connector page; then the **proof strip** (the HVC win in Zurich 2026 with a
   small gold medal, 65%+ of the vote, 37 countries, 6 PMS integrations).
 - **[01] The two words / Priced or unpriced.** The plan's title, "The same

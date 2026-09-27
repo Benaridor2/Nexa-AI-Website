@@ -55,7 +55,7 @@ export function Sections({ open, watch, motion }: { open: () => void; watch: () 
       </div>
       <div className="connect-claims">
         <div><span className="s8-glyph">{GLYPH.plug}</span><h3>Connects through the PMS you already run.</h3><p>Exactly like connecting Airbnb or Booking.com. No developer. No code. Live in days.</p></div>
-        <div><span className="s8-glyph">{GLYPH.shield}</span><h3>A direct booking, on paper as well.</h3><p>The guest books on your website, under your terms and your payment. NEXA AI is never a party to the reservation. Guest data belongs to you.</p><a className="s8-link" href="/nexa-ai-connector">How it works legally <Arrow/></a></div>
+        <div><span className="s8-glyph">{GLYPH.shield}</span><h3>A direct booking, your website, your policies.</h3><p>The guest books on your website, under your terms and your payment. NEXA AI is never a party to the reservation. Guest data belongs to you.</p><a className="s8-link" href="/nexa-ai-connector">How it works legally <Arrow/></a></div>
       </div>
     </section>
 
