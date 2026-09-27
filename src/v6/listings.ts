@@ -1,3 +1,4 @@
+import { ASSET_BASE } from './assets';
 import data from './listings.json';
 
 // Sea N' Rent listings shown in the guest conversation and its checkout.
@@ -58,11 +59,11 @@ const fromSite = (item: Source): Listing => {
     sections: [...(rest ? [{ title: 'The apartment', paragraphs: [rest] }] : []), { title: 'Location', paragraphs: [item.address] }],
     rules: [],
     amenities: labels.map(label => ({ icon: iconFor(label), label })),
-    photos: item.photos.map((_, i) => ({ src: `/seanrent/tel-aviv/${item.key}/${i + 1}.jpg`, alt: `${item.title}, photo ${i + 1} of ${item.photos.length}`, width: 1080, height: 720 })),
+    photos: item.photos.map((_, i) => ({ src: `${ASSET_BASE}/seanrent/tel-aviv/${item.key}/${i + 1}.jpg`, alt: `${item.title}, photo ${i + 1} of ${item.photos.length}`, width: 1080, height: 720 })),
   };
 };
 
-const coastalPhoto = (name: string, alt: string, focus?: string): ListingPhoto => ({ src: `/seanrent/coastal-panorama/${name}.jpg`, alt, width: 1200, height: 800, focus });
+const coastalPhoto = (name: string, alt: string, focus?: string): ListingPhoto => ({ src: `${ASSET_BASE}/seanrent/coastal-panorama/${name}.jpg`, alt, width: 1200, height: 800, focus });
 // Listing text and photos supplied by Ben from Sea N' Rent's Coastal Panorama listing. The total is illustrative.
 const coastal: Listing = {
   key: 'coastal',
