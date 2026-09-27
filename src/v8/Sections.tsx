@@ -27,11 +27,15 @@ const FAQ: [string, string][] = [
 
 // A ChatGPT answer as the AI gives it, on a tile: priced through NEXA, or unpriced.
 const ASKED = `${STAY.question} ${STAY.replyChunks.join('')}`;
-function Answer({ priced, question = ASKED, intro }: { priced: boolean; question?: string; intro?: string }) {
+type Pick = { label: string; ok: boolean; note: string };
+// A ChatGPT answer in miniature. `mark` highlights the words in the question that found the property; `picks` shows what the AI checked and what it chose.
+function Answer({ priced, question = ASKED, intro, mark, picks }: { priced: boolean; question?: string; intro?: string; mark?: string; picks?: Pick[] }) {
+  const at = mark ? question.indexOf(mark) : -1;
   return <div className="s8-tile"><div className={`s8-answer ${priced ? 'is-priced' : 'is-unpriced'}`} aria-label={priced ? 'A priced answer' : 'An unpriced answer'}>
-    <p className="answer-q">“{question}”</p>
+    <p className="answer-q">“{at < 0 ? question : <>{question.slice(0, at)}<mark className="answer-mark">{mark}</mark>{question.slice(at + mark!.length)}</>}”</p>
     <div className="answer-a">
       <span className="answer-who"><i/>ChatGPT</span>
+      {picks && <ul className="answer-picks" aria-label="What the AI checked">{picks.map(k => <li key={k.label} className={k.ok ? 'is-in' : 'is-out'}>{k.label}<span>{k.note}</span></li>)}</ul>}
       {priced
         ? <><p>{intro ?? "Mediterranean Sea Views is available for your dates. Here is the final price and a link to book direct on the property's website:"}</p>
           <div className="answer-card"><img src="/seanrent/tel-aviv/med/1.jpg" alt="" loading="lazy" width="1080" height="721"/><div><b>Mediterranean Sea Views · 1BR</b><span className="answer-meta">{STAY.shortDates} · Available</span><span className="answer-price">$328 <small>final total</small></span><span className="answer-link">Book direct ↗</span></div></div></>
@@ -118,8 +122,8 @@ export function Sections({ open, watch, motion }: { open: () => void; watch: () 
         <div><p className="s8-lead">NEXA Direct and NEXA Agent are the two booking types inside one connection, priced by how the guest arrived.</p><a className="s8-button" href="/nexa-ai-connector"><Arrow diagonal/>Show me</a></div>
       </div>
       <div className="s8-cards s8-two">
-        <article className="s8-card"><span className="s8-n">NEXA Direct · branded</span><h3>They asked for you by name.</h3><p>Today that guest often lands on an OTA listing of your own property, and you pay commission on your own name. Direct brings that booking home.</p><Answer priced question="Find me a room at Sea N' Rent. May 1-5, two adults." intro="Sea N' Rent has Mediterranean Sea Views available for your dates. Here is the final price, and a link to book direct on the property's own website:"/></article>
-        <article className="s8-card"><span className="s8-n">NEXA Agent · non-branded</span><h3>They asked for a stay in your city.</h3><p>Today that answer belongs to the OTAs. NEXA Agent shares a best-price guarantee, represents the official host, locks availability, and gives the AI a final price it can trust. The guest books with you.</p><Answer priced question="Find me an apartment near the sea in Tel Aviv. May 1-5, two adults." intro="Here is an option that is available for your dates, with a final price and a direct way to book on the property's website:"/></article>
+        <article className="s8-card"><span className="s8-n">NEXA Direct · branded</span><h3>The guest asked for you by name.</h3><p>Today that guest often lands on an OTA listing of your own property, and you pay commission on your own name. Direct brings that booking home.</p><Answer priced question="Find me a room at Sea N' Rent. May 1-5, two adults." mark="Sea N' Rent" picks={[{ label: "seanrent.com, the official website", ok: true, note: 'priced' }, { label: 'The same room on an OTA', ok: false, note: 'commission' }]} intro="Sea N' Rent has Mediterranean Sea Views available for your dates. Here is the final price, and a link to book direct on the property's own website:"/></article>
+        <article className="s8-card"><span className="s8-n">NEXA Agent · non-branded</span><h3>The AI found you a guest.</h3><p>Today that answer belongs to the OTAs. NEXA Agent shares a best-price guarantee, represents the official host, locks availability, and gives the AI a final price it can trust. The guest books with you.</p><Answer priced question="Find me an apartment near the sea in Tel Aviv. May 1-5, two adults." mark="near the sea in Tel Aviv" picks={[{ label: "Mediterranean Sea Views, Sea N' Rent", ok: true, note: 'priced' }, { label: 'Two other apartments nearby', ok: false, note: 'unpriced' }]} intro="Here is an option that is available for your dates, with a final price and a direct way to book on the property's website:"/></article>
       </div>
       <a className="s8-link s8-after" href="/nexa-ai-connector">See how one connection does both <Arrow/></a>
     </section>
@@ -133,10 +137,10 @@ export function Sections({ open, watch, motion }: { open: () => void; watch: () 
       <div className="s8-tile s8-money">
         <div className="s8-receipt" aria-label="The same stay, three ways to book it">
           <div className="s8-receipt-stay"><span className="s8-n">The same stay</span><b>{COASTAL.title} · {STAY.nights} · {STAY.guests}</b><span className="s8-receipt-total"><span>Final total</span><b>{COASTAL.total}</b></span></div>
-          <ul>
-            <li><span>Booked through an OTA</span><em>commission <b>••%</b></em></li>
-            <li><span>NEXA Direct, the guest asked for you by name</span><em>commission <b>••%</b></em></li>
-            <li><span>NEXA Agent, NEXA put you in the answer</span><em>commission <b>••%</b></em></li>
+          <ul className="money-rows" data-line aria-label="Where the money goes, three ways to book">
+            <li className="is-ota" style={{ '--w': .18 } as React.CSSProperties}><span className="money-name">Booked through an OTA</span><span className="money-note">to the OTA</span><span className="money-bar"><i/><em>Stays with you</em></span></li>
+            <li className="is-direct" style={{ '--w': .04 } as React.CSSProperties}><span className="money-name">NEXA Direct, the guest asked for you</span><span className="money-note">to NEXA</span><span className="money-bar"><i/><em>Stays with you</em></span></li>
+            <li className="is-agent" style={{ '--w': .08 } as React.CSSProperties}><span className="money-name">NEXA Agent, the AI found you the guest</span><span className="money-note">to NEXA</span><span className="money-bar"><i/><em>Stays with you</em></span></li>
           </ul>
           <a className="s8-link" href="/pricing">The numbers are on the Pricing page <Arrow/></a>
         </div>
