@@ -13,6 +13,16 @@ import { useTraveler } from './Traveler';
 
 export const PMS = ['Guesty', 'Hostaway', 'BoomNow', 'Hospitable', 'Rentals United', 'HotelSync'];
 const AI_AGENTS = ['ChatGPT', 'Gemini', 'Claude', 'Perplexity'];
+const HUB_CARD = 38, HUB_GAP = 8;
+const hubColH = (n: number) => n * HUB_CARD + (n - 1) * HUB_GAP;
+const HUB_H = hubColH(PMS.length);
+const hubY = (i: number, n: number) => (HUB_H - hubColH(n)) / 2 + i * (HUB_CARD + HUB_GAP) + HUB_CARD / 2;
+const hubWire = (y: number, out: boolean) => {
+  const mid = HUB_H / 2; const s = Math.sign(mid - y) || 1;
+  return out
+    ? `M0,${mid} H52 Q60,${mid} 60,${mid - s * 8} V${y + s * 8} Q60,${y} 68,${y} H120`
+    : `M0,${y} H52 Q60,${y} 60,${y + s * 8} V${mid - s * 8} Q60,${mid} 68,${mid} H120`;
+};
 
 
 const FAQ: [string, string][] = [
@@ -26,9 +36,6 @@ const FAQ: [string, string][] = [
   ['Who owns the guest data?', 'You do. Guest data belongs to the property, not to NEXA AI.'],
 ];
 
-// The guest's question, as the conversation above asked it. It sits above the two answers in [01] and, with motion, flies to the How-it-works stage.
-const ASKED = `${STAY.question} ${STAY.replyChunks.join('')}`;
-
 const COASTAL = LISTINGS.coastal;
 
 // Small glyphs, so the steps read without their words.
@@ -38,6 +45,8 @@ const GLYPH = {
   recommend: <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m12 3 2.7 5.6 6.1.8-4.5 4.3 1.1 6.1L12 16.9l-5.4 2.9 1.1-6.1L3.2 9.4l6.1-.8L12 3Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/></svg>,
   book: <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/><path d="m9 11 2 2 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>,
   plug: <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0V8ZM12 17v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>,
+  system: <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="4" width="18" height="7" rx="1.5" stroke="currentColor" strokeWidth="1.6"/><rect x="3" y="13" width="18" height="7" rx="1.5" stroke="currentColor" strokeWidth="1.6"/><circle cx="7" cy="7.5" r="1" fill="currentColor"/><circle cx="7" cy="16.5" r="1" fill="currentColor"/></svg>,
+  spark: <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m12 3 1.9 5.6L19.5 10.5l-5.6 1.9L12 18l-1.9-5.6L4.5 10.5l5.6-1.9L12 3Z" fill="currentColor"/><path d="m19 15 .8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8L19 15Z" fill="currentColor"/></svg>,
   shield: <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 5 6v5c0 4.5 3 8.4 7 10 4-1.6 7-5.5 7-10V6l-7-3Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/><path d="m9 12 2 2 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>,
 };
 
@@ -45,20 +54,16 @@ const GLYPH = {
 export function Sections({ open, watch, motion }: { open: () => void; watch: () => void; motion: boolean }) {
   const fly = useTraveler(motion);
   return <>
-    <p className="s8-ask is-flying" ref={fly} aria-hidden="true" data-ask="home">“{ASKED}”</p>
+    <div className="orb" ref={fly} aria-hidden="true" data-ask="home"><i className="orb-ring"/><span className="orb-core"><img src="/nexa-white.png" alt="" width="760" height="166"/></span></div>
     <section className="s8-connect wrap" aria-label="One connection">
-      <div className="connect-panel" aria-hidden="true">
-        <div className="connect-col is-pms"><span className="connect-title">Your PMS</span>{PMS.map(name => <span className="connect-chip" key={name}>{name}</span>)}</div>
-        <svg className="connect-wire" viewBox="0 0 100 100" preserveAspectRatio="none">
-          {[0, 1, 2].map(i => <path key={i} id={`cw-l${i}`} d={`M0,${24 + i * 26} C55,${24 + i * 26} 45,50 100,50`}/>)}
-          {[0, 1, 2].map(i => <circle key={i} r="1.6"><animateMotion dur="2.4s" begin={`${i * .8}s`} repeatCount="indefinite"><mpath href={`#cw-l${i}`}/></animateMotion></circle>)}
-        </svg>
-        <div className="connect-node"><b>NEXA</b><span>one connection</span></div>
-        <svg className="connect-wire is-right" viewBox="0 0 100 100" preserveAspectRatio="none">
-          {[0, 1].map(i => <path key={i} id={`cw-r${i}`} d={`M0,50 C55,50 45,${36 + i * 28} 100,${36 + i * 28}`}/>)}
-          {[0, 1].map(i => <circle key={i} r="1.6"><animateMotion dur="2.4s" begin={`${.5 + i * 1.2}s`} repeatCount="indefinite"><mpath href={`#cw-r${i}`}/></animateMotion></circle>)}
-        </svg>
-        <div className="connect-col is-ai"><span className="connect-title">AI agents</span>{AI_AGENTS.map(name => <span className="connect-chip" key={name}>{name}</span>)}</div>
+      <div className="hub-panel" aria-hidden="true">
+        <span className="hub-title">Your PMS</span>
+        <span className="hub-title is-right">AI agents</span>
+        <div className="hub-col is-pms">{PMS.map(name => <span className="hub-card" key={name}><i>{GLYPH.system}</i>{name}</span>)}</div>
+        <svg className="hub-wire" width="120" height={HUB_H} viewBox={`0 0 120 ${HUB_H}`}>{PMS.map((name, i) => { const d = hubWire(hubY(i, PMS.length), false); return <g key={name}><path className="hub-base" d={d}/><path className="hub-beam" d={d} pathLength="100" style={{ animationDelay: `${(i * .5).toFixed(1)}s` }}/></g>; })}</svg>
+        <div className="hub-mid" data-ask="home"><i/><span className="hub-ghost"/><span className="hub"><img src="/nexa-white.png" alt="" width="760" height="166"/></span><span className="hub-title">One connection</span></div>
+        <svg className="hub-wire is-out" width="120" height={HUB_H} viewBox={`0 0 120 ${HUB_H}`}>{AI_AGENTS.map((name, i) => { const d = hubWire(hubY(i, AI_AGENTS.length), true); return <g key={name}><path className="hub-base" d={d}/><path className="hub-beam" d={d} pathLength="100" style={{ animationDelay: `${(1.5 + i * .75).toFixed(2)}s` }}/></g>; })}</svg>
+        <div className="hub-col is-ai">{AI_AGENTS.map(name => <span className="hub-card" key={name}><i>{GLYPH.spark}</i>{name}</span>)}</div>
       </div>
       <div className="connect-claims">
         <div><span className="s8-glyph">{GLYPH.plug}</span><h3>Connects through the PMS you already run.</h3><p>Exactly like connecting Airbnb or Booking.com. No developer. No code. Live in hours.</p></div>
@@ -80,29 +85,36 @@ export function Sections({ open, watch, motion }: { open: () => void; watch: () 
       <SectionLabel n="01" left="The two words" right="Priced or unpriced"/>
       <div className="s8-head">
         <h2 id="priced-title" data-pass>Being mentioned by the AI is nice. <em>Being bookable through the AI</em> is where the money is.</h2>
-        <div><p className="s8-lead">One guest, one question. Two words decide which answer they get:</p></div>
+        <div><p className="s8-lead">The same apartment, the same dates, the same guest asking. Two words decide which answer the AI can give:</p></div>
       </div>
-      <div className="s8-ask-slot" data-ask="home"><p className="s8-ask">“{ASKED}”</p></div>
       <div className="verdicts">
         <article className="verdict is-priced">
-          <header className="verdict-head"><span className="verdict-mark"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 5 5 9-10" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"/></svg></span><div><span>The first word</span><h3>Priced.</h3></div></header>
+          <header className="verdict-head"><span className="verdict-mark"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 5 5 9-10" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"/></svg></span><div><span>The first word</span><h3>Priced.</h3></div></header>
           <ul className="verdict-list"><li>Live availability</li><li>Final price</li><li>Book direct on your website</li></ul>
-          <div className="verdict-answer" aria-label="The AI's answer when you are priced">
-            <span className="answer-who"><i/>ChatGPT</span>
-            <p>Mediterranean Sea Views by Sea N' Rent is available for your dates, $328 final total. You can book it direct on the property's website:</p>
-            <div className="answer-card"><img src="/seanrent/tel-aviv/med/1.jpg" alt="" loading="lazy" width="1080" height="721"/><div><b>Mediterranean Sea Views · 1BR</b><span className="answer-meta">{STAY.shortDates} · Available</span><span className="answer-price">$328 <small>final total</small></span><span className="answer-link">Book direct ↗</span></div></div>
+          <div className="verdict-card">
+            <figure className="verdict-photo"><img src="/seanrent/tel-aviv/med/1.jpg" alt="" loading="lazy" width="1080" height="721"/><figcaption><i/>Priced through NEXA</figcaption></figure>
+            <div className="verdict-body">
+              <span className="answer-who"><i/>ChatGPT</span>
+              <p>“Available for your dates. Here is the final price and the direct link:”</p>
+              <div className="verdict-facts"><b>Mediterranean Sea Views · 1BR</b><span>{STAY.shortDates} · Available</span><strong>$328 <small>final total</small></strong></div>
+              <span className="verdict-cta">Book direct on seanrent.com ↗</span>
+            </div>
           </div>
           <p className="verdict-foot">The AI can answer for you. The booking is yours.</p>
         </article>
         <article className="verdict is-unpriced">
-          <header className="verdict-head"><span className="verdict-mark"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round"/></svg></span><div><span>The second word</span><h3>Unpriced.</h3></div></header>
+          <header className="verdict-head"><span className="verdict-mark"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round"/></svg></span><div><span>The second word</span><h3>Unpriced.</h3></div></header>
           <ul className="verdict-list"><li>Availability unknown</li><li>Price unknown</li><li>Sent to an OTA</li></ul>
-          <div className="verdict-answer" aria-label="The AI's answer when you are unpriced">
-            <span className="answer-who"><i/>ChatGPT</span>
-            <p>I found Mediterranean Sea Views in Tel Aviv, but I can't confirm availability or the final price for your dates. You can check on:</p>
-            <ul className="answer-otas"><li>Booking.com <span>↗</span></li><li>Airbnb <span>↗</span></li><li>Expedia <span>↗</span></li></ul>
+          <div className="verdict-card">
+            <figure className="verdict-photo is-dim"><img src="/seanrent/tel-aviv/med/1.jpg" alt="" loading="lazy" width="1080" height="721"/><figcaption><i/>Not connected</figcaption></figure>
+            <div className="verdict-body">
+              <span className="answer-who"><i/>ChatGPT</span>
+              <p>“I can't confirm availability or the final price for your dates. You can check on:”</p>
+              <div className="verdict-facts"><b>Mediterranean Sea Views · 1BR</b><span>{STAY.shortDates} · Unknown</span><strong>— <small>price unknown</small></strong></div>
+              <ul className="answer-otas"><li>Booking.com <span>↗</span></li><li>Airbnb <span>↗</span></li><li>Expedia <span>↗</span></li></ul>
+            </div>
           </div>
-          <p className="verdict-foot">The AI sends the guest to the OTAs. The commission is theirs.</p>
+          <p className="verdict-foot">The AI cannot answer for you. The guest goes to the OTAs.</p>
         </article>
       </div>
       <p className="s8-statement" data-pass>You're not losing to better hotels. <em>You're losing to the OTAs.</em></p>
