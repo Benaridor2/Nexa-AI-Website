@@ -70,3 +70,6 @@ export function visible(el: HTMLElement | null, opacity: number, semantic = true
     el.setAttribute('aria-hidden', String(opacity < .85));
   }
 }
+
+// Where the conversation's dialogs (the photo gallery) are rendered: the document's body on the site, the embed's own root inside a shadow tree.
+export const portalTarget: { el: HTMLElement | null } = { el: null };

@@ -11,3 +11,5 @@ reference/
 releases/
 dist-single
 single/
+dist-embed/
+public/embed/

@@ -4,6 +4,7 @@ import 'lenis/dist/lenis.css';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { PACING, toScroll } from './pacing';
+import { portalTarget } from './motion';
 
 type Span = { start: number; end: number };
 const scenes = new Set(['guest-story', 'priced', 'how-it-works', 'connector']);
@@ -39,7 +40,7 @@ export function useNarrativeScroll(enabled: boolean) {
     let direction = 0, lastY = window.scrollY, touching = false, settling = false;
     let input: 'wheel' | 'touch' | 'key' | null = null;
     let timer: ReturnType<typeof setTimeout> | undefined;
-    const blocked = () => Boolean(document.querySelector('dialog[open]'));
+    const blocked = () => Boolean(document.querySelector('dialog[open]') || portalTarget.el?.querySelector('dialog[open]'));
 
     // Rule 1: finish a transition the scroll stopped just short of. Anywhere
     // else the page stays exactly where the reader left it.

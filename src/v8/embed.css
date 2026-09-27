@@ -1,0 +1,3 @@
+/* The conversation as an embed inside a shadow root on someone else's page. */
+:host { display: block; }
+.chat-embed { background: #fff; }

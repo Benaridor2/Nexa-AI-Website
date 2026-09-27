@@ -3,7 +3,7 @@ import { ASSET_BASE } from './assets';
 import { createPortal } from 'react-dom';
 import { STAY } from './stay';
 import { FALLBACK_REPLY, FIRST_ANSWER, LISTINGS, OPTIONS, POOL_ANSWER, completion, highlightsFor, matchRequest, suggest, type AmenityIcon, type Listing, type ListingPhoto, type Option, type Request } from './listings';
-import { between, clamp, phase, styles, useScene, visible } from './motion';
+import { between, clamp, phase, styles, useScene, visible, portalTarget } from './motion';
 import { CHAPTERS, STORY_SECONDS, useFilmPlayer, useStoryPlayer, type FilmControls, type PlayerControls, type PlayerStatus } from './storyPlayer';
 
 export function Arrow({ diagonal = false }: { diagonal?: boolean }) {
@@ -198,7 +198,7 @@ function PhotoGallery({ photos, start, title, onClose }: { photos: readonly List
     <button type="button" className="gallery-nav gallery-previous" aria-label="Previous photo" disabled={current === 0} onClick={() => go(current - 1)}><Chevron back/></button>
     <button type="button" className="gallery-nav gallery-next" aria-label="Next photo" disabled={current === last} onClick={() => go(current + 1)}><Chevron/></button>
     <div className="gallery-thumbs">{photos.map((item, i) => <button type="button" key={item.src} aria-label={`Show photo ${i + 1} of ${photos.length}`} aria-current={i === current} onClick={() => go(i)}><img src={item.src} alt="" style={{ objectPosition: item.focus }} loading="lazy"/></button>)}</div>
-  </dialog>, document.body);
+  </dialog>, portalTarget.el ?? document.body);
 }
 
 const AMENITY_PATHS: Record<AmenityIcon, string> = {
@@ -255,7 +255,7 @@ function ListingDetails({ listing, onClose }: { listing: Listing; onClose: () =>
         {listing.rules.length > 0 && <section><h3>House rules</h3><ul>{listing.rules.map(rule => <li key={rule}>{rule}</li>)}</ul></section>}
       </div>
     </div>
-  </dialog>, document.body);
+  </dialog>, portalTarget.el ?? document.body);
 }
 
 // The property's checkout responds to the visitor's clicks, never to scroll progress.

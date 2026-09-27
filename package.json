@@ -9,10 +9,11 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "prebuild": "node scripts/fetch-listing-photos.mjs",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && npm run build:embed && vite build",
     "preview": "vite preview --host 127.0.0.1",
     "build:anatomy": "SINGLE_INPUT=anatomy.html VITE_ASSET_BASE=https://nexa-ai-delta-three.vercel.app vite build -c vite.single.config.ts && mkdir -p single && node scripts/inline-single.mjs anatomy.html single/nexa-chat-anatomy.html",
-    "build:widget": "SINGLE_INPUT=widget.html VITE_ASSET_BASE=https://nexa-ai-delta-three.vercel.app vite build -c vite.single.config.ts && mkdir -p single && node scripts/inline-single.mjs widget.html single/nexa-chat-widget.html"
+    "build:widget": "SINGLE_INPUT=widget.html VITE_ASSET_BASE=https://nexa-ai-delta-three.vercel.app vite build -c vite.single.config.ts && mkdir -p single && node scripts/inline-single.mjs widget.html single/nexa-chat-widget.html",
+    "build:embed": "VITE_ASSET_BASE=https://nexa-ai-delta-three.vercel.app vite build -c vite.embed.config.ts && node scripts/bundle-embed.mjs"
   },
   "dependencies": {
     "@fontsource-variable/crimson-pro": "^5.2.6",
