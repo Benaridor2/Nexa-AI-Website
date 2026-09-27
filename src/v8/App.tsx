@@ -4,7 +4,7 @@ import { useNarrativeScroll } from '../v6/useNarrativeScroll';
 import { Arrow, Conversation, Label } from '../v6/Scenes';
 import { SiteHeader } from '../v6/Header';
 import { SiteFooter, useOnboarding } from '../v6/Shell';
-import { PMS, Sections } from './Sections';
+import { Sections } from './Sections';
 import { useReadingPass } from './pass';
 
 // V8 homepage: the hero and the scroll-driven ChatGPT conversation from V6
@@ -76,7 +76,7 @@ export default function App() {
     <SiteHeader onGetPriced={() => open('priced')} onSignIn={() => open('signin')}/>
     <main id="main">
       <section className="hero wrap" aria-labelledby="hero-title">
-        <div className="hero-grid" aria-hidden="true"/><div className="hero-content"><Label>THE AI CONNECTOR FOR HOTELS & VACATION RENTALS</Label><h1 id="hero-title">Your next guest is asking an AI.<br/><em>Be the answer.</em></h1><p>Right now, as you read this, a traveler is asking ChatGPT where to stay. If your property is not part of that conversation, your competitor's is. NEXA AI makes sure your property is priced, listed, bookable direct.</p><div className="hero-actions"><button className="button button-dark" onClick={() => open()}>Get Priced <Arrow diagonal /></button><a className="text-link" href="#watch-a-booking">Watch a booking happen <Arrow/></a></div><p className="hero-pms"><span>Connects through the PMS you already run:</span> {PMS.map(name => name.replace(' ', ' ')).join(' · ')}</p></div>
+        <div className="hero-grid" aria-hidden="true"/><div className="hero-content"><Label>THE AI CONNECTOR FOR HOTELS & VACATION RENTALS</Label><h1 id="hero-title">Your next guest is asking an AI.<br/><em>Be the answer.</em></h1><p>Right now, as you read this, a traveler is asking ChatGPT where to stay. If your property is not part of that conversation, your competitor's is. NEXA AI makes sure your property is priced, listed, bookable direct.</p><div className="hero-actions"><button className="button button-dark" onClick={() => open()}>Get Priced <Arrow diagonal /></button><a className="text-link" href="#watch-a-booking">Watch a booking happen <Arrow/></a></div></div>
       </section>
       <Conversation motion={!flow} controls={false}/>
       {/* The sections have their own scope; the hero and the conversation are V6 to the pixel. */}
