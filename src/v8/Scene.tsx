@@ -3,7 +3,6 @@ import { Arrow } from '../v6/Scenes';
 import { LISTINGS } from '../v6/listings';
 import { STAY } from '../v6/stay';
 import { SectionLabel } from './Label';
-import { useTraveler } from './Traveler';
 
 // How it works, told with one stage that travels and lands. The four steps
 // scroll past on the left; the stage on the right stays on screen while they
@@ -76,12 +75,10 @@ export function HowItWorks({ watch, motion }: { watch: () => void; motion: boole
     return () => { if (frame) cancelAnimationFrame(frame); window.removeEventListener('scroll', schedule); window.removeEventListener('resize', schedule); };
   }, [motion]);
 
-  const seed = useTraveler(motion);
   return <section className="s8-section s8-dark hiw" id="how-it-works" aria-labelledby="works-title" ref={ref} data-step="1">
     <div className="wrap hiw-head">
       <SectionLabel n="02" left="How it works" right="The fix"/>
       <h2 id="works-title" data-pass>NEXA AI makes your property <em>PRICED</em>. Here is how.</h2>
-      <span className="hiw-seed" ref={seed} aria-hidden="true"><img src="/nexa-purple.png" alt="" width="1520" height="333"/></span>
     </div>
     <div className="wrap hiw-body">
       <div className="hiw-stage" aria-hidden="true">

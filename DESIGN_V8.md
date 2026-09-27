@@ -48,8 +48,9 @@ like the reference", are followed literally. Under the conversation:
   apartment, the same dates, the same guest asking", then one comparison
   frame on the grey tile, split by a hairline, its rows shared across the
   divider so the eye compares content, not paint (Apple's compare page,
-  Mercury's vs-table, Plausible's greyed loser): "01 / Priced" with a violet
-  dot and "02 / Unpriced" with a grey dot; the same balcony photo in colour
+  Mercury's vs-table, Plausible's greyed loser): "01 / Unpriced" with a grey
+  dot on the left and "02 / Priced" with a violet dot on the right, the
+  NEXA tile beside "Priced."; the same balcony photo in colour
   with a "Priced through NEXA" tag, and in grey at 55% with "Not connected";
   ChatGPT's one-line answer; then the table: Availability "Available, May
   1-5" against a dash, Final price "$328 final total" against a dash, Where
@@ -104,18 +105,21 @@ white, purple as the single accent.
 
 Two flights were tried and dropped: the guest's question as a text bubble
 (not an object) and NEXA's sphere flying from the connection panel to the
-stage (2,700px of scroll at reading height, over the verdicts: too long and
-in the way). The reference sites never let an object leave its section or
-cross copy, and pin floating objects for at most 1.5 viewport-heights in
-their own lane. So the page's travelling object is the How-it-works stage
-itself, and NEXA keeps one short, in-section move: the seed. The same flat
-NEXA tile from the connection panel waits beside the [02] heading, in the
-empty column above the stage. Over the last half screen of scrolling before
-the stage sticks, it slides down and shrinks into the NEXA node on the
-stage's line, and the node's own 16px mark takes over (`Traveler.tsx`,
-scrubbed by the scroll, so it comes back up the same way). It never crosses
-text; under 1000px and under reduced motion it is a still and the mark is
-simply there.
+stage across four sections (too long and in the way). What stayed, at
+Ben's direction: the same flat NEXA tile from the connection panel has a
+second home in [01], in the Priced column beside the word "Priced.", placed
+by `Traveler.tsx` on the exact vertical line of the NEXA node on the
+How-it-works stage below. As the reader scrolls on, the tile lifts off and
+hangs at the exact height where that node will sit once the stage sticks,
+while the rest of the frame, the statement, the "ChatGPT can make
+mistakes" line and the [02] heading pass under it; the stage rises to meet
+it and, over the last third of the way, the tile shrinks into the 16px
+mark inside the NEXA node, which takes over. Straight down the same line,
+scrubbed by the scroll, so it climbs back the same way. The column keeps a
+dashed outline where it left. Under 1000px and under reduced motion the
+tile is a still in the column (hidden on phones) and the mark is simply
+there. [01] reads Unpriced first, Priced second, so the tile sits on the
+right, above the stage's column.
 
 Inside the stage, after a critique round: the AI-to-AI exchange panel slides
 away as the answer card lands in step 2 (it used to cover the card); in step

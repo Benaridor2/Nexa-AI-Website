@@ -368,12 +368,15 @@
 .hub-base { stroke: #0d0d1733; stroke-width: 1; stroke-dasharray: 2 5; stroke-linecap: round; }
 .hub-wire circle { fill: var(--violet); }
 .hub-mid { display: flex; flex-direction: column; align-items: center; gap: 10px; }
-.hub, .hiw-seed { display: flex; align-items: center; justify-content: center; width: 96px; height: 96px; border-radius: 24px; background: #fff; border: 1.5px solid var(--violet); box-shadow: 0 12px 28px -18px #863db366; }
-.hub img, .hiw-seed img { width: 60%; height: auto; }
+.hub, .seed, .seed-home { display: flex; align-items: center; justify-content: center; width: 96px; height: 96px; border-radius: 24px; background: #fff; border: 1.5px solid var(--violet); box-shadow: 0 12px 28px -18px #863db366; }
+.hub img, .seed img, .seed-home img { width: 60%; height: auto; }
 .hub-caption { font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); white-space: nowrap; }
-/* The seed: the same tile beside the [02] heading, in the stage's column; it slides into the NEXA node on the line as the stage arrives (Traveler.tsx). */
-.hiw-seed { position: absolute; right: 0; top: calc(50% - 30px); margin-right: calc((100% - 56px) * 7 / 24 - 48px); transform-origin: 50% 50%; will-change: transform; }
-.hiw[data-seed="landed"] .hiw-seed { visibility: hidden; }
+/* The seed: the same NEXA tile sits in the Priced column of [01], on the exact vertical line of the NEXA node on the stage below. With motion it holds at reading height while the page scrolls under it, then drops straight down into the node's mark (Traveler.tsx); the column keeps a dashed outline. */
+.seed-home { position: absolute; top: -4px; left: var(--seed-x, auto); right: 0; width: 72px; height: 72px; border-radius: 18px; }
+.compare[data-seed="flying"] .seed-home, .compare[data-seed="landed"] .seed-home { background: transparent; border-style: dashed; border-color: #863db366; box-shadow: none; }
+.compare[data-seed="flying"] .seed-home img, .compare[data-seed="landed"] .seed-home img { visibility: hidden; }
+.seed { position: fixed; left: 0; top: 0; z-index: 6; display: none; width: 72px; height: 72px; border-radius: 18px; pointer-events: none; will-change: transform, width, height; box-shadow: 0 calc(12px + 16px * var(--arc, 0)) calc(28px + 24px * var(--arc, 0)) -18px #863db380; }
+.seed[data-seed="flying"] { display: flex; }
 .hiw-mark { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; margin-right: 7px; border-radius: 4px; background: var(--violet); transition: opacity .25s; }
 .hiw-mark img { width: 11px; height: auto; }
 .hiw[data-seed="home"] .hiw-mark, .hiw[data-seed="flying"] .hiw-mark { opacity: 0; }
@@ -393,12 +396,12 @@
 .compare { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 1px minmax(0, 1fr); gap: 0 28px; margin-top: 56px; padding: 28px; border-radius: 10px; background: var(--card); }
 .compare::before { content: ''; grid-column: 2; grid-row: 1 / span 6; background: var(--line); }
 .compare-col { display: grid; grid-template-rows: subgrid; grid-row: 1 / span 6; gap: 14px 0; }
-.compare-col.is-priced { grid-column: 1; }
-.compare-col.is-unpriced { grid-column: 3; }
+.compare-col.is-unpriced { grid-column: 1; }
+.compare-col.is-priced { grid-column: 3; }
 .compare-eyebrow { display: inline-flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 12px; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-3); }
 .compare-eyebrow i { width: 6px; height: 6px; border-radius: 50%; background: var(--violet); }
 .is-unpriced .compare-eyebrow i { background: #9b98a6; }
-.compare-head { min-height: 66px; }
+.compare-head { position: relative; min-height: 76px; }
 .compare-head h3 { margin-top: 6px; font-size: 34px; line-height: 1; letter-spacing: -.02em; color: var(--ink); }
 .is-unpriced .compare-head h3 { color: var(--ink-3); }
 .compare-photo { position: relative; margin: 0; aspect-ratio: 16 / 7; border-radius: 8px; overflow: hidden; border: 1px solid var(--line); }
@@ -481,7 +484,7 @@
   .s8 .answer-card img { width: 76px; height: 76px; }
   .v8 .s8-section:last-of-type { margin-bottom: 72px; }
   .hiw-head h2 { margin-top: 24px; font-size: 38px; }
-  .hiw-seed { display: none; }
+  .seed-home { display: none; }
   .hiw-steps { padding-top: 24px; }
   .hiw-bar.is-site em { display: none; }
   .hiw-composer { display: none; }
@@ -532,7 +535,7 @@
   .compare::before { display: none; }
   .compare-col { display: flex; flex-direction: column; gap: 12px; }
   .compare-col.is-priced, .compare-col.is-unpriced { grid-column: 1; grid-row: auto; }
-  .compare-col.is-unpriced { margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--line); }
+  .compare-col.is-priced { margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--line); }
   .compare-head { min-height: 0; }
   .compare-head h3 { font-size: 27px; }
   .compare-photo { aspect-ratio: 16 / 8; }

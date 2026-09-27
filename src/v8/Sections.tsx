@@ -3,6 +3,7 @@ import { STAY } from '../v6/stay';
 import { LISTINGS } from '../v6/listings';
 import { HowItWorks } from './Scene';
 import { SectionLabel } from './Label';
+import { useTraveler } from './Traveler';
 
 // Everything under the conversation, in the order and wording of the website
 // plan (Content V3), in the language of the reference site: a numbered label
@@ -41,7 +42,9 @@ const GLYPH = {
 
 // open: the Get Priced dialog. watch: brings the reader back to the conversation.
 export function Sections({ open, watch, motion }: { open: () => void; watch: () => void; motion: boolean }) {
+  const seed = useTraveler(motion);
   return <>
+    <span className="seed" ref={seed} aria-hidden="true" data-seed="home"><img src="/nexa-purple.png" alt="" width="1520" height="333"/></span>
     <section className="s8-connect wrap" aria-label="One connection">
       <div className="hub-panel" aria-hidden="true">
         <div className="hub-side is-pms"><span className="hub-chip">Your PMS</span><ul>{PMS.map(name => <li key={name}><i>{GLYPH.system}</i>{name}</li>)}</ul></div>
@@ -73,20 +76,8 @@ export function Sections({ open, watch, motion }: { open: () => void; watch: () 
         <div><p className="s8-lead">The same apartment, the same dates, the same guest asking. Two words decide which answer the AI can give:</p></div>
       </div>
       <div className="compare" aria-label="The same apartment, priced and unpriced">
-        <div className="compare-col is-priced">
-          <header className="compare-head"><span className="compare-eyebrow"><i/>01 / Priced</span><h3>Priced.</h3></header>
-          <figure className="compare-photo"><img src="/seanrent/tel-aviv/med/1.jpg" alt="" loading="lazy" width="1080" height="721"/><figcaption><i/>Priced through NEXA</figcaption></figure>
-          <p className="compare-say"><span className="answer-who"><i/>ChatGPT</span>“Available for your dates. Here is the final price and the direct link:”</p>
-          <dl className="compare-rows">
-            <div><dt>Availability</dt><dd>{CHECK}Available, {STAY.shortDates}</dd></div>
-            <div><dt>Final price</dt><dd className="is-price">$328 <small>final total</small></dd></div>
-            <div><dt>Where the guest books</dt><dd>{CHECK}seanrent.com, direct</dd></div>
-          </dl>
-          <div className="compare-act"><span className="s8-button"><Arrow diagonal/>Book direct on seanrent.com</span></div>
-          <p className="compare-foot">The AI can answer for you. The booking is yours.</p>
-        </div>
         <div className="compare-col is-unpriced">
-          <header className="compare-head"><span className="compare-eyebrow"><i/>02 / Unpriced</span><h3>Unpriced.</h3></header>
+          <header className="compare-head"><span className="compare-eyebrow"><i/>01 / Unpriced</span><h3>Unpriced.</h3></header>
           <figure className="compare-photo is-dim"><img src="/seanrent/tel-aviv/med/1.jpg" alt="" loading="lazy" width="1080" height="721"/><figcaption><i/>Not connected</figcaption></figure>
           <p className="compare-say"><span className="answer-who"><i/>ChatGPT</span>“I can't confirm availability or the final price for these dates.”</p>
           <dl className="compare-rows">
@@ -96,6 +87,18 @@ export function Sections({ open, watch, motion }: { open: () => void; watch: () 
           </dl>
           <div className="compare-act"><span className="compare-empty" aria-label="Nothing to book here">—</span></div>
           <p className="compare-foot">The AI cannot answer for you. The guest goes to an OTA.</p>
+        </div>
+        <div className="compare-col is-priced">
+          <header className="compare-head"><span className="compare-eyebrow"><i/>02 / Priced</span><h3>Priced.</h3><span className="seed-home" aria-hidden="true"><img src="/nexa-purple.png" alt="" width="1520" height="333"/></span></header>
+          <figure className="compare-photo"><img src="/seanrent/tel-aviv/med/1.jpg" alt="" loading="lazy" width="1080" height="721"/><figcaption><i/>Priced through NEXA</figcaption></figure>
+          <p className="compare-say"><span className="answer-who"><i/>ChatGPT</span>“Available for your dates. Here is the final price and the direct link:”</p>
+          <dl className="compare-rows">
+            <div><dt>Availability</dt><dd>{CHECK}Available, {STAY.shortDates}</dd></div>
+            <div><dt>Final price</dt><dd className="is-price">$328 <small>final total</small></dd></div>
+            <div><dt>Where the guest books</dt><dd>{CHECK}seanrent.com, direct</dd></div>
+          </dl>
+          <div className="compare-act"><span className="s8-button"><Arrow diagonal/>Book direct on seanrent.com</span></div>
+          <p className="compare-foot">The AI can answer for you. The booking is yours.</p>
         </div>
       </div>
       <p className="s8-statement" data-pass>You're not losing to better hotels. <em>You're losing to the OTAs.</em></p>
