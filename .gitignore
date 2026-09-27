@@ -9,4 +9,5 @@ reference/
 !.env.example
 *.log
 releases/
-dist-anatomy
+dist-single
+single/

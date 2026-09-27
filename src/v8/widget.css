@@ -1,0 +1,16 @@
+/* The conversation as a widget: no page around it, the window sized to the frame it is embedded in. */
+html.chat-widget-root, html.chat-widget-root body { margin: 0; padding: 0; background: transparent; }
+.chat-widget { --ink: #0d0d17; --ink-2: #45444d; --ink-3: #6f6e78; --line: #e6e4ea; --violet: #863db3; --mono: 'Geist Mono Variable', ui-monospace, monospace; padding: 12px; background: transparent; overflow: visible; font-family: 'Geist Variable', Arial, sans-serif; }
+.chat-widget .conversation { height: auto; background: transparent; }
+.chat-widget .conversation .scene-stage { position: static; display: block; width: 100%; height: auto; padding: 0; }
+.chat-widget .conversation .scene-anchor { display: none; }
+.chat-widget .chat-window { width: 100%; height: clamp(440px, calc(100vh - 92px), 640px); max-height: none; margin: 0; border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 1px 2px #0d0d170a; }
+.chat-widget .film-controls { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
+.chat-widget .film-toggle { display: grid; place-items: center; width: 40px; height: 40px; padding: 0; border: 0; border-radius: 50%; background: var(--ink); color: #fff; cursor: pointer; }
+.chat-widget .film-toggle:hover { background: var(--violet); }
+.chat-widget .film-toggle svg { width: 16px; height: 16px; }
+.chat-widget .film-replay { padding: 0; border: 0; background: none; font: inherit; font-size: 14px; font-weight: 550; color: var(--ink-2); cursor: pointer; }
+.chat-widget .film-replay:hover { color: var(--ink); }
+.chat-widget .film-ended { font-family: var(--mono); font-size: 12px; color: var(--ink-3); }
+.chat-widget .scene-caption { margin-top: 8px; text-align: left; font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+@media (max-width: 699px) { .chat-widget { padding: 8px; } .chat-widget .chat-window { height: clamp(420px, calc(100vh - 84px), 600px); border-radius: 12px; } }
