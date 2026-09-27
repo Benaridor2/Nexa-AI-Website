@@ -3,6 +3,7 @@ import { Arrow } from '../v6/Scenes';
 import { LISTINGS } from '../v6/listings';
 import { STAY } from '../v6/stay';
 import { SectionLabel } from './Label';
+import { useTraveler } from './Traveler';
 
 // How it works, told with one stage that travels and lands. The four steps
 // scroll past on the left; the stage on the right stays on screen while they
@@ -26,8 +27,6 @@ const GLYPH = {
   recommend: <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m12 3 2.7 5.6 6.1.8-4.5 4.3 1.1 6.1L12 16.9l-5.4 2.9 1.1-6.1L3.2 9.4l6.1-.8L12 3Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/></svg>,
   book: <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/><path d="m9 11 2 2 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>,
 };
-const STEP_GLYPHS = [GLYPH.ask, GLYPH.answer, GLYPH.recommend, GLYPH.book];
-
 // The AI and NEXA, talking: what the guest never sees.
 const WIRE: [string, string][] = [
   ['ChatGPT → NEXA', 'Availability, May 1-5, 2 adults?'],
@@ -76,14 +75,16 @@ export function HowItWorks({ watch, motion }: { watch: () => void; motion: boole
     return () => { if (frame) cancelAnimationFrame(frame); window.removeEventListener('scroll', schedule); window.removeEventListener('resize', schedule); };
   }, [motion]);
 
+  const seed = useTraveler(motion);
   return <section className="s8-section s8-dark hiw" id="how-it-works" aria-labelledby="works-title" ref={ref} data-step="1">
     <div className="wrap hiw-head">
       <SectionLabel n="02" left="How it works" right="The fix"/>
       <h2 id="works-title" data-pass>NEXA AI makes your property <em>PRICED</em>. Here is how.</h2>
+      <span className="hiw-seed" ref={seed} aria-hidden="true"><img src="/nexa-purple.png" alt="" width="1520" height="333"/></span>
     </div>
     <div className="wrap hiw-body">
       <div className="hiw-stage" aria-hidden="true">
-        <div className="hiw-flow"><span className="hiw-node is-ai">Guest's AI</span><i className="hiw-line"><b/></i><span className="hiw-node is-nexa">NEXA</span><i className="hiw-line is-second"><b/></i><span className="hiw-node is-pms">Your PMS</span></div>
+        <div className="hiw-flow"><span className="hiw-node is-ai">Guest's AI</span><i className="hiw-line"><b/></i><span className="hiw-node is-nexa"><i className="hiw-mark"><img src="/nexa-white.png" alt="" width="760" height="166"/></i>NEXA</span><i className="hiw-line is-second"><b/></i><span className="hiw-node is-pms">Your PMS</span></div>
         {/* Steps 1 to 3: the conversation. */}
         <div className="hiw-chat">
           <div className="hiw-bar"><i/><span>ChatGPT</span></div>
@@ -100,6 +101,7 @@ export function HowItWorks({ watch, motion }: { watch: () => void; motion: boole
               <p className="hiw-text is-link"><span className="hiw-who"><i/>ChatGPT</span>Here is the direct link to book on their website: <a>seanrent.com/checkout ↗</a></p>
             </div>
           </div>
+          <div className="hiw-composer"><span>Message ChatGPT</span><i/></div>
           {/* Step 2: the AI and NEXA, talking. */}
           <div className="hiw-wire">
             <p className="hiw-wire-title">AI-to-AI, in real time</p>
@@ -119,12 +121,12 @@ export function HowItWorks({ watch, motion }: { watch: () => void; motion: boole
         </div>
       </div>
       <div className="hiw-steps">
-        {STEPS.map((step, i) => <div className="hiw-step" data-index={i + 1} key={step.n}><span className="s8-glyph">{STEP_GLYPHS[i]}</span><span className="hiw-n">{step.n}</span><h3>{step.title}</h3><p>{step.text}</p></div>)}
+        {STEPS.map((step, i) => <div className="hiw-step" data-index={i + 1} key={step.n}><span className="hiw-n">{step.n}</span><h3>{step.title}</h3><p>{step.text}</p></div>)}
         <div className="hiw-landing" data-index="5">
           <span className="hiw-n">Booked</span>
           <h3>On your website. In your PMS.</h3>
           <p>The guest installs nothing. No application needed. No plugin installed in the chat by the guest. The guest just asks, the AI simply answers.</p>
-          <div className="hiw-links"><a className="s8-button is-light" href="/how-it-works"><Arrow diagonal/>Watch now</a><button type="button" className="s8-link" onClick={watch}>Watch a booking happen, step by step <Arrow/></button></div>
+          <div className="hiw-links"><a className="s8-button is-light" href="/how-it-works"><Arrow diagonal/>How it works</a><button type="button" className="s8-link" onClick={watch}>Watch a booking happen, step by step <Arrow/></button></div>
         </div>
       </div>
     </div>

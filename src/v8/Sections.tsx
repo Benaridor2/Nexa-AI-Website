@@ -3,7 +3,6 @@ import { STAY } from '../v6/stay';
 import { LISTINGS } from '../v6/listings';
 import { HowItWorks } from './Scene';
 import { SectionLabel } from './Label';
-import { useTraveler } from './Traveler';
 
 // Everything under the conversation, in the order and wording of the website
 // plan (Content V3), in the language of the reference site: a numbered label
@@ -13,17 +12,6 @@ import { useTraveler } from './Traveler';
 
 export const PMS = ['Guesty', 'Hostaway', 'BoomNow', 'Hospitable', 'Rentals United', 'HotelSync'];
 const AI_AGENTS = ['ChatGPT', 'Gemini', 'Claude', 'Perplexity'];
-const HUB_CARD = 38, HUB_GAP = 8;
-const hubColH = (n: number) => n * HUB_CARD + (n - 1) * HUB_GAP;
-const HUB_H = hubColH(PMS.length);
-const hubY = (i: number, n: number) => (HUB_H - hubColH(n)) / 2 + i * (HUB_CARD + HUB_GAP) + HUB_CARD / 2;
-const hubWire = (y: number, out: boolean) => {
-  const mid = HUB_H / 2; const s = Math.sign(mid - y) || 1;
-  return out
-    ? `M0,${mid} H52 Q60,${mid} 60,${mid - s * 8} V${y + s * 8} Q60,${y} 68,${y} H120`
-    : `M0,${y} H52 Q60,${y} 60,${y + s * 8} V${mid - s * 8} Q60,${mid} 68,${mid} H120`;
-};
-
 
 const FAQ: [string, string][] = [
   ['Why does the AI recommend my competitor and not me?', 'In most cases, because they are priced and you are not. Check it yourself with the next question.'],
@@ -37,6 +25,7 @@ const FAQ: [string, string][] = [
 ];
 
 const COASTAL = LISTINGS.coastal;
+const CHECK = <svg className="ck" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 5 5 9-10" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"/></svg>;
 
 // Small glyphs, so the steps read without their words.
 const GLYPH = {
@@ -52,21 +41,17 @@ const GLYPH = {
 
 // open: the Get Priced dialog. watch: brings the reader back to the conversation.
 export function Sections({ open, watch, motion }: { open: () => void; watch: () => void; motion: boolean }) {
-  const fly = useTraveler(motion);
   return <>
-    <div className="orb" ref={fly} aria-hidden="true" data-ask="home"><i className="orb-ring"/><span className="orb-core"><img src="/nexa-white.png" alt="" width="760" height="166"/></span></div>
     <section className="s8-connect wrap" aria-label="One connection">
       <div className="hub-panel" aria-hidden="true">
-        <span className="hub-title">Your PMS</span>
-        <span className="hub-title is-right">AI agents</span>
-        <div className="hub-col is-pms">{PMS.map(name => <span className="hub-card" key={name}><i>{GLYPH.system}</i>{name}</span>)}</div>
-        <svg className="hub-wire" width="120" height={HUB_H} viewBox={`0 0 120 ${HUB_H}`}>{PMS.map((name, i) => { const d = hubWire(hubY(i, PMS.length), false); return <g key={name}><path className="hub-base" d={d}/><path className="hub-beam" d={d} pathLength="100" style={{ animationDelay: `${(i * .5).toFixed(1)}s` }}/></g>; })}</svg>
-        <div className="hub-mid" data-ask="home"><i/><span className="hub-ghost"/><span className="hub"><img src="/nexa-white.png" alt="" width="760" height="166"/></span><span className="hub-title">One connection</span></div>
-        <svg className="hub-wire is-out" width="120" height={HUB_H} viewBox={`0 0 120 ${HUB_H}`}>{AI_AGENTS.map((name, i) => { const d = hubWire(hubY(i, AI_AGENTS.length), true); return <g key={name}><path className="hub-base" d={d}/><path className="hub-beam" d={d} pathLength="100" style={{ animationDelay: `${(1.5 + i * .75).toFixed(2)}s` }}/></g>; })}</svg>
-        <div className="hub-col is-ai">{AI_AGENTS.map(name => <span className="hub-card" key={name}><i>{GLYPH.spark}</i>{name}</span>)}</div>
+        <div className="hub-side is-pms"><span className="hub-chip">Your PMS</span><ul>{PMS.map(name => <li key={name}><i>{GLYPH.system}</i>{name}</li>)}</ul></div>
+        <svg className="hub-wire" width="104" height="8" viewBox="0 0 104 8"><line className="hub-base" x1="0" y1="4" x2="104" y2="4"/><circle r="2"><animateMotion dur="4s" repeatCount="indefinite" path="M0,4 H104" calcMode="spline" keyTimes="0;1" keySplines=".4 0 .2 1"/><animate attributeName="opacity" values="0;1;1;0" keyTimes="0;.12;.88;1" dur="4s" repeatCount="indefinite"/></circle></svg>
+        <div className="hub-mid"><span className="hub"><img src="/nexa-purple.png" alt="" width="1520" height="333"/></span><span className="hub-caption">One connection</span></div>
+        <svg className="hub-wire is-out" width="104" height="8" viewBox="0 0 104 8"><line className="hub-base" x1="0" y1="4" x2="104" y2="4"/><circle r="2"><animateMotion dur="4s" begin="2s" repeatCount="indefinite" path="M0,4 H104" calcMode="spline" keyTimes="0;1" keySplines=".4 0 .2 1"/><animate attributeName="opacity" values="0;1;1;0" keyTimes="0;.12;.88;1" dur="4s" begin="2s" repeatCount="indefinite"/></circle></svg>
+        <div className="hub-side is-ai"><span className="hub-chip">AI agents</span><ul>{AI_AGENTS.map(name => <li key={name}><i>{GLYPH.spark}</i>{name}</li>)}</ul></div>
       </div>
       <div className="connect-claims">
-        <div><span className="s8-glyph">{GLYPH.plug}</span><h3>Connects through the PMS you already run.</h3><p>Exactly like connecting Airbnb or Booking.com. No developer. No code. Live in hours.</p></div>
+        <div><span className="s8-glyph">{GLYPH.plug}</span><h3>Connects through the PMS you already run.</h3><p>Exactly like connecting Airbnb or Booking.com. No developer. No code. Live in days.</p></div>
         <div><span className="s8-glyph">{GLYPH.shield}</span><h3>A direct booking, on paper as well.</h3><p>The guest books on your website, under your terms and your payment. NEXA AI is never a party to the reservation. Guest data belongs to you.</p><a className="s8-link" href="/nexa-ai-connector">How it works legally <Arrow/></a></div>
       </div>
     </section>
@@ -74,7 +59,7 @@ export function Sections({ open, watch, motion }: { open: () => void; watch: () 
     <section className="s8-proof wrap" aria-label="Proof">
       <p>Global hospitality leaders voted. Over 65% chose NEXA AI.</p>
       <ul>
-        <li className="is-gold"><b><svg className="gold-medal" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="gold-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#f6dd8f"/><stop offset=".45" stopColor="#c9962a"/><stop offset=".7" stopColor="#f0d27a"/><stop offset="1" stopColor="#a6761c"/></linearGradient></defs><path d="M7.5 1.5h3.2l1.3 5.2-3 1.1-1.5-6.3Zm9 0h-3.2L12 6.7l3 1.1 1.5-6.3Z" fill="url(#gold-g)"/><circle cx="12" cy="14.5" r="7.2" fill="url(#gold-g)"/><circle cx="12" cy="14.5" r="5.6" fill="none" stroke="#fff5d6" strokeOpacity=".7" strokeWidth=".8"/><path d="m12 10.2 1.3 2.7 3 .4-2.2 2.1.5 3-2.6-1.4-2.6 1.4.5-3-2.2-2.1 3-.4 1.3-2.7Z" fill="#fff8e1"/></svg>Winner</b><span>HVC Startup Competition by SHIC, Zurich 2026</span></li>
+        <li className="is-gold"><b><svg className="gold-medal" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="gold-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#e9cf7c"/><stop offset=".5" stopColor="#c19a35"/><stop offset="1" stopColor="#a67d24"/></linearGradient></defs><path d="M8 2h3l1.2 5-2.8 1L8 2Zm8 0h-3l-1.2 5 2.8 1L16 2Z" fill="url(#gold-g)"/><circle cx="12" cy="14.5" r="6.8" fill="url(#gold-g)"/><path d="m12 10.6 1.2 2.5 2.7.4-2 1.9.5 2.7-2.4-1.3-2.4 1.3.5-2.7-2-1.9 2.7-.4 1.2-2.5Z" fill="#fff8e1"/></svg>Winner</b><span>HVC Startup Competition by SHIC, Zurich 2026</span></li>
         <li><b>65%+</b><span>of the vote from global hospitality leaders</span></li>
         <li><b>37</b><span>countries, USA &amp; EMEA</span></li>
         <li><b>6</b><span>PMS integrations, live in days</span></li>
@@ -87,35 +72,31 @@ export function Sections({ open, watch, motion }: { open: () => void; watch: () 
         <h2 id="priced-title" data-pass>Being mentioned by the AI is nice. <em>Being bookable through the AI</em> is where the money is.</h2>
         <div><p className="s8-lead">The same apartment, the same dates, the same guest asking. Two words decide which answer the AI can give:</p></div>
       </div>
-      <div className="verdicts">
-        <article className="verdict is-priced">
-          <header className="verdict-head"><span className="verdict-mark"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 5 5 9-10" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"/></svg></span><div><span>The first word</span><h3>Priced.</h3></div></header>
-          <ul className="verdict-list"><li>Live availability</li><li>Final price</li><li>Book direct on your website</li></ul>
-          <div className="verdict-card">
-            <figure className="verdict-photo"><img src="/seanrent/tel-aviv/med/1.jpg" alt="" loading="lazy" width="1080" height="721"/><figcaption><i/>Priced through NEXA</figcaption></figure>
-            <div className="verdict-body">
-              <span className="answer-who"><i/>ChatGPT</span>
-              <p>“Available for your dates. Here is the final price and the direct link:”</p>
-              <div className="verdict-facts"><b>Mediterranean Sea Views · 1BR</b><span>{STAY.shortDates} · Available</span><strong>$328 <small>final total</small></strong></div>
-              <span className="verdict-cta">Book direct on seanrent.com ↗</span>
-            </div>
-          </div>
-          <p className="verdict-foot">The AI can answer for you. The booking is yours.</p>
-        </article>
-        <article className="verdict is-unpriced">
-          <header className="verdict-head"><span className="verdict-mark"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round"/></svg></span><div><span>The second word</span><h3>Unpriced.</h3></div></header>
-          <ul className="verdict-list"><li>Availability unknown</li><li>Price unknown</li><li>Sent to an OTA</li></ul>
-          <div className="verdict-card">
-            <figure className="verdict-photo is-dim"><img src="/seanrent/tel-aviv/med/1.jpg" alt="" loading="lazy" width="1080" height="721"/><figcaption><i/>Not connected</figcaption></figure>
-            <div className="verdict-body">
-              <span className="answer-who"><i/>ChatGPT</span>
-              <p>“I can't confirm availability or the final price for your dates. You can check on:”</p>
-              <div className="verdict-facts"><b>Mediterranean Sea Views · 1BR</b><span>{STAY.shortDates} · Unknown</span><strong>— <small>price unknown</small></strong></div>
-              <ul className="answer-otas"><li>Booking.com <span>↗</span></li><li>Airbnb <span>↗</span></li><li>Expedia <span>↗</span></li></ul>
-            </div>
-          </div>
-          <p className="verdict-foot">The AI cannot answer for you. The guest goes to the OTAs.</p>
-        </article>
+      <div className="compare" aria-label="The same apartment, priced and unpriced">
+        <div className="compare-col is-priced">
+          <header className="compare-head"><span className="compare-eyebrow"><i/>01 / Priced</span><h3>Priced.</h3></header>
+          <figure className="compare-photo"><img src="/seanrent/tel-aviv/med/1.jpg" alt="" loading="lazy" width="1080" height="721"/><figcaption><i/>Priced through NEXA</figcaption></figure>
+          <p className="compare-say"><span className="answer-who"><i/>ChatGPT</span>“Available for your dates. Here is the final price and the direct link:”</p>
+          <dl className="compare-rows">
+            <div><dt>Availability</dt><dd>{CHECK}Available, {STAY.shortDates}</dd></div>
+            <div><dt>Final price</dt><dd className="is-price">$328 <small>final total</small></dd></div>
+            <div><dt>Where the guest books</dt><dd>{CHECK}seanrent.com, direct</dd></div>
+          </dl>
+          <div className="compare-act"><span className="s8-button"><Arrow diagonal/>Book direct on seanrent.com</span></div>
+          <p className="compare-foot">The AI can answer for you. The booking is yours.</p>
+        </div>
+        <div className="compare-col is-unpriced">
+          <header className="compare-head"><span className="compare-eyebrow"><i/>02 / Unpriced</span><h3>Unpriced.</h3></header>
+          <figure className="compare-photo is-dim"><img src="/seanrent/tel-aviv/med/1.jpg" alt="" loading="lazy" width="1080" height="721"/><figcaption><i/>Not connected</figcaption></figure>
+          <p className="compare-say"><span className="answer-who"><i/>ChatGPT</span>“I can't confirm availability or the final price for these dates.”</p>
+          <dl className="compare-rows">
+            <div><dt>Availability</dt><dd><span className="dash">—</span></dd></div>
+            <div><dt>Final price</dt><dd className="is-price"><span className="dash">—</span></dd></div>
+            <div><dt>Where the guest books</dt><dd className="is-otas"><small>Sent to</small>Booking.com · Airbnb · Expedia</dd></div>
+          </dl>
+          <div className="compare-act"><span className="compare-empty" aria-label="Nothing to book here">—</span></div>
+          <p className="compare-foot">The AI cannot answer for you. The guest goes to an OTA.</p>
+        </div>
       </div>
       <p className="s8-statement" data-pass>You're not losing to better hotels. <em>You're losing to the OTAs.</em></p>
       <div className="s8-expand">
@@ -142,10 +123,10 @@ export function Sections({ open, watch, motion }: { open: () => void; watch: () 
             <span className="kind-node is-ai"><b>AI</b><small>+ NEXA</small></span>
             <i className="kind-arrow"/>
             <span className="kind-node is-site"><b>Your website</b><small>seanrent.com</small></span>
-            <span className="kind-detour"><s>The OTA listing of your own property</s><em>commission</em></span>
+            <span className="kind-detour"><i/>Not the OTA listing of your own property</span>
           </div>
           <p>Today that guest often ends up on an OTA listing of your own property, and you pay commission on your own name. NEXA Direct takes them straight to your website instead.</p>
-          <ul className="kind-facts"><li>Your name, your booking</li><li>The lower rate</li></ul>
+          <ul className="kind-facts"><li>{CHECK}Your name, your booking</li><li>{CHECK}The lower rate</li></ul>
         </article>
         <article className="kind is-agent">
           <span className="s8-n">NEXA Agent · non-branded</span>
@@ -159,7 +140,7 @@ export function Sections({ open, watch, motion }: { open: () => void; watch: () 
             <span className="kind-picks"><span>The AI picks from what is priced:</span><b className="is-in">You · priced</b><b className="is-out">Others · unpriced</b></span>
           </div>
           <p>Today that answer belongs to the OTAs. NEXA Agent gives the AI your best-price guarantee, your live availability and a final price it can trust, so it can put you in the answer.</p>
-          <ul className="kind-facts"><li>A guest you would not have had</li><li>The higher rate</li></ul>
+          <ul className="kind-facts"><li>{CHECK}A guest you would not have had</li><li>{CHECK}The higher rate</li></ul>
         </article>
       </div>
       <div className="kinds-both"><p>Both book on your website, straight into your PMS. Only the rate differs.</p><a className="s8-link" href="/pricing">The two rates are on the Pricing page <Arrow/></a></div>
@@ -174,12 +155,15 @@ export function Sections({ open, watch, motion }: { open: () => void; watch: () 
       <div className="s8-tile s8-money">
         <div className="s8-receipt" aria-label="The same stay, three ways to book it">
           <div className="s8-receipt-stay"><span className="s8-n">The same stay</span><b>{COASTAL.title} · {STAY.nights} · {STAY.guests}</b><span className="s8-receipt-total"><span>Final total</span><b>{COASTAL.total}</b></span></div>
-          <ul className="money-rows" data-line aria-label="Where the money goes, three ways to book">
-            <li className="is-ota" style={{ '--w': .18 } as React.CSSProperties}><span className="money-name">Booked through an OTA</span><span className="money-note">to the OTA</span><span className="money-bar"><i/><em>Stays with you</em></span></li>
-            <li className="is-direct" style={{ '--w': .04 } as React.CSSProperties}><span className="money-name">NEXA Direct, the guest asked for you</span><span className="money-note">to NEXA</span><span className="money-bar"><i/><em>Stays with you</em></span></li>
-            <li className="is-agent" style={{ '--w': .08 } as React.CSSProperties}><span className="money-name">NEXA Agent, the AI found you the guest</span><span className="money-note">to NEXA</span><span className="money-bar"><i/><em>Stays with you</em></span></li>
-          </ul>
-          <a className="s8-link" href="/pricing">The numbers are on the Pricing page <Arrow/></a>
+          <div className="money">
+            <p className="money-legend"><i/>Stays with you<i className="is-fee"/>Commission</p>
+            <ul className="money-rows" data-line aria-label="Where the money goes, three ways to book">
+              <li className="is-ota" style={{ '--w': .18 } as React.CSSProperties}><span className="money-name">Booked through an OTA</span><span className="money-note">to the OTA</span><span className="money-bar"><i/></span></li>
+              <li className="is-direct" style={{ '--w': .04 } as React.CSSProperties}><span className="money-name">NEXA Direct, the guest asked for you</span><span className="money-note">to NEXA</span><span className="money-bar"><i/></span></li>
+              <li className="is-agent" style={{ '--w': .08 } as React.CSSProperties}><span className="money-name">NEXA Agent, the AI found you the guest</span><span className="money-note">to NEXA</span><span className="money-bar"><i/></span></li>
+            </ul>
+            <a className="s8-link" href="/pricing">The numbers are on the Pricing page <Arrow/></a>
+          </div>
         </div>
       </div>
     </section>

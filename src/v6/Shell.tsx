@@ -28,7 +28,7 @@ export function SiteFooter({ home = false }: { home?: boolean }) {
       <nav aria-label="Footer"><a href={at('#how-it-works')}>How it works</a><a href="/nexa-ai-connector">NEXA AI Connector</a><a href="/solutions">Solutions</a><a href="/pricing">Pricing</a><a href="/about">About</a><a href={at('#faq')}>FAQ</a><a href="/contact">Contact</a></nav>
       <ul className="footer-promises"><li>Live in days via your PMS</li><li>No developer needed</li></ul>
     </div>
-    <div className="footer-bottom"><span>© 2026 NEXA</span><div><a href="/v1">V1</a><a href="/v2">V2</a><a href="/v3">V3</a><a href="/v4">V4</a><a href="/v5">V5</a></div></div>
+    <div className="footer-bottom"><span>© 2026 NEXA</span><span>Sea N' Rent is shown as a property example.</span></div>
     <p className="example-note">Sea N' Rent is used as a property example, not a customer endorsement. All booking data shown is illustrative.</p>
   </footer>;
 }

@@ -33,33 +33,33 @@ by section, in order; every section with more depth links to its expansion
 page", and its section labels, "a small numbered eyebrow above every title,
 like the reference", are followed literally. Under the conversation:
 
-- **How it connects**: one connection panel, readable without its words:
-  the PMS systems on the left as white cards with a system glyph (Guesty,
-  Hostaway, BoomNow, Hospitable, Rentals United, HotelSync), the AI agents
-  on the right as cards with a spark glyph (ChatGPT, Gemini, Claude,
-  Perplexity), and NEXA in the middle as a glossy purple sphere carrying the
-  wordmark. The wiring is drawn like a circuit: each card runs into a
-  vertical bus, the bus into one line through the sphere, with purple beams
-  travelling along every path (SVG paths with `pathLength`, a dash offset
-  animation). Under it the two claims, "Connects through the PMS you already
-  run" and "A direct booking, on paper as well", with "How it works legally"
-  to the Connector page; then the **proof strip** (the HVC win in Zurich
-  2026 in gold with a medal, 65%+ of the vote, 37 countries, 6 PMS
-  integrations).
+- **How it connects**: one connection panel on the page's grey tile,
+  readable without its words: the PMS systems in one white card on the left
+  (Guesty, Hostaway, BoomNow, Hospitable, Rentals United, HotelSync, each
+  with a small system glyph), the AI agents in a white card on the right
+  (ChatGPT, Gemini, Claude, Perplexity), and NEXA between them as a flat
+  white tile with a violet outline and the purple wordmark, "One connection"
+  under it. Two dotted hairlines join them, each with one slow violet dot.
+  Under it the two claims, "Connects through the PMS you already run" and
+  "A direct booking, on paper as well", with "How it works legally" to the
+  Connector page; then the **proof strip** (the HVC win in Zurich 2026 with a
+  small gold medal, 65%+ of the vote, 37 countries, 6 PMS integrations).
 - **[01] The two words / Priced or unpriced.** The plan's title, "The same
-  apartment, the same dates, the same guest asking", then the same apartment
-  twice on two saturated panels: PRICED on deep green (a white check mark,
-  three white pills: live availability, final price, book direct on your
-  website; a white card with the balcony photo in colour and a "Priced
-  through NEXA" tag, ChatGPT's one-line answer, the stay, $328 final total
-  and a green "Book direct on seanrent.com" button; "The AI can answer for
-  you. The booking is yours.") and UNPRICED on deep red (a white cross, red
-  pills: availability unknown, price unknown, sent to an OTA; the same photo
-  grey under a red wash with a "Not connected" tag, ChatGPT saying it cannot
-  confirm and sending the guest to check on Booking.com, Airbnb or Expedia,
-  named but not linked, the price unknown; "The AI cannot answer for you.
-  The guest goes to the OTAs."). Then the closing line, the "ChatGPT can
-  make mistakes" sentence and "Read the story" to About.
+  apartment, the same dates, the same guest asking", then one comparison
+  frame on the grey tile, split by a hairline, its rows shared across the
+  divider so the eye compares content, not paint (Apple's compare page,
+  Mercury's vs-table, Plausible's greyed loser): "01 / Priced" with a violet
+  dot and "02 / Unpriced" with a grey dot; the same balcony photo in colour
+  with a "Priced through NEXA" tag, and in grey at 55% with "Not connected";
+  ChatGPT's one-line answer; then the table: Availability "Available, May
+  1-5" against a dash, Final price "$328 final total" against a dash, Where
+  the guest books "seanrent.com, direct" against "Sent to Booking.com ·
+  Airbnb · Expedia" in grey (named, never linked); the site's ink button
+  "Book direct on seanrent.com" against an empty dashed slot; and the
+  verdict lines, ink and grey. No green, no red: the colour photo, two dots,
+  three small violet checks and one button carry the verdict. Then the
+  closing line, the "ChatGPT can make mistakes" sentence and "Read the
+  story" to About.
 - **[02] How it works / The fix.** The dark section: the plan's title, then
   the travelling stage described below, and the landing block "Booked. On
   your website. In your PMS." with the "installs nothing" line, "Watch now"
@@ -100,24 +100,22 @@ visuals; one dark section with numbered cards; small 36 px buttons with the
 arrow before the label; a full-width closing panel. Colour stays NEXA's: ink,
 white, purple as the single accent.
 
-## The sphere that travels (the one thing that moves with the reader)
+## The seed (the one small thing that moves, and the stage)
 
-Ben asked for something of ours, an object rather than a sentence, that
-stays on screen while the page scrolls, passes over the text, and stops
-where it belongs. It is NEXA itself: the purple sphere from the middle of
-the connection panel. As the reader scrolls on it lifts off the panel at
-reading height (42% of the viewport; 36% on phones), rides over the proof
-strip, the two verdicts, the "You're losing to the OTAs" statement and the
-[02] heading, swinging out to the left and rolling as it goes, its glow
-strongest mid-flight, and shrinks into the NEXA node on the line at the top
-of the How-it-works stage, between the guest's AI and your PMS, as step 1
-begins. The panel keeps a dashed circle where it left; the node fades in
-as it lands. The flight is scrubbed by the scroll (`Traveler.tsx` measures
-the sphere's home, the stage and the node every frame and interpolates
-between them with an ease and a sine drift), so it flies back the same way.
-Under reduced motion the sphere stays in the panel. Earlier candidates,
-the stay card and the guest's question as a text bubble, were tried and
-dropped: not an object.
+Two flights were tried and dropped: the guest's question as a text bubble
+(not an object) and NEXA's sphere flying from the connection panel to the
+stage (2,700px of scroll at reading height, over the verdicts: too long and
+in the way). The reference sites never let an object leave its section or
+cross copy, and pin floating objects for at most 1.5 viewport-heights in
+their own lane. So the page's travelling object is the How-it-works stage
+itself, and NEXA keeps one short, in-section move: the seed. The same flat
+NEXA tile from the connection panel waits beside the [02] heading, in the
+empty column above the stage. Over the last half screen of scrolling before
+the stage sticks, it slides down and shrinks into the NEXA node on the
+stage's line, and the node's own 16px mark takes over (`Traveler.tsx`,
+scrubbed by the scroll, so it comes back up the same way). It never crosses
+text; under 1000px and under reduced motion it is a still and the mark is
+simply there.
 
 ## How it works: the travelling stage
 
@@ -153,11 +151,18 @@ the text; a stage that showed the steps but not the exchange) were dropped.
 
 As on the reference, every product visual sits on a tile: a soft wash with a
 fine dot grid, the mock on it with a shadow, "Illustrative" in the corner.
-Section 1 shows the AI's priced and unpriced answers on green and red tiles;
-section 3 shows the AI answering a branded and a non-branded question, with
-the words that found the property highlighted and the AI's pick listed;
-section 4 shows the same stay three ways as money bars without numbers,
-since the numbers belong to the Pricing page. The footer is dark under the closing panel, as the
+The colour budget follows Conduit: ink, three greys and one accent, the
+violet. Bad states are dimmed (grey text, a greyed photo, a dash), never
+painted red; the only green left is the paid button inside the stage.
+Surfaces are flat: grey tiles (#f6f5f8, 10px) with no gradient, white mocks
+with a 1px border and no drop shadow; the dot grid survives only on the
+money tile. One column for the whole page (1280px, the hero's and footer's),
+three serif sizes (52 / 34 / 26), the lead starting on the heading's cap
+height. Section 1 is the comparison frame above; section 3 explains the two
+kinds of guests as flows; section 4 shows the same stay three ways as money
+bars without numbers (grey track, ink for the OTA's cut, violet for NEXA's),
+since the numbers belong to the Pricing page. The footer carries no version
+links. The footer is dark under the closing panel, as the
 reference ends.
 
 ## The reading pass (the scroll effect over the text)
@@ -187,16 +192,16 @@ from the start.
   stage in place, step 3 the recommendation, "Book it." and the link, still
   in place, step 4 the checkout paid green and the PMS ticket, step 5
   "Booked" lit, and past the end the stage docked inside its section; the
-  connection panel with its beams and the sphere, both verdict panels with
-  the photo in colour and grey; the money bars grown with the OTA's the
-  widest; [03] as two flows with no chat screens; the unpriced answer naming
-  Booking.com, Airbnb and Expedia; the marks drawn; the win in gold; the two
-  verdicts fitting on a screen; the sphere in the panel before the reader
-  reaches it, flying at reading height halfway with the panel outlined and
-  the stage's node not yet there, shrinking onto the node within a few
-  pixels and handing over to it, and flying back on the way up; FAQ; Get
-  Priced dialog; reduced motion; the old routes load without the V8 page.
-  At 1440×900, 1280×712, 390×844 and 358×694.
+  connection panel with its two cards, the tile and the dots; the comparison
+  frame with values against dashes, the OTAs named, the photo greyed, no
+  green or red, its two columns sharing their rows; the money bars grown
+  with the OTA's the widest; [03] as two flows with no chat screens; the
+  medal; no version links in the footer; the seed resting beside the [02]
+  heading in the stage's lane, sliding halfway still in its lane, shrinking
+  onto the NEXA node within a few pixels and handing over to the node's
+  mark, and a still on phones; the phone Pay button with a height at step 4;
+  FAQ; Get Priced dialog; reduced motion; the old routes load without the V8
+  page. At 1440×900, 1280×712, 390×844 and 358×694.
 - Chat interactivity (`chat3`, `interact`), header, links, pages and the
   calculator unchanged. On phones the checkout card scrolls inside itself when
   its description is expanded, exactly as on V6 live.
