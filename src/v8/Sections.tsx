@@ -11,6 +11,7 @@ import { SectionLabel } from './Label';
 // Prices live on the Pricing page only.
 
 export const PMS = ['Guesty', 'Hostaway', 'BoomNow', 'Hospitable', 'Rentals United', 'HotelSync'];
+const AI_AGENTS = ['ChatGPT', 'Gemini', 'Claude', 'Perplexity'];
 
 
 const FAQ: [string, string][] = [
@@ -55,9 +56,18 @@ const GLYPH = {
 // open: the Get Priced dialog. watch: brings the reader back to the conversation.
 export function Sections({ open, watch, motion }: { open: () => void; watch: () => void; motion: boolean }) {
   return <>
-    <section className="s8-connects wrap" aria-label="How it connects">
-      <div><span className="s8-glyph">{GLYPH.plug}</span><span className="s8-n">The connection</span><p>Exactly like connecting Airbnb or Booking.com, through the PMS you already run. No developer. No code. Live in hours.</p></div>
-      <div><span className="s8-glyph">{GLYPH.shield}</span><span className="s8-n">The legal side</span><p>A direct booking, on paper as well. The guest books on your website, under your terms and your payment. Your website, not the OTA's. NEXA AI is never a party to the reservation. Guest data belongs to you.</p><a className="s8-link" href="/nexa-ai-connector">How it works legally <Arrow/></a></div>
+    <section className="s8-connect wrap" aria-label="One connection">
+      <div className="connect-panel" aria-hidden="true">
+        <div className="connect-col is-pms"><span className="connect-title">Your PMS</span>{PMS.map(name => <span className="connect-chip" key={name}>{name}</span>)}</div>
+        <svg className="connect-wire" viewBox="0 0 100 100" preserveAspectRatio="none">{PMS.map((_, i) => <path key={i} d={`M0,${8 + i * 16.8} C55,${8 + i * 16.8} 45,50 100,50`}/>)}</svg>
+        <div className="connect-node"><b>NEXA</b><span>one connection</span></div>
+        <svg className="connect-wire is-right" viewBox="0 0 100 100" preserveAspectRatio="none">{AI_AGENTS.map((_, i) => <path key={i} d={`M0,50 C55,50 45,${18 + i * 21.3} 100,${18 + i * 21.3}`}/>)}</svg>
+        <div className="connect-col is-ai"><span className="connect-title">AI agents</span>{AI_AGENTS.map(name => <span className="connect-chip" key={name}>{name}</span>)}</div>
+      </div>
+      <div className="connect-claims">
+        <div><span className="s8-glyph">{GLYPH.plug}</span><h3>Connects through the PMS you already run.</h3><p>Exactly like connecting Airbnb or Booking.com. No developer. No code. Live in hours.</p></div>
+        <div><span className="s8-glyph">{GLYPH.shield}</span><h3>A direct booking, on paper as well.</h3><p>The guest books on your website, under your terms and your payment. NEXA AI is never a party to the reservation. Guest data belongs to you.</p><a className="s8-link" href="/nexa-ai-connector">How it works legally <Arrow/></a></div>
+      </div>
     </section>
 
     <section className="s8-proof wrap" aria-label="Proof">
@@ -76,9 +86,21 @@ export function Sections({ open, watch, motion }: { open: () => void; watch: () 
         <h2 id="priced-title" data-pass>Being mentioned by the AI is nice. <em>Being bookable through the AI</em> is where the money is.</h2>
         <div><p className="s8-lead">Two words decide who gets the booking:</p></div>
       </div>
-      <div className="s8-cards s8-two">
-        <article className="s8-card"><span className="s8-n">The first word</span><h3>Priced.</h3><p>The AI sees your live availability, your final price, and a trusted way to book direct. It can recommend you, and complete the booking.</p><Answer priced/></article>
-        <article className="s8-card"><span className="s8-n">The second word</span><h3>Unpriced.</h3><p>The AI knows you exist, but cannot answer for you. It is not allowed to guess, so the booking goes to whoever is priced. Usually an OTA.</p><Answer priced={false}/></article>
+      <div className="verdicts">
+        <article className="verdict is-priced">
+          <header className="verdict-head"><span className="verdict-mark"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 5 5 9-10" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"/></svg></span><div><span>The first word</span><h3>Priced.</h3></div></header>
+          <ul className="verdict-list"><li>Live availability</li><li>Final price</li><li>Book direct on your website</li></ul>
+          <p>The AI sees your live availability, your final price, and a trusted way to book direct. It can recommend you, and complete the booking.</p>
+          <Answer priced/>
+          <p className="verdict-foot">The AI can answer for you. The booking is yours.</p>
+        </article>
+        <article className="verdict is-unpriced">
+          <header className="verdict-head"><span className="verdict-mark"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round"/></svg></span><div><span>The second word</span><h3>Unpriced.</h3></div></header>
+          <ul className="verdict-list"><li>Availability unknown</li><li>Price unknown</li><li>Sent to an OTA</li></ul>
+          <p>The AI knows you exist, but cannot answer for you. It is not allowed to guess, so the booking goes to whoever is priced. Usually an OTA.</p>
+          <Answer priced={false}/>
+          <p className="verdict-foot">The AI cannot answer for you. The booking goes to the OTA.</p>
+        </article>
       </div>
       <p className="s8-statement" data-pass>You're not losing to better hotels. <em>You're losing to the OTAs.</em></p>
       <div className="s8-expand">

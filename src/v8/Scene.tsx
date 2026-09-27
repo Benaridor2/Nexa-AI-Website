@@ -4,15 +4,13 @@ import { LISTINGS } from '../v6/listings';
 import { STAY } from '../v6/stay';
 import { SectionLabel } from './Label';
 
-// How it works, as a pinned scene. The stage stays on screen while the four
-// steps pass (the way Attio, Stripe and Apple tell a product story): the
-// guest asks, NEXA answers, the AI recommends, the guest books on your
-// website. One object runs through it, the booking: it appears as the AI's
-// answer and ends as the stay in the property's own checkout. The stage
-// releases when the story is told. Nothing to read: the picture tells it.
-//
-// Progress is the section's own scroll; the stage is position: sticky. Under
-// reduced motion the stage is not pinned and shows the ending.
+// How it works, told with one stage that travels and lands. The four steps
+// scroll past on the left; the stage on the right stays on screen while they
+// do, and shows each step as it happens: the guest types, NEXA and the AI talk
+// to each other, the AI recommends the property in the chat, the guest books
+// on the property's website. When the steps are done the stage stops beside
+// the last block, "Booked", and the page goes on. On phones the stage sticks
+// on top and the steps pass under it.
 const COASTAL = LISTINGS.coastal;
 
 export const STEPS: { n: string; title: string; text: string }[] = [
@@ -30,6 +28,16 @@ const GLYPH = {
 };
 const STEP_GLYPHS = [GLYPH.ask, GLYPH.answer, GLYPH.recommend, GLYPH.book];
 
+// The AI and NEXA, talking: what the guest never sees.
+const WIRE: [string, string][] = [
+  ['ChatGPT → NEXA', 'Availability, May 1-5, 2 adults?'],
+  ['NEXA → ChatGPT', 'Available: Coastal Panorama Apartment.'],
+  ['ChatGPT → NEXA', 'Final price?'],
+  ['NEXA → ChatGPT', '$740 total. Best-price guarantee.'],
+  ['ChatGPT → NEXA', 'Where does the guest book?'],
+  ['NEXA → ChatGPT', 'seanrent.com/checkout, direct.'],
+];
+
 export function StayCard({ docked = false }: { docked?: boolean }) {
   return <div className={`stay${docked ? ' is-docked' : ''}`}>
     <img src={COASTAL.photos[0].src} alt="" width="1200" height="800" loading="lazy" style={{ objectPosition: COASTAL.photos[0].focus }}/>
@@ -43,30 +51,22 @@ export function StayCard({ docked = false }: { docked?: boolean }) {
   </div>;
 }
 
-const clamp = (v: number) => Math.min(1, Math.max(0, v));
-
 export function HowItWorks({ watch, motion }: { watch: () => void; motion: boolean }) {
   const ref = useRef<HTMLElement>(null);
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    if (!motion) { el.dataset.step = '4'; el.style.setProperty('--p', '1'); return; }
+    if (!motion) { el.dataset.step = '5'; return; }
     let frame = 0;
+    const blocks = [...el.querySelectorAll<HTMLElement>('.hiw-step, .hiw-landing')];
     const measure = () => {
       frame = 0;
-      const r = el.getBoundingClientRect();
-      const pin = el.querySelector<HTMLElement>('.hiw-pin');
-      const pinH = pin ? pin.offsetHeight : innerHeight;
-      // Desktop: the story runs while the section scrolls through its pinned
-      // height. Phones: the stage sticks on top and the steps pass under it.
       const phone = innerWidth < 700;
-      const steps = el.querySelector<HTMLElement>('.hiw-steps')?.getBoundingClientRect();
-      const stage = el.querySelector<HTMLElement>('.hiw-stage')?.getBoundingClientRect();
-      // On a phone a step is current once it has come up under the stuck stage.
-      const line = 64 + (stage ? stage.height : 0) + 64;
-      const p = phone && steps ? clamp((line - steps.top) / steps.height) : clamp(-r.top / Math.max(1, r.height - pinH));
-      const step = p < .22 ? 1 : p < .48 ? 2 : p < .74 ? 3 : 4;
-      el.style.setProperty('--p', p.toFixed(4));
+      const stage = el.querySelector<HTMLElement>('.hiw-stage');
+      // The current step is the last block that has come up to the line: mid-screen on a desktop, under the stuck stage on a phone.
+      const line = phone && stage ? 64 + stage.offsetHeight + 72 : innerHeight * .55;
+      let step = 1;
+      blocks.forEach((b, i) => { if (b.getBoundingClientRect().top <= line) step = i + 1; });
       if (el.dataset.step !== String(step)) el.dataset.step = String(step);
     };
     const schedule = () => { if (!frame) frame = requestAnimationFrame(measure); };
@@ -76,49 +76,57 @@ export function HowItWorks({ watch, motion }: { watch: () => void; motion: boole
     return () => { if (frame) cancelAnimationFrame(frame); window.removeEventListener('scroll', schedule); window.removeEventListener('resize', schedule); };
   }, [motion]);
 
-  return <section className="s8-section s8-dark s8-scene" id="how-it-works" aria-labelledby="works-title" ref={ref} data-step="1">
-    <div className="hiw-pin">
-      <div className="wrap hiw-grid">
-        <div className="hiw-story">
-          <div className="hiw-head">
-            <SectionLabel n="02" left="How it works" right="The fix"/>
-            <h2 id="works-title" data-pass>NEXA AI makes your property <em>PRICED</em>. Here is how.</h2>
-          </div>
-          <div className="hiw-stage" aria-hidden="true">
-            {/* The connection: the guest's AI, NEXA, your PMS. Lit from step 2. */}
-            <div className="hiw-stage-flow"><span className="hiw-flow-node is-ai">Guest's AI</span><i className="hiw-flow-line"><b/></i><span className="hiw-flow-node is-nexa">NEXA</span><i className="hiw-flow-line is-second"><b/></i><span className="hiw-flow-node is-pms">Your PMS</span></div>
-            {/* Steps 1 to 3: the conversation. */}
-            <div className="hiw-stage-chat">
-              <div className="hiw-stage-bar"><i/><span>ChatGPT</span></div>
-              <div className="hiw-stage-body">
-                <p className="hiw-stage-q">{STAY.question} {STAY.replyChunks.join('')}</p>
-                <div className="hiw-stage-reply">
-                  <span className="hiw-stage-who"><i/>ChatGPT</span>
-                  <p className="hiw-stage-text is-answer">{COASTAL.title.replace(" by Sea N' Rent", '')} by Sea N' Rent is available for your dates. The final price, and a link to book direct on the property's website:</p>
-                  <p className="hiw-stage-text is-recommend">I recommend Coastal Panorama by Sea N' Rent: available for your dates, a final price with a best-price guarantee, and you book direct on their website.</p>
-                  <div className="hiw-stage-answer"><StayCard/><span className="hiw-stage-badge">Connected to NEXA AI</span><span className="hiw-stage-tag">Recommended</span></div>
-                </div>
-              </div>
-            </div>
-            {/* Step 4: the property's own checkout. */}
-            <div className="hiw-stage-site">
-              <div className="hiw-stage-bar is-site"><i/><i/><i/><span>seanrent.com · checkout</span><em>Illustrative</em></div>
-              <div className="hiw-stage-body">
-                <StayCard docked/>
-                <p className="hiw-site-total"><span>Final price</span><b>{COASTAL.total}</b></p>
-                <span className="hiw-site-pay">Pay {COASTAL.total} →</span>
-                <p className="hiw-site-pms"><i/>Reservation received in your PMS · direct booking</p>
-              </div>
+  return <section className="s8-section s8-dark hiw" id="how-it-works" aria-labelledby="works-title" ref={ref} data-step="1">
+    <div className="wrap hiw-head">
+      <SectionLabel n="02" left="How it works" right="The fix"/>
+      <h2 id="works-title" data-pass>NEXA AI makes your property <em>PRICED</em>. Here is how.</h2>
+    </div>
+    <div className="wrap hiw-body">
+      <div className="hiw-stage" aria-hidden="true">
+        <div className="hiw-flow"><span className="hiw-node is-ai">Guest's AI</span><i className="hiw-line"><b/></i><span className="hiw-node is-nexa">NEXA</span><i className="hiw-line is-second"><b/></i><span className="hiw-node is-pms">Your PMS</span></div>
+        {/* Steps 1 to 3: the conversation. */}
+        <div className="hiw-chat">
+          <div className="hiw-bar"><i/><span>ChatGPT</span></div>
+          <div className="hiw-chat-body">
+            <div className="hiw-typing"><i/><i/><i/></div>
+            <p className="hiw-q">{STAY.question} {STAY.replyChunks.join('')}</p>
+            <div className="hiw-reply">
+              <span className="hiw-who"><i/>ChatGPT</span>
+              <p className="hiw-thinking">Checking live availability with the property…</p>
+              <p className="hiw-text is-answer">{COASTAL.title} is available for your dates, with the final price and a direct link to book on the property's website:</p>
+              <p className="hiw-text is-recommend">I recommend <b>Coastal Panorama Apartment by Sea N' Rent</b>: available for your dates, a final price with a best-price guarantee, and you book direct on their website.</p>
+              <div className="hiw-answer"><StayCard/><span className="hiw-badge">Connected to NEXA AI</span><span className="hiw-tag">Recommended</span></div>
+              <p className="hiw-q is-second">Book it.</p>
+              <p className="hiw-text is-link"><span className="hiw-who"><i/>ChatGPT</span>Here is the direct link to book on their website: <a>seanrent.com/checkout ↗</a></p>
             </div>
           </div>
-          <ol className="hiw-steps" role="list">
-            {STEPS.map((step, i) => <li key={step.n} role="listitem" data-index={i + 1}><span className="s8-glyph">{STEP_GLYPHS[i]}</span><div><b>{step.title}</b><p>{step.text}</p></div></li>)}
-          </ol>
+          {/* Step 2: the AI and NEXA, talking. */}
+          <div className="hiw-wire">
+            <p className="hiw-wire-title">AI-to-AI, in real time</p>
+            {WIRE.map(([who, what], i) => <p key={i} className={`hiw-wire-line${who.startsWith('NEXA') ? ' is-nexa' : ''}`} style={{ '--i': i } as React.CSSProperties}><span>{who}</span>{what}</p>)}
+          </div>
         </div>
-        <div className="hiw-links"><a className="s8-button is-light" href="/how-it-works"><Arrow diagonal/>Watch now</a><button type="button" className="s8-link" onClick={watch}>Watch a booking happen, step by step <Arrow/></button></div>
+        {/* Steps 4 and 5: the property's own checkout, and the booking. */}
+        <div className="hiw-site">
+          <div className="hiw-bar is-site"><i/><i/><i/><span>seanrent.com · checkout</span><em>Illustrative</em></div>
+          <div className="hiw-site-body">
+            <StayCard docked/>
+            <p className="hiw-total"><span>Final price</span><b>{COASTAL.total}</b></p>
+            <span className="hiw-pay"><span className="is-idle">Pay {COASTAL.total} →</span><span className="is-paid">Paid · booking confirmed</span></span>
+            <div className="hiw-pms-ticket"><span className="hiw-pms-head"><i/>Your PMS · new reservation</span><b>{COASTAL.title.replace(" by Sea N' Rent", '')}</b><span>{STAY.dates} · {STAY.guests} · {COASTAL.total} · Source: your website</span></div>
+            <span className="hiw-cursor" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M5 3l14 8-6 2-3 6-5-16Z" fill="#fff" stroke="#0d0d17" strokeWidth="1.5" strokeLinejoin="round"/></svg></span>
+          </div>
+        </div>
+      </div>
+      <div className="hiw-steps">
+        {STEPS.map((step, i) => <div className="hiw-step" data-index={i + 1} key={step.n}><span className="s8-glyph">{STEP_GLYPHS[i]}</span><span className="hiw-n">{step.n}</span><h3>{step.title}</h3><p>{step.text}</p></div>)}
+        <div className="hiw-landing" data-index="5">
+          <span className="hiw-n">Booked</span>
+          <h3>On your website. In your PMS.</h3>
+          <p>The guest installs nothing. No application needed. No plugin installed in the chat by the guest. The guest just asks, the AI simply answers.</p>
+          <div className="hiw-links"><a className="s8-button is-light" href="/how-it-works"><Arrow diagonal/>Watch now</a><button type="button" className="s8-link" onClick={watch}>Watch a booking happen, step by step <Arrow/></button></div>
+        </div>
       </div>
     </div>
-    <div className="hiw-track" aria-hidden="true"/>
-    <div className="wrap hiw-foot"><p className="s8-note">The guest installs nothing. No application needed. No plugin installed in the chat by the guest. The guest just asks, the AI simply answers.</p></div>
   </section>;
 }
