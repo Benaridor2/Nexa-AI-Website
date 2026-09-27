@@ -51,8 +51,11 @@
 .an-files code { display: block; font-family: var(--mono); font-size: 12px; color: var(--violet); text-align: left; }
 .an-files span { color: var(--ink-2); }
 @media (max-width: 1099px) {
-  .an-panel { position: sticky; top: 0; bottom: auto; width: auto; max-height: 42vh; border-left: 0; border-bottom: 1px solid var(--line); padding: 12px 16px 16px; }
-  .an-live, .an-beats { display: none; }
-  .an-now h3 { font-size: 21px; }
+  .anatomy { padding-bottom: 40vh; }
+  .an-panel { position: fixed; top: auto; left: 0; right: 0; bottom: 0; width: auto; max-height: 38vh; border-left: 0; border-top: 1px solid var(--line); padding: 10px 16px 14px; box-shadow: 0 -12px 30px -20px #0d0d1755; }
+  .an-live, .an-beats, .an-now .an-code, .an-now .an-how { display: none; }
+  .an-now { margin-top: 10px; padding-top: 10px; }
+  .an-now h3 { font-size: 20px; margin-bottom: 4px; }
+  .an-now p { font-size: 13px; }
   .an-top { flex-wrap: wrap; }
 }
