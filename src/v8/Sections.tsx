@@ -73,7 +73,7 @@ export function Sections({ open, watch, motion }: { open: () => void; watch: () 
       <SectionLabel n="01" left="The two words" right="Priced or unpriced"/>
       <div className="s8-head">
         <h2 id="priced-title" data-pass>Being mentioned by the AI is nice. <em>Being bookable through the AI</em> is where the money is.</h2>
-        <div><p className="s8-lead">The same apartment, the same dates, the same guest asking. Two words decide which answer the AI can give:</p></div>
+        <div><p className="s8-lead">Same property, same dates, same guest asking. Two words decide which answer the AI can give:</p></div>
       </div>
       <div className="compare" aria-label="The same apartment, priced and unpriced">
         <div className="compare-col is-unpriced">

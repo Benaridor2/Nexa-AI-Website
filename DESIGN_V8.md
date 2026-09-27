@@ -44,8 +44,8 @@ like the reference", are followed literally. Under the conversation:
   "A direct booking, your website, your policies", with "How it works legally" to the
   Connector page; then the **proof strip** (the HVC win in Zurich 2026 with a
   small gold medal, 65%+ of the vote, 37 countries, 6 PMS integrations).
-- **[01] The two words / Priced or unpriced.** The plan's title, "The same
-  apartment, the same dates, the same guest asking", then one comparison
+- **[01] The two words / Priced or unpriced.** The plan's title, "Same property,
+  same dates, same guest asking", then one comparison
   frame on the grey tile, split by a hairline, its rows shared across the
   divider so the eye compares content, not paint (Apple's compare page,
   Mercury's vs-table, Plausible's greyed loser): "01 / Unpriced" with a grey
