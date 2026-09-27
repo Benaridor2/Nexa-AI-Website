@@ -1,0 +1,58 @@
+/* The conversation, annotated: the homepage scene with a panel beside it. */
+.anatomy { --ink: #0d0d17; --ink-2: #45444d; --ink-3: #6f6e78; --line: #e6e4ea; --card: #f6f5f8; --violet: #863db3; --mono: 'Geist Mono Variable', ui-monospace, monospace; font-family: 'Geist Variable', Arial, sans-serif; color: var(--ink); background: #fff; }
+@media (min-width: 1100px) { .anatomy { padding-right: 400px; } }
+.an-top { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 16px 28px; border-bottom: 1px solid var(--line); font-size: 14px; }
+.an-top b { color: var(--violet); }
+.an-top p { flex: 1; max-width: 720px; margin: 0; font-size: 13.5px; line-height: 1.5; color: var(--ink-2); }
+.an-top a { font-weight: 560; white-space: nowrap; }
+.anatomy .conversation { margin-top: 24px; }
+.an-panel { position: fixed; top: 0; right: 0; bottom: 0; width: 400px; overflow-y: auto; padding: 18px 20px 40px; border-left: 1px solid var(--line); background: #fff; font-size: 14px; line-height: 1.5; z-index: 20; }
+.an-panel-head { display: flex; align-items: center; justify-content: space-between; }
+.an-kicker { display: block; font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+.an-reset { font: inherit; font-size: 12.5px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 6px; background: #fff; cursor: pointer; }
+.an-progress { height: 6px; margin: 12px 0 10px; border-radius: 3px; background: var(--card); overflow: hidden; }
+.an-progress i { display: block; height: 100%; background: var(--violet); transition: width .08s linear; }
+.an-stats { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; color: var(--ink-3); }
+.an-stats b { color: var(--ink); font-weight: 560; }
+.an-stats .is-on { color: var(--violet); font-weight: 560; }
+.an-now { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
+.an-now h3 { margin: 4px 0 8px; font-family: 'Crimson Pro Variable', Georgia, serif; font-weight: 400; font-size: 26px; line-height: 1.1; letter-spacing: -.01em; }
+.an-now p, .an-doc p { margin: 0 0 8px; }
+.an-how { color: var(--ink-2); font-size: 13.5px; }
+.an-code { margin: 10px 0 0; border-radius: 8px; overflow: hidden; border: 1px solid #ffffff14; }
+.an-code figcaption { padding: 6px 10px; background: #1b1b26; font-family: var(--mono); font-size: 11px; letter-spacing: .04em; color: #c9c5d4; text-align: left; }
+.an-code figcaption span { color: #9d99ab; }
+.an-code pre { margin: 0; padding: 10px 12px; background: #0d0d17; color: #e6e4ea; font-family: var(--mono); font-size: 11px; line-height: 1.5; overflow-x: auto; white-space: pre; text-align: left; }
+.an-live { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
+.an-live table { width: 100%; margin-top: 6px; border-collapse: collapse; font-family: var(--mono); font-size: 11px; }
+.an-live td { padding: 4px 0; border-bottom: 1px solid var(--line); color: var(--ink-2); }
+.an-live td:last-child { text-align: right; color: var(--ink); font-weight: 560; }
+.an-beats { margin: 18px 0 0; padding: 14px 0 0; list-style: none; border-top: 1px solid var(--line); }
+.an-beats li button { display: flex; gap: 10px; width: 100%; padding: 7px 8px; border: 0; border-radius: 6px; background: none; font: inherit; font-size: 13px; text-align: right; color: var(--ink-3); cursor: pointer; }
+.an-beats li button span { font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+.an-beats li.is-done button { color: var(--ink-2); }
+.an-beats li.is-current button { background: #f1e8f8; color: var(--ink); font-weight: 560; }
+.an-beats li.is-current button span { color: var(--violet); }
+.an-doc { padding: 72px 0 120px; }
+.an-doc h2 { font-family: 'Crimson Pro Variable', Georgia, serif; font-weight: 400; font-size: 44px; letter-spacing: -.02em; margin: 0 0 16px; }
+.an-lead { max-width: 760px; font-size: 18px; line-height: 1.55; color: var(--ink-2); }
+.an-block { max-width: 860px; margin-top: 44px; padding-top: 28px; border-top: 1px solid var(--line); }
+.an-block h3 { font-family: 'Crimson Pro Variable', Georgia, serif; font-weight: 400; font-size: 28px; margin: 0 0 10px; }
+.an-block > p { font-size: 15.5px; line-height: 1.55; color: var(--ink-2); max-width: 720px; }
+.an-beats-doc { margin: 0; padding: 0; list-style: none; }
+.an-beats-doc li { padding: 18px 0; border-top: 1px dashed var(--line); }
+.an-beats-doc li b { display: block; font-size: 17px; margin: 4px 0 6px; }
+.an-beats-doc li p { font-size: 14.5px; color: var(--ink-2); max-width: 720px; }
+.an-range { font-family: var(--mono); font-size: 11.5px; color: var(--violet); }
+.an-chapters, .an-files { margin: 0; padding: 0; list-style: none; }
+.an-chapters li { display: flex; gap: 14px; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 14.5px; }
+.an-chapters li span { font-family: var(--mono); font-size: 12px; color: var(--ink-3); min-width: 110px; }
+.an-files li { padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+.an-files code { display: block; font-family: var(--mono); font-size: 12px; color: var(--violet); text-align: left; }
+.an-files span { color: var(--ink-2); }
+@media (max-width: 1099px) {
+  .an-panel { position: sticky; top: 0; bottom: auto; width: auto; max-height: 42vh; border-left: 0; border-bottom: 1px solid var(--line); padding: 12px 16px 16px; }
+  .an-live, .an-beats { display: none; }
+  .an-now h3 { font-size: 21px; }
+  .an-top { flex-wrap: wrap; }
+}

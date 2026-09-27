@@ -27,7 +27,7 @@ const lerp = (value: number, from: 0 | 1) => {
   return value;
 };
 const storyAt = (seconds: number) => lerp(seconds, 1);
-const timeOf = (story: number) => lerp(story, 0);
+export const timeOf = (story: number) => lerp(story, 0);
 
 export const CHAPTERS = [
   { label: 'Ask', title: 'The guest asks', story: OPEN },
