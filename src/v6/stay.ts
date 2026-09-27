@@ -13,6 +13,6 @@ const replyChunks = ['May 1-5, 2027. ', 'Two adults.'];
 
 export const STAY = {
   ...details, shortDates: details.dates.split(',')[0], queryChunks, replyChunks, question: queryChunks.join(''),
-  clarification: 'What dates would you like to stay, and how many guests will be joining you?',
+  clarification: 'There are several options that could fit. What dates would you like to stay, and how many guests? Tell me those two and I will find the best match for you.',
   followUp: "I'd also like a pool.",
 } as const;

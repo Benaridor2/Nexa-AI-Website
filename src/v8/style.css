@@ -117,8 +117,7 @@
 .s8-connects p { font-size: 17px; line-height: 1.5; color: var(--ink-2); max-width: 520px; }
 .s8-connects .s8-link { margin-top: 4px; }
 .s8-proof { margin-top: 88px; text-align: center; }
-.s8-proof > p { font-size: 17px; color: var(--ink-2); }
-.s8-proof ul { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; margin-top: 30px; padding-top: 30px; border-top: 1px solid var(--line); text-align: left; }
+.s8-proof ul { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; padding-top: 30px; border-top: 1px solid var(--line); text-align: left; }
 .s8-proof li { display: flex; flex-direction: column; gap: 4px; padding-left: 16px; border-left: 1px solid var(--line); }
 .s8-proof b { font-size: 26px; font-weight: 560; letter-spacing: -.03em; line-height: 1; }
 .s8-proof span { font-size: 13.5px; line-height: 1.45; color: var(--ink-3); }

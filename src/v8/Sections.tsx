@@ -60,7 +60,6 @@ export function Sections({ open, watch, motion }: { open: () => void; watch: () 
     </section>
 
     <section className="s8-proof wrap" aria-label="Proof">
-      <p>Global hospitality leaders voted. Over 65% chose NEXA AI.</p>
       <ul>
         <li className="is-gold"><b><svg className="gold-medal" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="gold-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#e9cf7c"/><stop offset=".5" stopColor="#c19a35"/><stop offset="1" stopColor="#a67d24"/></linearGradient></defs><path d="M8 2h3l1.2 5-2.8 1L8 2Zm8 0h-3l-1.2 5 2.8 1L16 2Z" fill="url(#gold-g)"/><circle cx="12" cy="14.5" r="6.8" fill="url(#gold-g)"/><path d="m12 10.6 1.2 2.5 2.7.4-2 1.9.5 2.7-2.4-1.3-2.4 1.3.5-2.7-2-1.9 2.7-.4 1.2-2.5Z" fill="#fff8e1"/></svg>Winner</b><span>HVC Startup Competition by SHIC, Zurich 2026</span></li>
         <li><b>65%+</b><span>of the vote from global hospitality leaders</span></li>
