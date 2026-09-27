@@ -63,9 +63,10 @@ export function HowItWorks({ watch, motion }: { watch: () => void; motion: boole
       const phone = innerWidth < 700;
       const stage = el.querySelector<HTMLElement>('.hiw-stage');
       // The current step is the last block that has come up to the line: mid-screen on a desktop, under the stuck stage on a phone.
-      const line = phone && stage ? 64 + stage.offsetHeight + 72 : innerHeight * .55;
+      const line = phone && stage ? 12 + stage.offsetHeight + 72 : innerHeight * .55;
       let step = 1;
-      blocks.forEach((b, i) => { if (b.getBoundingClientRect().top <= line) step = i + 1; });
+      let n = 0;
+      blocks.forEach(b => { if (!b.offsetParent) return; n += 1; if (b.getBoundingClientRect().top <= line) step = n; });
       if (el.dataset.step !== String(step)) el.dataset.step = String(step);
     };
     const schedule = () => { if (!frame) frame = requestAnimationFrame(measure); };
@@ -130,5 +131,11 @@ export function HowItWorks({ watch, motion }: { watch: () => void; motion: boole
         </div>
       </div>
     </div>
+    <div className="wrap">        <div className="hiw-landing is-phone" data-index="5">
+        <span className="hiw-n">Booked</span>
+        <h3>On your website. In your PMS.</h3>
+        <p>The guest installs nothing. No application needed. No plugin installed in the chat by the guest. The guest just asks, the AI simply answers.</p>
+        <div className="hiw-links"><a className="s8-button is-light" href="/how-it-works"><Arrow diagonal/>How it works</a><button type="button" className="s8-link" onClick={watch}>Watch a booking happen, step by step <Arrow/></button></div>
+      </div></div>
   </section>;
 }

@@ -137,7 +137,7 @@
 .s8-faq details p { max-width: 600px; padding: 0 20px 22px 40px; font-size: 16px; line-height: 1.6; color: var(--ink-2); }
 
 /* The closing panel. */
-.s8-closing { display: flex; flex-direction: column; align-items: center; gap: 22px; padding: 88px 40px; border-radius: 10px; background: linear-gradient(160deg, #6b2fa8, #3d1b6b); color: #fff; text-align: center; --ink-3: #dcc9ee; --unread: #8a74a6; --glow: #ffffff24; --read: #fff; --key: #f0dcff; }
+.s8-closing { display: flex; flex-direction: column; align-items: center; gap: 22px; padding: 88px 40px; border-radius: 10px; background: #4a2178; color: #fff; text-align: center; --ink-3: #dcc9ee; --unread: #8a74a6; --glow: #ffffff24; --read: #fff; --key: #f0dcff; }
 .s8-closing h2 { max-width: 16ch; font-size: 52px; }
 .s8-closing-lead { font-size: 19px; color: #eadff5; }
 .s8-closing .s8-button { margin-top: 6px; }
@@ -157,8 +157,8 @@
 
 /* Tiles: the product visuals sit on a soft wash with a fine dot grid, as the
    reference's screenshots do. */
-.s8-tile { position: relative; align-self: stretch; padding: 22px; border-radius: 10px; background: radial-gradient(80% 70% at 15% 0%, #ece0fa 0%, transparent 60%), radial-gradient(70% 60% at 100% 100%, #fbe6da 0%, transparent 55%), linear-gradient(135deg, #f0e9f9, #f5f1fa 50%, #f8eee8); overflow: hidden; }
-.s8-tile::before { content: ''; position: absolute; inset: 0; background: radial-gradient(#0d0d1714 1px, transparent 1.3px) 0 0 / 12px 12px; pointer-events: none; }
+.s8-tile { position: relative; align-self: stretch; padding: 22px; border-radius: 10px; background: var(--card); overflow: hidden; }
+.s8-tile::before { content: ''; position: absolute; inset: 0; background: radial-gradient(#0d0d170a 1px, transparent 1.3px) 0 0 / 12px 12px; pointer-events: none; }
 .s8-tile > * { position: relative; }
 .s8-tile-note { position: absolute; right: 12px; bottom: 8px; font-family: var(--mono); font-size: 10px; letter-spacing: .04em; text-transform: uppercase; color: #0d0d1766; }
 .s8-dark .s8-tile { background: radial-gradient(80% 70% at 15% 0%, #4a2a78 0%, transparent 60%), radial-gradient(70% 60% at 100% 100%, #4a2430 0%, transparent 55%), linear-gradient(135deg, #241b3d, #1b1631 50%, #2b1c30); }
@@ -207,7 +207,7 @@
 .money-note { font-family: var(--mono); font-size: 11.5px; letter-spacing: .04em; text-transform: uppercase; color: var(--c); }
 .money-bar { position: relative; grid-column: 1 / -1; display: flex; align-items: center; height: 30px; border-radius: 6px; background: #eeedf1; overflow: hidden; }
 .money-legend { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; font-family: var(--mono); font-size: 11px; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-3); }
-.money-legend i { width: 14px; height: 8px; border-radius: 2px; background: #eeedf1; }
+.money-legend i { width: 14px; height: 8px; border: 1px solid #d9d7e0; border-radius: 2px; background: #eeedf1; }
 .money-legend i.is-fee { margin-left: 10px; background: var(--ink); }
 .money-bar i { position: absolute; top: 0; bottom: 0; right: 0; width: calc(var(--w) * 100% * var(--p, 1)); min-width: calc(var(--w) * 100% * var(--p, 1)); background: var(--c); }
 .money-rows .is-ota { --c: var(--ink); }
@@ -243,6 +243,7 @@
 .hiw-step p, .hiw-landing p { font-size: 17px; line-height: 1.5; color: var(--ink-2); max-width: 40ch; }
 .hiw-n { font-family: var(--mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: #ffffffa3; }
 .hiw[data-step="1"] .hiw-step[data-index="1"], .hiw[data-step="2"] .hiw-step[data-index="2"], .hiw[data-step="3"] .hiw-step[data-index="3"], .hiw[data-step="4"] .hiw-step[data-index="4"] { opacity: 1; }
+.hiw-landing.is-phone { display: none; }
 .hiw-landing { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 12px; min-height: 520px; padding: 40px 0 96px; opacity: .55; transition: opacity .45s; }
 .hiw[data-step="5"] .hiw-landing { opacity: 1; }
 .hiw-landing h3 { max-width: 12ch; }
@@ -293,7 +294,10 @@
 .hiw[data-step="2"] .hiw-text.is-answer { animation: hiw-rise .4s 3.1s both; }
 .hiw[data-step="2"] .hiw-answer { animation: hiw-rise .5s 3.4s both; }
 .hiw-wire { position: absolute; left: 0; right: 0; bottom: 0; padding: 12px 16px 14px; border-top: 1px solid var(--line); background: #0d0d17; color: #d9d6e2; transform: translateY(100%); opacity: 0; transition: transform .5s cubic-bezier(.2, .7, .2, 1), opacity .4s; }
-.hiw[data-step="2"] .hiw-wire { transform: none; opacity: 1; }
+.hiw[data-step="2"] .hiw-wire { transform: none; opacity: 1; animation: hiw-wire-out .45s 3.2s cubic-bezier(.4, 0, .6, 1) forwards; }
+@keyframes hiw-wire-out { to { transform: translateY(100%); opacity: 0; } }
+.hiw[data-step="3"] .hiw-chat-body { justify-content: flex-end; }
+.hiw[data-step="3"] .hiw-q:not(.is-second), .hiw[data-step="3"] .hiw-badge { display: none; }
 .hiw-wire-title { font-family: var(--mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: #9d99ab; }
 .hiw-wire-line { display: grid; grid-template-columns: 118px minmax(0, 1fr); gap: 10px; margin-top: 6px; font-family: var(--mono); font-size: 11.5px; line-height: 1.4; opacity: 0; }
 .hiw-wire-line span { color: #9d99ab; white-space: nowrap; }
@@ -387,7 +391,7 @@
 /* [01] Priced or unpriced: the good in green, the bad in red. */
 /* [01] The same apartment twice, on one frame: in colour and priced, in grey and unpriced. Values against dashes on shared rows; the only colour is one photo, two dots, three small checks and one ink button. */
 .compare { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 1px minmax(0, 1fr); gap: 0 28px; margin-top: 56px; padding: 28px; border-radius: 10px; background: var(--card); }
-.compare::before { content: ''; grid-column: 2; grid-row: 1 / -1; background: var(--line); }
+.compare::before { content: ''; grid-column: 2; grid-row: 1 / span 6; background: var(--line); }
 .compare-col { display: grid; grid-template-rows: subgrid; grid-row: 1 / span 6; gap: 14px 0; }
 .compare-col.is-priced { grid-column: 1; }
 .compare-col.is-unpriced { grid-column: 3; }
@@ -426,6 +430,10 @@
 /* The footer, dark under the closing panel, as the reference ends its page. */
 .v8 .footer { color: #bfbfbf; }
 .v8 .footer:before { background: var(--ink); }
+.v8 .footer-nav a { color: #bfbfbf; }
+.v8 .footer-nav a:hover { color: #fff; }
+.v8 .footer-nav, .v8 .footer-top { border-bottom-color: #ffffff24; }
+.v8 .footer-promises, .v8 .example-note, .v8 .footer-bottom { color: #9d99ab; }
 .v8 .s8-section:last-of-type { margin-bottom: 120px; }
 
 /* The closing panel's dot texture. */
@@ -478,7 +486,7 @@
   .hiw-bar.is-site em { display: none; }
   .hiw-composer { display: none; }
   .hiw-body { display: block; margin-top: 28px; }
-  .hiw-stage { position: sticky; top: 64px; z-index: 2; height: min(50vh, 420px); min-height: 380px; padding: 12px; margin-bottom: 14px; }
+  .hiw-stage { position: sticky; top: 12px; z-index: 2; height: min(62vh, 500px); min-height: 420px; padding: 12px; margin-bottom: 14px; background: #16151f; }
   .hiw-chat, .hiw-site { left: 12px; right: 12px; top: 60px; bottom: 12px; }
   .hiw-chat-body, .hiw-site-body { gap: 10px; padding: 12px 14px; }
   .hiw-q, .hiw-text, .hiw-thinking { font-size: 13.5px; line-height: 1.45; }
@@ -486,15 +494,18 @@
   .hiw-answer .stay { grid-template-columns: 56px minmax(0, 1fr) 22px; gap: 8px; padding: 8px; }
   .hiw-answer .stay img { width: 56px; height: 56px; }
   .hiw-answer .stay-body > b { font-size: 12.5px; }
+  .hiw-stage .stay-body > b { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .hiw-stage .stay-meta { white-space: normal; }
   .hiw-answer .stay-price { font-size: 15px; }
-  .hiw-wire { padding: 10px 12px; }
+  .hiw-wire { top: 40px; padding: 10px 12px; }
   .hiw-wire-line { grid-template-columns: 100px minmax(0, 1fr); font-size: 10.5px; }
   .hiw-cursor { display: none; }
   .hiw-node { padding: 0 9px; font-size: 10px; }
   .hiw-step { min-height: auto; padding: 22px 0; gap: 8px; }
   .hiw-step h3, .hiw-landing h3 { font-size: 26px; }
   .hiw-step p, .hiw-landing p { font-size: 15.5px; }
-  .hiw-landing { min-height: auto; padding: 24px 0 56px; }
+  .hiw-landing:not(.is-phone) { display: none; }
+  .hiw-landing.is-phone { display: flex; min-height: auto; padding: 8px 0 56px; }
   .hiw-landing h3 { font-size: 30px; }
   .connect-panel { grid-template-columns: minmax(0, 1fr); gap: 18px; padding: 22px 18px; }
   .connect-wire { display: none; }
@@ -509,6 +520,10 @@
   .hub { width: 64px; height: 64px; border-radius: 16px; }
   .hub-caption { margin-bottom: 4px; }
   .s8-label span + span { display: none; }
+  .s8-button { height: 44px; padding: 0 18px 0 16px; }
+  .s8-link { min-height: 44px; }
+  .compare-rows dd.is-otas { display: block; }
+  .compare-rows dd.is-otas small { display: block; margin-bottom: 2px; }
   .s8-label { white-space: nowrap; }
   .connect-claims { grid-template-columns: minmax(0, 1fr); gap: 28px; margin-top: 28px; }
   .connect-claims h3 { font-size: 24px; }

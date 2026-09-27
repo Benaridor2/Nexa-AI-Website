@@ -17,7 +17,7 @@ export function useTraveler(enabled: boolean) {
     const seed = ref.current;
     const hiw = seed?.closest<HTMLElement>('.hiw');
     const stage = hiw?.querySelector<HTMLElement>('.hiw-stage');
-    const target = hiw?.querySelector<HTMLElement>('.hiw-node.is-nexa');
+    const target = hiw?.querySelector<HTMLElement>('.hiw-mark');
     if (!seed || !hiw || !stage || !target) return;
     if (!enabled || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     let frame = 0;
@@ -39,7 +39,7 @@ export function useTraveler(enabled: boolean) {
       const sr = seed.getBoundingClientRect();
       const e = ease(p);
       const dx = (tr.left + tr.width / 2) - (sr.left + sr.width / 2);
-      const dy = (stickyTop + (tr.top - st.top) + tr.height / 2) - (sr.top + sr.height / 2);
+      const dy = (tr.top + tr.height / 2) - (sr.top + sr.height / 2);
       const scale = 1 + (tr.height / sr.height - 1) * e;
       seed.style.transform = `translate(${(dx * e).toFixed(1)}px, ${(dy * e).toFixed(1)}px) scale(${scale.toFixed(3)})`;
       set('flying');

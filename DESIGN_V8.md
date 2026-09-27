@@ -117,6 +117,16 @@ scrubbed by the scroll, so it comes back up the same way). It never crosses
 text; under 1000px and under reduced motion it is a still and the mark is
 simply there.
 
+Inside the stage, after a critique round: the AI-to-AI exchange panel slides
+away as the answer card lands in step 2 (it used to cover the card); in step
+3 the chat anchors to its newest lines so "Book it." and the direct link are
+in view; on phones the stage is opaque (#16151f) and sticks at 12px, since
+the phone header scrolls away, tall enough (62vh, up to 500px) for the paid
+checkout and the PMS ticket, and the "Booked" block is rendered a second
+time after the stage's range so it can be read in the clear. The seed aims
+at the node's 16px mark where it is at that moment, so it rides down onto
+the node as the stage arrives.
+
 ## How it works: the travelling stage
 
 Lior's rule: a good site is understood even in Chinese by someone who does
